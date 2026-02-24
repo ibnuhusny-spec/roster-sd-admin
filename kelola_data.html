@@ -10,7 +10,7 @@
 
     <!-- Navigasi -->
     <div class="max-w-5xl mx-auto mb-4">
-        <a href="index.html" class="inline-block bg-blue-100 text-blue-700 hover:bg-blue-200 font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-sm">
+        <a href="/index.html" class="inline-block bg-blue-100 text-blue-700 hover:bg-blue-200 font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-sm">
             &larr; Kembali ke Input Jadwal
         </a>
     </div>
@@ -18,6 +18,25 @@
     <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8">
         <h2 class="text-2xl font-bold text-center text-indigo-600 mb-2">Kelola Data Master</h2>
         <p class="text-center text-gray-500 mb-8 text-sm">Tambahkan data Guru, Kelas, Mapel, dan Jam di sini. Data ini akan otomatis muncul di pilihan form jadwal.</p>
+
+        <!-- PENGATURAN SEKOLAH (BARU) -->
+        <div class="bg-blue-50 border border-blue-200 p-5 rounded-lg shadow-sm mb-8">
+            <h3 class="font-bold text-lg text-blue-800 mb-3 flex items-center">⚙️ Pengaturan Splash Screen</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Nama Sekolah</label>
+                    <input type="text" id="inputNamaSekolah" placeholder="Contoh: SD Negeri 1 Nusantara" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">URL Logo Sekolah</label>
+                    <input type="text" id="inputLogoSekolah" placeholder="Masukkan Link Gambar Logo (https://...)" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                </div>
+            </div>
+            <div class="flex items-center">
+                <button id="btnSimpanPengaturan" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition">Simpan Pengaturan</button>
+                <span id="pesanPengaturan" class="ml-3 text-sm font-bold text-green-600 hidden">✅ Berhasil Disimpan!</span>
+            </div>
+        </div>
 
         <!-- Grid 4 Kolom untuk masing-masing kategori -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -84,7 +103,7 @@
     <!-- Script Firebase versi Modular (v11) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         // ========================================================
         // ⚠️ MASUKKAN FIREBASE CONFIG ANDA DI SINI
@@ -103,6 +122,11 @@
 
         // Fungsi Universal untuk Menambah Data ke Koleksi Tertentu
         async function tambahData(koleksi, idInput) {
+            if (firebaseConfig.apiKey === "API_KEY_ANDA") {
+                alert("⚠️ Anda belum memasukkan kode firebaseConfig milik Anda. Data tidak dapat disimpan.");
+                return;
+            }
+
             const inputElemen = document.getElementById(idInput);
             const nilai = inputElemen.value.trim();
             
@@ -118,8 +142,8 @@
                 });
                 inputElemen.value = ""; // Kosongkan input setelah sukses
             } catch (error) {
-                console.error("Gagal menambah data:", error);
-                alert("Gagal menyimpan data!");
+                console.warn("Gagal menambah data:", error);
+                alert("Gagal menyimpan data! Pastikan Anda terhubung ke internet.");
             }
         }
 
@@ -127,6 +151,11 @@
         function muatDataRealtime(koleksi, idList) {
             const listElemen = document.getElementById(idList);
             
+            if (firebaseConfig.apiKey === "API_KEY_ANDA") {
+                listElemen.innerHTML = '<li class="text-orange-500 text-sm italic list-none">Menunggu konfigurasi Firebase.</li>';
+                return;
+            }
+
             // onSnapshot akan terus memantau data. Jika ada yang baru, otomatis diperbarui!
             onSnapshot(collection(db, koleksi), (snapshot) => {
                 listElemen.innerHTML = ""; // Bersihkan list
@@ -139,6 +168,9 @@
                     const data = doc.data();
                     listElemen.insertAdjacentHTML('beforeend', `<li>${data.nama}</li>`);
                 });
+            }, (error) => {
+                console.warn("Peringatan pengambilan data:", error);
+                listElemen.innerHTML = '<li class="text-red-500 text-sm italic list-none">Gagal terhubung ke database.</li>';
             });
         }
 
@@ -153,6 +185,54 @@
         muatDataRealtime("master_kelas", "listKelas");
         muatDataRealtime("master_mapel", "listMapel");
         muatDataRealtime("master_jam", "listJam");
+
+        // --- FUNGSI PENGATURAN SEKOLAH (BARU) ---
+        const btnSimpanPengaturan = document.getElementById('btnSimpanPengaturan');
+        const inputNamaSekolah = document.getElementById('inputNamaSekolah');
+        const inputLogoSekolah = document.getElementById('inputLogoSekolah');
+        const pesanPengaturan = document.getElementById('pesanPengaturan');
+
+        // Tarik data pengaturan saat halaman dimuat
+        async function muatPengaturan() {
+            if (firebaseConfig.apiKey === "API_KEY_ANDA") {
+                console.warn("Aplikasi berjalan dalam mode pratinjau karena firebaseConfig belum diisi.");
+                return;
+            }
+
+            try {
+                const docSnap = await getDoc(doc(db, "pengaturan", "info_sekolah"));
+                if (docSnap.exists()) {
+                    inputNamaSekolah.value = docSnap.data().nama_sekolah || "";
+                    inputLogoSekolah.value = docSnap.data().logo_url || "";
+                }
+            } catch (error) {
+                // Mengubah console.error menjadi console.warn agar tidak tercatat sebagai log error kritis
+                console.warn("Peringatan: Tidak dapat memuat pengaturan (klien offline atau konfigurasi belum diizinkan).", error.message);
+            }
+        }
+        muatPengaturan();
+
+        // Simpan data pengaturan ke Firebase
+        btnSimpanPengaturan.addEventListener('click', async () => {
+            if (firebaseConfig.apiKey === "API_KEY_ANDA") {
+                alert("⚠️ Anda belum memasukkan kode firebaseConfig milik Anda. Data tidak dapat disimpan.");
+                return;
+            }
+
+            btnSimpanPengaturan.innerHTML = "Menyimpan...";
+            try {
+                await setDoc(doc(db, "pengaturan", "info_sekolah"), {
+                    nama_sekolah: inputNamaSekolah.value.trim(),
+                    logo_url: inputLogoSekolah.value.trim()
+                });
+                pesanPengaturan.classList.remove('hidden');
+                setTimeout(() => pesanPengaturan.classList.add('hidden'), 3000); // Hilangkan pesan setelah 3 detik
+            } catch (error) {
+                console.warn("Gagal simpan pengaturan:", error);
+                alert("Gagal menyimpan pengaturan! Pastikan Anda terhubung ke internet.");
+            }
+            btnSimpanPengaturan.innerHTML = "Simpan Pengaturan";
+        });
 
     </script>
 </body>
