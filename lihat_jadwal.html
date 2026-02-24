@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lihat Jadwal SD - Guru & Murid</title>
+    <!-- Menggunakan Tailwind CSS untuk styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8 font-sans text-gray-800">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8">
+        <h2 class="text-2xl font-bold text-center text-green-600 mb-6">Cari Jadwal Pelajaran</h2>
+        
+        <!-- Area Filter Pencarian -->
+        <div class="bg-blue-50 p-4 rounded-lg mb-6 flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+                <label class="block text-sm font-semibold mb-1">Filter Hari</label>
+                <select id="filterHari" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500">
+                    <option value="Semua">-- Semua Hari --</option>
+                    <option value="Senin">Senin</option>
+                    <option value="Selasa">Selasa</option>
+                    <option value="Rabu">Rabu</option>
+                    <option value="Kamis">Kamis</option>
+                    <option value="Jumat">Jumat</option>
+                    <option value="Sabtu">Sabtu</option>
+                </select>
+            </div>
+            
+            <div class="flex-1">
+                <label class="block text-sm font-semibold mb-1">Filter Kelas</label>
+                <select id="filterKelas" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500">
+                    <option value="Semua">-- Semua Kelas --</option>
+                    <option value="1A">Kelas 1A</option>
+                    <option value="1B">Kelas 1B</option>
+                    <option value="2A">Kelas 2A</option>
+                </select>
+            </div>
+
+            <div class="flex-1">
+                <label class="block text-sm font-semibold mb-1">Filter Guru</label>
+                <select id="filterGuru" class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500">
+                    <option value="Semua">-- Semua Guru --</option>
+                    <option value="Pak Budi">Pak Budi</option>
+                    <option value="Ibu Siti">Ibu Siti</option>
+                    <option value="Pak Andi">Pak Andi</option>
+                    <option value="Ibu Ratna">Ibu Ratna</option>
+                </select>
+            </div>
+
+            <div class="flex-none flex items-end">
+                <button id="btnCari" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition duration-200">
+                    Tampilkan
+                </button>
+            </div>
+        </div>
+
+        <!-- Tempat Menampilkan Tabel Jadwal -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200 text-left">
+                <thead class="bg-gray-800 text-white">
+                    <tr>
+                        <th class="py-3 px-4 uppercase font-semibold text-sm border-b">Hari</th>
+                        <th class="py-3 px-4 uppercase font-semibold text-sm border-b">Jam Ke-</th>
+                        <th class="py-3 px-4 uppercase font-semibold text-sm border-b">Kelas</th>
+                        <th class="py-3 px-4 uppercase font-semibold text-sm border-b">Mata Pelajaran</th>
+                        <th class="py-3 px-4 uppercase font-semibold text-sm border-b">Guru</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelJadwal" class="text-gray-700">
+                    <!-- Data jadwal akan muncul di sini dari Firebase -->
+                    <tr>
+                        <td colspan="5" class="py-6 text-center text-gray-500">Silakan klik "Tampilkan" untuk memuat jadwal.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Script Firebase versi Modular (v11) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // ========================================================
+        // ⚠️ MASUKKAN FIREBASE CONFIG ANDA DI SINI (Sama seperti file index.html)
+        // ========================================================
+        const firebaseConfig = {
+            apiKey: "API_KEY_ANDA",
+            authDomain: "PROJECT_ID.firebaseapp.com",
+            projectId: "PROJECT_ID",
+            storageBucket: "PROJECT_ID.appspot.com",
+            messagingSenderId: "SENDER_ID",
+            appId: "APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Menangkap elemen
+        const btnCari = document.getElementById('btnCari');
+        const tabelJadwal = document.getElementById('tabelJadwal');
+
+        // Fungsi untuk mengambil dan memfilter data
+        btnCari.addEventListener('click', async () => {
+            btnCari.innerHTML = "Memuat...";
+            btnCari.disabled = true;
+
+            const filterHari = document.getElementById('filterHari').value;
+            const filterKelas = document.getElementById('filterKelas').value;
+            const filterGuru = document.getElementById('filterGuru').value;
+
+            try {
+                // Mengambil SEMUA data dari database
+                const jadwalRef = collection(db, "jadwal_pelajaran");
+                const snapshot = await getDocs(jadwalRef);
+                
+                let semuaJadwal = [];
+                snapshot.forEach((doc) => {
+                    semuaJadwal.push(doc.data());
+                });
+
+                // Filter data menggunakan JavaScript di memory (Sangat cepat untuk aplikasi skala sekolah)
+                let jadwalDifilter = semuaJadwal.filter(jadwal => {
+                    let cocokHari = (filterHari === "Semua") || (jadwal.hari === filterHari);
+                    let cocokKelas = (filterKelas === "Semua") || (jadwal.kelas === filterKelas);
+                    let cocokGuru = (filterGuru === "Semua") || (jadwal.guru === filterGuru);
+                    
+                    return cocokHari && cocokKelas && cocokGuru;
+                });
+
+                // Urutkan berdasarkan Jam ke-
+                jadwalDifilter.sort((a, b) => parseInt(a.jam_ke) - parseInt(b.jam_ke));
+
+                // Menampilkan ke dalam tabel HTML
+                tabelJadwal.innerHTML = ""; // Bersihkan tabel sebelumnya
+
+                if (jadwalDifilter.length === 0) {
+                    tabelJadwal.innerHTML = `<tr><td colspan="5" class="py-4 text-center font-bold text-red-500">Tidak ada jadwal yang ditemukan dengan filter tersebut.</td></tr>`;
+                } else {
+                    jadwalDifilter.forEach(jadwal => {
+                        let row = `<tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4 font-semibold">${jadwal.hari}</td>
+                            <td class="py-3 px-4">Jam ke-${jadwal.jam_ke}</td>
+                            <td class="py-3 px-4 font-bold text-blue-600">${jadwal.kelas}</td>
+                            <td class="py-3 px-4">${jadwal.mapel}</td>
+                            <td class="py-3 px-4">${jadwal.guru}</td>
+                        </tr>`;
+                        tabelJadwal.insertAdjacentHTML('beforeend', row);
+                    });
+                }
+
+            } catch (error) {
+                console.error("Gagal mengambil data:", error);
+                tabelJadwal.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-red-500">Gagal memuat data dari database.</td></tr>`;
+            }
+
+            btnCari.innerHTML = "Tampilkan";
+            btnCari.disabled = false;
+        });
+    </script>
+</body>
+</html>
