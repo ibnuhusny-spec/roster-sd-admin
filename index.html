@@ -21,13 +21,13 @@
             Memuat Data...
         </h2>
         
-        <!-- Logo Sekolah (Dinamis) -->
+        <!-- Logo Sekolah (Dinamis, Default ke logo1.png) -->
         <div class="w-40 h-40 md:w-48 md:h-48 bg-white rounded-full p-4 shadow-xl flex items-center justify-center mb-10 border-4 border-white transform transition hover:scale-105 duration-300">
-            <img id="imgLogo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Tut_Wuri_Handayani.svg/1200px-Tut_Wuri_Handayani.svg.png" alt="Logo Sekolah" class="max-w-full max-h-full object-contain">
+            <img id="imgLogo" src="logo1.png" alt="Logo Sekolah" class="max-w-full max-h-full object-contain">
         </div>
         
         <!-- Tombol Mulai (Ke halaman lihat jadwal untuk publik) -->
-        <a href="lihat_jadwal.html" onclick="playClickSound()" class="bg-blue-500 hover:bg-blue-400 text-white text-xl font-bold py-4 px-12 rounded-full shadow-[0_6px_0_#1e3a8a] active:shadow-[0_0px_0_#1e3a8a] active:translate-y-[6px] transition-all duration-100">
+        <a href="lihat_jadwal.html" class="bg-blue-500 hover:bg-blue-400 text-white text-xl font-bold py-4 px-12 rounded-full shadow-[0_6px_0_#1e3a8a] active:shadow-[0_0px_0_#1e3a8a] active:translate-y-[6px] transition-all duration-100">
             MULAI APLIKASI
         </a>
 
@@ -98,47 +98,25 @@
 
         muatSplashScreen();
 
+        // Fallback jika logo1.png tidak ditemukan di folder, tampilkan logo Tut Wuri Handayani
         document.getElementById('imgLogo').addEventListener('error', function() {
             this.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Tut_Wuri_Handayani.svg/1200px-Tut_Wuri_Handayani.svg.png';
         });
 
         // ==========================================
-        // FITUR SOUND & PASSWORD ADMIN
+        // FITUR PASSWORD ADMIN
         // ==========================================
-        function playClickSound() {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
-            
-            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.1);
-        }
-
-        window.playClickSound = playClickSound; 
-
         window.cekPasswordAdmin = function(e) {
             e.preventDefault();
-            playClickSound();
             
-            setTimeout(() => {
-                let pass = prompt("🔒 Masukkan Password Admin:");
-                if (pass === "QA-Roster77") {
-                    // Jika password benar, arahkan ke halaman input jadwal
-                    window.location.href = "input_jadwal.html"; 
-                } else if (pass !== null) {
-                    alert("❌ Password Salah! Akses Ditolak.");
-                }
-            }, 100);
+            // Langsung tampilkan prompt password tanpa jeda suara
+            let pass = prompt("🔒 Masukkan Password Admin:");
+            if (pass === "QA-Roster77") {
+                // Jika password benar, arahkan ke halaman input jadwal
+                window.location.href = "input_jadwal.html"; 
+            } else if (pass !== null) {
+                alert("❌ Password Salah! Akses Ditolak.");
+            }
         };
     </script>
 </body>
