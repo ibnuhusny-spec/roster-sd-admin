@@ -3,88 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Data Master - Admin</title>
+    <title>Aplikasi Roster Sekolah</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen p-4 md:p-8 font-sans text-gray-800">
+<body class="bg-gray-50 min-h-screen font-sans">
 
-    <!-- Navigasi -->
-    <div class="max-w-5xl mx-auto mb-4">
-        <a href="index.html" class="inline-block bg-blue-100 text-blue-700 hover:bg-blue-200 font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-sm">
-            &larr; Kembali ke Input Jadwal
-        </a>
-    </div>
-
-    <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8">
-        <h2 class="text-2xl font-bold text-center text-indigo-600 mb-2">Kelola Data Master</h2>
-        <p class="text-center text-gray-500 mb-8 text-sm">Tambahkan data Guru, Kelas, Mapel, dan Jam di sini. Data ini akan otomatis muncul di pilihan form jadwal.</p>
-
-        <!-- Grid 4 Kolom untuk masing-masing kategori -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <!-- KOTAK 1: GURU -->
-            <div class="bg-indigo-50 border border-indigo-100 p-5 rounded-lg shadow-sm">
-                <h3 class="font-bold text-lg text-indigo-800 mb-3 flex items-center">👨‍🏫 Data Guru</h3>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="inputGuru" placeholder="Cth: Pak Budi" class="flex-1 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-400 focus:outline-none">
-                    <button id="btnGuru" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition">Tambah</button>
-                </div>
-                <div class="bg-white p-3 rounded border h-40 overflow-y-auto">
-                    <ul id="listGuru" class="list-disc pl-5 text-sm space-y-1 text-gray-700">
-                        <li class="text-gray-400 italic list-none">Memuat data...</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- KOTAK 2: KELAS -->
-            <div class="bg-green-50 border border-green-100 p-5 rounded-lg shadow-sm">
-                <h3 class="font-bold text-lg text-green-800 mb-3 flex items-center">🏫 Data Kelas</h3>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="inputKelas" placeholder="Cth: 1A" class="flex-1 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-400 focus:outline-none">
-                    <button id="btnKelas" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition">Tambah</button>
-                </div>
-                <div class="bg-white p-3 rounded border h-40 overflow-y-auto">
-                    <ul id="listKelas" class="list-disc pl-5 text-sm space-y-1 text-gray-700">
-                        <li class="text-gray-400 italic list-none">Memuat data...</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- KOTAK 3: MAPEL -->
-            <div class="bg-orange-50 border border-orange-100 p-5 rounded-lg shadow-sm">
-                <h3 class="font-bold text-lg text-orange-800 mb-3 flex items-center">📚 Mata Pelajaran</h3>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="inputMapel" placeholder="Cth: Matematika" class="flex-1 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-400 focus:outline-none">
-                    <button id="btnMapel" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded transition">Tambah</button>
-                </div>
-                <div class="bg-white p-3 rounded border h-40 overflow-y-auto">
-                    <ul id="listMapel" class="list-disc pl-5 text-sm space-y-1 text-gray-700">
-                        <li class="text-gray-400 italic list-none">Memuat data...</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- KOTAK 4: JAM MENGAJAR -->
-            <div class="bg-red-50 border border-red-100 p-5 rounded-lg shadow-sm">
-                <h3 class="font-bold text-lg text-red-800 mb-3 flex items-center">⏰ Jam Mengajar</h3>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="inputJam" placeholder="Cth: Jam ke-1 (07:15-07:50)" class="flex-1 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-400 focus:outline-none">
-                    <button id="btnJam" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition">Tambah</button>
-                </div>
-                <div class="bg-white p-3 rounded border h-40 overflow-y-auto">
-                    <ul id="listJam" class="list-disc pl-5 text-sm space-y-1 text-gray-700">
-                        <li class="text-gray-400 italic list-none">Memuat data...</li>
-                    </ul>
-                </div>
-            </div>
-
+    <!-- Container Splash Screen -->
+    <div class="flex flex-col items-center justify-center min-h-screen relative p-6 bg-gradient-to-br from-blue-50 via-white to-blue-100">
+        
+        <!-- Judul Aplikasi -->
+        <h1 class="text-3xl md:text-5xl font-extrabold text-blue-900 mb-2 tracking-wider text-center drop-shadow-sm">
+            APLIKASI JADWAL PELAJARAN
+        </h1>
+        
+        <!-- Nama Sekolah (Ditarik dari Firebase) -->
+        <h2 id="teksNamaSekolah" class="text-xl md:text-3xl font-bold text-gray-700 mb-10 text-center animate-pulse">
+            Memuat Data Sekolah...
+        </h2>
+        
+        <!-- Logo Sekolah (File Lokal: logo1.png) -->
+        <div class="w-40 h-40 md:w-56 md:h-56 bg-white rounded-full p-4 shadow-2xl flex items-center justify-center mb-10 border-4 border-blue-500 transform transition hover:scale-105 duration-300">
+            <!-- PENTING: Pastikan file logo1.png ada di folder yang sama -->
+            <img id="imgLogo" src="logo1.png" alt="Logo Sekolah" class="max-w-full max-h-full object-contain" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Tut_Wuri_Handayani.svg/1200px-Tut_Wuri_Handayani.svg.png'">
         </div>
+        
+        <!-- Tombol Mulai -->
+        <a href="lihat_jadwal.html" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xl md:text-2xl font-bold py-4 px-12 md:px-16 rounded-full shadow-lg transition transform hover:scale-110 hover:shadow-2xl duration-300">
+            ▶ MASUK APLIKASI
+        </a>
+
+        <!-- Link Admin -->
+        <a href="input_jadwal.html" class="mt-8 text-sm md:text-base text-gray-500 hover:text-blue-800 font-semibold transition flex items-center gap-2">
+            <span>⚙️</span> Masuk sebagai Admin
+        </a>
+        
+        <!-- Footer Pengembang -->
+        <div class="absolute bottom-6 w-full text-center">
+            <p class="text-xs text-gray-500 font-medium mb-1">Dikembangkan dengan ❤️ oleh:</p>
+            <p class="text-base text-gray-800 font-extrabold tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+                IBNU HUSNY
+            </p>
+        </div>
+
     </div>
 
-    <!-- Script Firebase versi Modular (v11) -->
+    <!-- Script Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         // ========================================================
         // ⚠️ MASUKKAN FIREBASE CONFIG ANDA DI SINI
@@ -101,59 +67,31 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Fungsi Universal untuk Menambah Data ke Koleksi Tertentu
-        async function tambahData(koleksi, idInput) {
-            const inputElemen = document.getElementById(idInput);
-            const nilai = inputElemen.value.trim();
-            
-            if (nilai === "") {
-                alert("Isian tidak boleh kosong!");
+        // Menarik pengaturan sekolah (hanya nama sekolah)
+        async function muatSplashScreen() {
+            const teksNamaSekolah = document.getElementById('teksNamaSekolah');
+
+            if (firebaseConfig.apiKey === "API_KEY_ANDA") {
+                teksNamaSekolah.innerText = "SD Negeri Default (Contoh)";
+                teksNamaSekolah.classList.remove('animate-pulse');
                 return;
             }
 
             try {
-                // Simpan ke Firebase ke dalam koleksi yang dipilih (misal: "master_guru")
-                await addDoc(collection(db, koleksi), {
-                    nama: nilai
-                });
-                inputElemen.value = ""; // Kosongkan input setelah sukses
-            } catch (error) {
-                console.error("Gagal menambah data:", error);
-                alert("Gagal menyimpan data!");
-            }
-        }
-
-        // Fungsi Universal untuk Membaca (Real-time) Data dari Firebase
-        function muatDataRealtime(koleksi, idList) {
-            const listElemen = document.getElementById(idList);
-            
-            // onSnapshot akan terus memantau data. Jika ada yang baru, otomatis diperbarui!
-            onSnapshot(collection(db, koleksi), (snapshot) => {
-                listElemen.innerHTML = ""; // Bersihkan list
-                if (snapshot.empty) {
-                    listElemen.innerHTML = '<li class="text-gray-400 italic list-none">Belum ada data.</li>';
-                    return;
+                const docSnap = await getDoc(doc(db, "pengaturan", "info_sekolah"));
+                if (docSnap.exists()) {
+                    teksNamaSekolah.innerText = docSnap.data().nama_sekolah || "Nama Sekolah Belum Diatur";
+                } else {
+                    teksNamaSekolah.innerText = "Selamat Datang!";
                 }
-                
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    listElemen.insertAdjacentHTML('beforeend', `<li>${data.nama}</li>`);
-                });
-            });
+            } catch (error) {
+                console.warn("Gagal memuat pengaturan:", error);
+                teksNamaSekolah.innerText = "Aplikasi Roster Sekolah";
+            }
+            teksNamaSekolah.classList.remove('animate-pulse');
         }
 
-        // --- PASANG EVENT LISTENER UNTUK TOMBOL TAMBAH ---
-        document.getElementById('btnGuru').addEventListener('click', () => tambahData("master_guru", "inputGuru"));
-        document.getElementById('btnKelas').addEventListener('click', () => tambahData("master_kelas", "inputKelas"));
-        document.getElementById('btnMapel').addEventListener('click', () => tambahData("master_mapel", "inputMapel"));
-        document.getElementById('btnJam').addEventListener('click', () => tambahData("master_jam", "inputJam"));
-
-        // --- JALANKAN FUNGSI MUAT DATA SAAT HALAMAN DIBUKA ---
-        muatDataRealtime("master_guru", "listGuru");
-        muatDataRealtime("master_kelas", "listKelas");
-        muatDataRealtime("master_mapel", "listMapel");
-        muatDataRealtime("master_jam", "listJam");
-
+        muatSplashScreen();
     </script>
 </body>
 </html>
