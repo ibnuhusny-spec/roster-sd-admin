@@ -8,37 +8,39 @@
 </head>
 <body class="bg-gray-50 min-h-screen font-sans">
 
-    <!-- Container Splash Screen -->
-    <div class="flex flex-col items-center justify-center min-h-screen relative p-6 bg-gradient-to-br from-blue-50 via-white to-blue-100">
+    <!-- Container Utama: Flex layout untuk menghindari teks menumpuk di layar kecil -->
+    <div class="flex flex-col min-h-screen p-6 bg-gradient-to-br from-blue-50 via-white to-blue-100">
         
-        <!-- Judul Aplikasi -->
-        <h1 class="text-3xl md:text-5xl font-extrabold text-blue-900 mb-2 tracking-wider text-center drop-shadow-sm">
-            APLIKASI JADWAL PELAJARAN
-        </h1>
-        
-        <!-- Nama Sekolah (Ditarik dari Firebase) -->
-        <h2 id="teksNamaSekolah" class="text-xl md:text-3xl font-bold text-gray-700 mb-10 text-center animate-pulse">
-            Memuat Data Sekolah...
-        </h2>
-        
-        <!-- Logo Sekolah (File Lokal: logo1.png) -->
-        <div class="w-40 h-40 md:w-56 md:h-56 bg-white rounded-full p-4 shadow-2xl flex items-center justify-center mb-10 border-4 border-blue-500 transform transition hover:scale-105 duration-300">
-            <!-- PENTING: Pastikan file logo1.png ada di folder yang sama -->
-            <img id="imgLogo" src="logo1.png" alt="Logo Sekolah" class="max-w-full max-h-full object-contain" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Tut_Wuri_Handayani.svg/1200px-Tut_Wuri_Handayani.svg.png'">
+        <!-- Bagian Tengah (Konten Utama) -->
+        <div class="flex-1 flex flex-col items-center justify-center mt-10">
+            <!-- Judul Aplikasi -->
+            <h1 class="text-3xl md:text-5xl font-extrabold text-blue-900 mb-2 tracking-wider text-center drop-shadow-sm">
+                APLIKASI JADWAL PELAJARAN
+            </h1>
+            
+            <!-- Nama Sekolah -->
+            <h2 id="teksNamaSekolah" class="text-xl md:text-3xl font-bold text-gray-700 mb-10 text-center animate-pulse">
+                Memuat Data Sekolah...
+            </h2>
+            
+            <!-- Logo Sekolah -->
+            <div class="w-40 h-40 md:w-56 md:h-56 bg-white rounded-full p-4 shadow-2xl flex items-center justify-center mb-10 border-4 border-blue-500 transform transition hover:scale-105 duration-300">
+                <img id="imgLogo" src="logo1.png" alt="Logo Sekolah" class="max-w-full max-h-full object-contain" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Tut_Wuri_Handayani.svg/1200px-Tut_Wuri_Handayani.svg.png'">
+            </div>
+            
+            <!-- Tombol Mulai -->
+            <a href="lihat_jadwal.html" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xl md:text-2xl font-bold py-4 px-12 md:px-16 rounded-full shadow-lg transition transform hover:scale-110 hover:shadow-2xl duration-300 text-center">
+                ▶ MASUK APLIKASI
+            </a>
+
+            <!-- Link Admin -->
+            <a href="input_jadwal.html" class="mt-8 text-sm md:text-base text-gray-500 hover:text-blue-800 font-semibold transition flex items-center gap-2">
+                <span>⚙️</span> Masuk sebagai Admin
+            </a>
         </div>
         
-        <!-- Tombol Mulai -->
-        <a href="lihat_jadwal.html" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xl md:text-2xl font-bold py-4 px-12 md:px-16 rounded-full shadow-lg transition transform hover:scale-110 hover:shadow-2xl duration-300">
-            ▶ MASUK APLIKASI
-        </a>
-
-        <!-- Link Admin -->
-        <a href="input_jadwal.html" class="mt-8 text-sm md:text-base text-gray-500 hover:text-blue-800 font-semibold transition flex items-center gap-2">
-            <span>⚙️</span> Masuk sebagai Admin
-        </a>
-        
-        <!-- Footer Pengembang -->
-        <div class="absolute bottom-6 w-full text-center">
+        <!-- Footer Pengembang (Sekarang akan selalu di bawah dan tidak menumpuk) -->
+        <div class="w-full text-center mt-12 pb-4">
             <p class="text-xs text-gray-500 font-medium mb-1">Dikembangkan dengan ❤️ oleh:</p>
             <p class="text-base text-gray-800 font-extrabold tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
                 IBNU HUSNY
@@ -47,14 +49,11 @@
 
     </div>
 
-    <!-- Script Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        // ========================================================
-        // ⚠️ MASUKKAN FIREBASE CONFIG ANDA DI SINI
-        // ========================================================
+        // MASUKKAN FIREBASE CONFIG
         const firebaseConfig = {
              apiKey: "AIzaSyAu8st2VRsNFyzC8UR8TDq8821y4_TVHVk",
   authDomain: "roster-sekolah-sd.firebaseapp.com",
@@ -67,7 +66,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Menarik pengaturan sekolah (hanya nama sekolah)
         async function muatSplashScreen() {
             const teksNamaSekolah = document.getElementById('teksNamaSekolah');
 
