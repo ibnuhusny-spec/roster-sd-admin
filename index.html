@@ -32,7 +32,7 @@
         </a>
 
         <!-- Link Admin (Kecil di bawah tombol) -->
-        <a href="#" onclick="cekPasswordAdmin(event)" class="mt-8 text-sm text-blue-700 hover:text-blue-900 font-semibold hover:underline cursor-pointer">
+        <a href="#" onclick="bukaModalAdmin(event)" class="mt-8 text-sm text-blue-700 hover:text-blue-900 font-semibold hover:underline cursor-pointer">
             🔒 Masuk sebagai Admin
         </a>
         
@@ -44,7 +44,30 @@
 
     </div>
 
-    <!-- Script Firebase -->
+    <!-- MODAL PASSWORD ADMIN (Tersembunyi secara default) -->
+    <div id="modalPassword" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-sm transform scale-100 transition-transform">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 mb-4 text-2xl">
+                    🔒
+                </div>
+                <h3 class="text-xl font-bold text-gray-800">Login Admin</h3>
+                <p class="text-sm text-gray-500 mt-1">Masukkan password untuk mengelola jadwal.</p>
+            </div>
+            
+            <div class="mb-4">
+                <input type="password" id="inputPassword" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-center tracking-widest text-lg" placeholder="••••••••">
+                <p id="errorPassword" class="text-red-500 text-sm mt-2 hidden text-center font-medium bg-red-50 py-1 rounded-lg">❌ Password salah! Coba lagi.</p>
+            </div>
+            
+            <div class="flex flex-col-reverse sm:flex-row gap-3 mt-6">
+                <button onclick="tutupModalAdmin()" class="w-full px-4 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors">Batal</button>
+                <button onclick="prosesLoginAdmin()" class="w-full px-4 py-2.5 text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 rounded-xl font-semibold transition-all">Masuk</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Firebase & Logika Modal -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -64,11 +87,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Menarik pengaturan NAMA sekolah dari database (Logo tidak ditarik lagi)
+        // Menarik pengaturan NAMA sekolah dari database
         async function muatSplashScreen() {
             const teksNamaSekolah = document.getElementById('teksNamaSekolah');
 
-            // Pengecekan API Key
             if (firebaseConfig.apiKey === "API_KEY_ANDA") {
                 console.warn("API Key belum disetting. Menampilkan mode demo lokal.");
                 teksNamaSekolah.innerText = "SD Negeri Default (Mode Demo)";
@@ -77,12 +99,8 @@
 
             try {
                 const docSnap = await getDoc(doc(db, "pengaturan", "info_sekolah"));
-                
                 if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    teksNamaSekolah.innerText = data.nama_sekolah || "SD Negeri Default";
-                    
-                    // Skrip pengganti logo dari Firebase DIHAPUS agar tidak menimpa logo1.png
+                    teksNamaSekolah.innerText = docSnap.data().nama_sekolah || "SD Negeri Default";
                 } else {
                     teksNamaSekolah.innerText = "Selamat Datang!";
                 }
@@ -94,22 +112,43 @@
 
         muatSplashScreen();
 
-        // Skrip fallback error logo juga DIHAPUS agar murni menampilkan logo1.png
+        // ==========================================
+        // FITUR MODAL PASSWORD ADMIN
+        // ==========================================
+        const modal = document.getElementById('modalPassword');
+        const inputPass = document.getElementById('inputPassword');
+        const errorText = document.getElementById('errorPassword');
 
-        // ==========================================
-        // FITUR PASSWORD ADMIN
-        // ==========================================
-        window.cekPasswordAdmin = function(e) {
+        window.bukaModalAdmin = function(e) {
             e.preventDefault();
+            modal.classList.remove('hidden'); // Tampilkan pop-up
+            inputPass.value = '';             // Kosongkan inputan
+            errorText.classList.add('hidden'); // Sembunyikan error sebelumnya
             
-            // Langsung tampilkan prompt password
-            let pass = prompt("🔒 Masukkan Password Admin:");
-            if (pass === "QA-Roster77") {
+            // Fokuskan kursor langsung ke kolom input
+            setTimeout(() => inputPass.focus(), 100);
+        };
+
+        window.tutupModalAdmin = function() {
+            modal.classList.add('hidden'); // Sembunyikan pop-up
+        };
+
+        window.prosesLoginAdmin = function() {
+            if (inputPass.value === "QA-Roster77") {
                 window.location.href = "input_jadwal.html"; 
-            } else if (pass !== null) {
-                alert("❌ Password Salah! Akses Ditolak.");
+            } else {
+                errorText.classList.remove('hidden'); // Tampilkan pesan error
+                inputPass.focus(); // Kembalikan kursor ke input agar mudah dihapus
             }
         };
+
+        // Menambahkan fitur tekan tombol "Enter" di keyboard untuk langsung login
+        inputPass.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                window.prosesLoginAdmin();
+            }
+        });
     </script>
 </body>
 </html>
