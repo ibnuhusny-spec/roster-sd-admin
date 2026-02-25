@@ -8,26 +8,22 @@
 </head>
 <body class="bg-gray-100 min-h-screen p-4 md:p-8 font-sans text-gray-800">
 
-    <!-- Tombol Navigasi Admin -->
-    <div class="max-w-lg mx-auto mb-4 flex justify-between">
-        <a href="index.html" class="inline-block bg-gray-200 text-gray-700 hover:bg-gray-300 font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-sm text-sm">
-            🏠 Ke Halaman Depan
+    <div class="max-w-lg mx-auto mb-4 flex justify-between gap-2">
+        <a href="index.html" class="flex-1 text-center bg-gray-200 text-gray-700 hover:bg-gray-300 font-semibold py-2 px-3 rounded-lg transition text-xs md:text-sm">
+            🏠 Halaman Depan
         </a>
-        <a href="kelola_data.html" class="inline-block bg-indigo-100 text-indigo-700 hover:bg-indigo-200 font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-sm text-sm">
+        <a href="kelola_data.html" class="flex-1 text-center bg-indigo-100 text-indigo-700 hover:bg-indigo-200 font-semibold py-2 px-3 rounded-lg transition text-xs md:text-sm">
             ⚙️ Kelola Data Master
         </a>
     </div>
 
-    <!-- Form Input Jadwal -->
     <div class="max-w-lg mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8">
-        <h2 class="text-2xl font-bold text-center text-blue-600 mb-6">Susun Jadwal Pelajaran (Admin)</h2>
-        
+        <h2 class="text-xl md:text-2xl font-bold text-center text-blue-600 mb-6">Susun Jadwal Pelajaran (Admin)</h2>
         <div id="pesanBox" class="hidden p-4 mb-6 rounded-lg font-medium text-sm"></div>
 
-        <form id="formJadwal" class="space-y-4">
-            
+        <form id="formJadwal" class="space-y-4 text-sm md:text-base">
             <div>
-                <label class="block text-sm font-semibold mb-1">Hari</label>
+                <label class="block font-semibold mb-1">Hari</label>
                 <select id="hari" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">-- Pilih Hari --</option>
                     <option value="Senin">Senin</option>
@@ -38,54 +34,49 @@
                     <option value="Sabtu">Sabtu</option>
                 </select>
             </div>
-
             <div>
-                <label class="block text-sm font-semibold mb-1">Jam Ke-</label>
+                <label class="block font-semibold mb-1">Jam Ke-</label>
                 <select id="jam_ke" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">-- Memuat Jam... --</option>
                 </select>
             </div>
-
             <div>
-                <label class="block text-sm font-semibold mb-1">Kelas</label>
+                <label class="block font-semibold mb-1">Kelas</label>
                 <select id="kelas" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">-- Memuat Kelas... --</option>
                 </select>
             </div>
-
             <div>
-                <label class="block text-sm font-semibold mb-1">Mata Pelajaran</label>
+                <label class="block font-semibold mb-1">Mata Pelajaran</label>
                 <select id="mapel" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">-- Memuat Mapel... --</option>
                 </select>
             </div>
-
             <div>
-                <label class="block text-sm font-semibold mb-1">Guru Pengajar</label>
+                <label class="block font-semibold mb-1">Guru Pengajar</label>
                 <select id="guru" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">-- Memuat Guru... --</option>
                 </select>
             </div>
-
             <button type="submit" id="btnSubmit" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition duration-200">
                 Simpan Jadwal
             </button>
         </form>
     </div>
 
-    <!-- TABEL DAFTAR JADWAL UNTUK DIHAPUS (HANYA ADMIN) -->
-    <div class="max-w-4xl mx-auto mt-8 mb-10 bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8">
-        <h2 class="text-xl font-bold text-gray-700 mb-4 border-b pb-2">Daftar Jadwal Tersimpan</h2>
+    <!-- TABEL ADMIN -->
+    <div class="max-w-4xl mx-auto mt-8 mb-10 bg-white rounded-xl shadow-md overflow-hidden p-4 md:p-8 text-sm md:text-base">
+        <h2 class="text-lg md:text-xl font-bold text-gray-700 mb-4 border-b pb-2">Daftar Jadwal Tersimpan</h2>
         <div class="overflow-x-auto">
-            <table class="min-w-full bg-white text-sm">
+            <table class="min-w-full bg-white text-xs md:text-sm">
                 <thead class="bg-gray-100 text-gray-600">
                     <tr>
-                        <th class="py-2 px-4 text-left font-semibold">Hari</th>
-                        <th class="py-2 px-4 text-left font-semibold">Jam</th>
-                        <th class="py-2 px-4 text-left font-semibold">Kelas</th>
-                        <th class="py-2 px-4 text-left font-semibold">Mapel</th>
-                        <th class="py-2 px-4 text-left font-semibold">Guru</th>
-                        <th class="py-2 px-4 text-center font-semibold">Aksi</th>
+                        <th class="py-2 px-3 md:px-4 text-left font-semibold">Hari</th>
+                        <th class="py-2 px-3 md:px-4 text-left font-semibold">Jam</th>
+                        <th class="py-2 px-3 md:px-4 text-left font-semibold">Kelas</th>
+                        <th class="py-2 px-3 md:px-4 text-left font-semibold">Mapel</th>
+                        <th class="py-2 px-3 md:px-4 text-left font-semibold">Guru</th>
+                        <th class="py-2 px-3 md:px-4 text-center font-semibold">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="tabelAdminJadwal" class="divide-y divide-gray-200">
@@ -95,14 +86,11 @@
         </div>
     </div>
 
-    <!-- Script Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, collection, addDoc, query, where, getDocs, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        // ========================================================
-        // ⚠️ MASUKKAN FIREBASE CONFIG ANDA DI SINI
-        // ========================================================
+        // MASUKKAN FIREBASE CONFIG
         const firebaseConfig = {
              apiKey: "AIzaSyAu8st2VRsNFyzC8UR8TDq8821y4_TVHVk",
   authDomain: "roster-sekolah-sd.firebaseapp.com",
@@ -115,7 +103,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- FUNGSI MUAT DROPDOWN MASTER DATA ---
+        // Sorting Natural untuk dropdown agar Jam 1, Jam 2, Jam 10 berurutan benar
         function muatDropdownMaster(koleksi, idDropdown, teksDefault) {
             const elemen = document.getElementById(idDropdown);
             if (firebaseConfig.apiKey === "API_KEY_ANDA") {
@@ -124,8 +112,13 @@
             }
             onSnapshot(collection(db, koleksi), (snapshot) => {
                 elemen.innerHTML = `<option value="">-- ${teksDefault} --</option>`;
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
+                let arrData = [];
+                snapshot.forEach((doc) => arrData.push(doc.data()));
+                
+                // Proses Pengurutan Natural (contoh: angka 2 diurutkan sebelum 10)
+                arrData.sort((a, b) => a.nama.localeCompare(b.nama, undefined, {numeric: true, sensitivity: 'base'}));
+                
+                arrData.forEach((data) => {
                     elemen.insertAdjacentHTML('beforeend', `<option value="${data.nama}">${data.nama}</option>`);
                 });
             });
@@ -136,7 +129,6 @@
         muatDropdownMaster("master_mapel", "mapel", "Pilih Mapel");
         muatDropdownMaster("master_guru", "guru", "Pilih Guru");
 
-        // --- FUNGSI TAMPIL PESAN ---
         const pesanBox = document.getElementById('pesanBox');
         function tampilkanPesan(pesan, tipe) {
             pesanBox.innerHTML = pesan;
@@ -144,45 +136,38 @@
             pesanBox.classList.remove('hidden');
         }
 
-        // --- FUNGSI TAMPIL & HAPUS JADWAL DI TABEL BAWAH ---
         const tabelAdminJadwal = document.getElementById('tabelAdminJadwal');
 
         function muatTabelJadwal() {
-            if (firebaseConfig.apiKey === "API_KEY_ANDA") {
-                 tabelAdminJadwal.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-red-500 font-medium">Firebase belum dikonfigurasi.</td></tr>`;
-                 return;
-            }
+            if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
             
             onSnapshot(collection(db, "jadwal_pelajaran"), (snapshot) => {
                 tabelAdminJadwal.innerHTML = "";
                 if (snapshot.empty) {
-                    tabelAdminJadwal.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-gray-500 italic">Belum ada jadwal tersimpan.</td></tr>`;
+                    tabelAdminJadwal.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-gray-500 italic">Belum ada jadwal.</td></tr>`;
                     return;
                 }
 
-                // Masukkan data ke array untuk disorting (opsional, agar rapi)
                 let jadwalArr = [];
-                snapshot.forEach(docSnap => {
-                    jadwalArr.push({ id: docSnap.id, ...docSnap.data() });
-                });
+                snapshot.forEach(docSnap => jadwalArr.push({ id: docSnap.id, ...docSnap.data() }));
 
-                // Urutkan berdasarkan hari (sederhana) dan jam
+                // Urutkan jadwal di tabel Admin juga secara natural
+                const urutanHari = { "Senin":1, "Selasa":2, "Rabu":3, "Kamis":4, "Jumat":5, "Sabtu":6, "Minggu":7 };
                 jadwalArr.sort((a, b) => {
-                     return a.hari.localeCompare(b.hari) || a.jam_ke.localeCompare(b.jam_ke);
+                     return (urutanHari[a.hari] || 99) - (urutanHari[b.hari] || 99) || 
+                            a.jam_ke.localeCompare(b.jam_ke, undefined, {numeric: true});
                 });
 
                 jadwalArr.forEach(jadwal => {
                     tabelAdminJadwal.insertAdjacentHTML('beforeend', `
                         <tr class="hover:bg-gray-50 transition border-b border-gray-100">
-                            <td class="py-3 px-4 text-gray-700">${jadwal.hari}</td>
-                            <td class="py-3 px-4 text-gray-700">${jadwal.jam_ke}</td>
-                            <td class="py-3 px-4 font-bold text-indigo-700">${jadwal.kelas}</td>
-                            <td class="py-3 px-4 text-gray-700">${jadwal.mapel}</td>
-                            <td class="py-3 px-4 text-gray-700">${jadwal.guru}</td>
-                            <td class="py-3 px-4 text-center">
-                                <button onclick="hapusJadwal('${jadwal.id}')" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1 px-3 rounded shadow-sm transition">
-                                    Hapus
-                                </button>
+                            <td class="py-2 px-3 md:px-4 text-gray-700">${jadwal.hari}</td>
+                            <td class="py-2 px-3 md:px-4 text-gray-700">${jadwal.jam_ke}</td>
+                            <td class="py-2 px-3 md:px-4 font-bold text-indigo-700">${jadwal.kelas}</td>
+                            <td class="py-2 px-3 md:px-4 text-gray-700">${jadwal.mapel}</td>
+                            <td class="py-2 px-3 md:px-4 text-gray-700">${jadwal.guru}</td>
+                            <td class="py-2 px-3 md:px-4 text-center">
+                                <button onclick="hapusJadwal('${jadwal.id}')" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1 px-2 rounded shadow-sm transition">Hapus</button>
                             </td>
                         </tr>
                     `);
@@ -190,35 +175,21 @@
             });
         }
 
-        // Jadikan fungsi hapus global agar bisa dipanggil dari atribut onclick di HTML
         window.hapusJadwal = async function(idDokumen) {
-            if(confirm("Apakah Anda yakin ingin menghapus jadwal ini?")) {
-                try {
-                    await deleteDoc(doc(db, "jadwal_pelajaran", idDokumen));
-                } catch(e) {
-                    console.error("Gagal menghapus:", e);
-                    alert("Gagal menghapus jadwal. Periksa koneksi internet.");
-                }
+            if(confirm("Hapus jadwal ini?")) {
+                await deleteDoc(doc(db, "jadwal_pelajaran", idDokumen));
             }
         };
 
         muatTabelJadwal();
 
-        // --- FUNGSI SIMPAN JADWAL BARU ---
         const form = document.getElementById('formJadwal');
         const btnSubmit = document.getElementById('btnSubmit');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            if (firebaseConfig.apiKey === "API_KEY_ANDA") {
-                alert("⚠️ Anda belum memasukkan kode firebaseConfig! Data tidak bisa disimpan.");
-                return;
-            }
-
             btnSubmit.innerHTML = "Menyimpan...";
             btnSubmit.disabled = true;
-            pesanBox.classList.add('hidden');
 
             const hari = document.getElementById('hari').value;
             const jam_ke = document.getElementById('jam_ke').value;
@@ -229,36 +200,22 @@
             try {
                 const jadwalRef = collection(db, "jadwal_pelajaran");
 
-                // Cek bentrok Guru
                 const qGuru = query(jadwalRef, where("hari", "==", hari), where("jam_ke", "==", jam_ke), where("guru", "==", guru));
-                const snapshotGuru = await getDocs(qGuru);
-                if (!snapshotGuru.empty) {
-                    tampilkanPesan(`❌ <b>Gagal!</b> ${guru} sudah ada jadwal di hari ${hari} jam ${jam_ke}.`, 'error');
-                    btnSubmit.innerHTML = "Simpan Jadwal";
-                    btnSubmit.disabled = false;
-                    return;
+                if (!(await getDocs(qGuru)).empty) {
+                    tampilkanPesan(`❌ <b>Gagal!</b> ${guru} sudah mengajar di jam ini.`, 'error');
+                } else {
+                    const qKelas = query(jadwalRef, where("hari", "==", hari), where("jam_ke", "==", jam_ke), where("kelas", "==", kelas));
+                    if (!(await getDocs(qKelas)).empty) {
+                        tampilkanPesan(`❌ <b>Gagal!</b> Kelas ${kelas} sudah ada pelajaran di jam ini.`, 'error');
+                    } else {
+                        await addDoc(jadwalRef, { hari, jam_ke, kelas, mapel, guru });
+                        tampilkanPesan("✅ <b>Sukses!</b> Jadwal tersimpan.", 'sukses');
+                        form.reset();
+                    }
                 }
-
-                // Cek bentrok Kelas
-                const qKelas = query(jadwalRef, where("hari", "==", hari), where("jam_ke", "==", jam_ke), where("kelas", "==", kelas));
-                const snapshotKelas = await getDocs(qKelas);
-                if (!snapshotKelas.empty) {
-                    tampilkanPesan(`❌ <b>Gagal!</b> Kelas ${kelas} sudah ada jadwal di hari ${hari} jam ${jam_ke}.`, 'error');
-                    btnSubmit.innerHTML = "Simpan Jadwal";
-                    btnSubmit.disabled = false;
-                    return;
-                }
-
-                // Jika lolos cek, simpan data
-                await addDoc(jadwalRef, { hari, jam_ke, kelas, mapel, guru, dibuat_pada: new Date() });
-                tampilkanPesan("✅ <b>Sukses!</b> Jadwal berhasil disimpan.", 'sukses');
-                form.reset();
-
             } catch (error) {
-                console.error("Error: ", error);
-                tampilkanPesan("❌ Terjadi kesalahan sistem. Pastikan internet lancar.", 'error');
+                tampilkanPesan("❌ Terjadi kesalahan.", 'error');
             }
-
             btnSubmit.innerHTML = "Simpan Jadwal";
             btnSubmit.disabled = false;
         });
