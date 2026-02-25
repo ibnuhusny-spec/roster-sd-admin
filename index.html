@@ -21,7 +21,7 @@
             Memuat Data...
         </h2>
         
-        <!-- Logo Sekolah (Dinamis, Default ke logo1.png) -->
+        <!-- Logo Sekolah (Statis dari file lokal logo1.png) -->
         <div class="w-40 h-40 md:w-48 md:h-48 bg-white rounded-full p-4 shadow-xl flex items-center justify-center mb-10 border-4 border-white transform transition hover:scale-105 duration-300">
             <img id="imgLogo" src="logo1.png" alt="Logo Sekolah" class="max-w-full max-h-full object-contain">
         </div>
@@ -64,12 +64,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Menarik pengaturan sekolah dari database
+        // Menarik pengaturan NAMA sekolah dari database (Logo tidak ditarik lagi)
         async function muatSplashScreen() {
             const teksNamaSekolah = document.getElementById('teksNamaSekolah');
-            const imgLogo = document.getElementById('imgLogo');
 
-            // Pengecekan jika API Key belum diisi (masih default) untuk menghindari error koneksi offline
+            // Pengecekan API Key
             if (firebaseConfig.apiKey === "API_KEY_ANDA") {
                 console.warn("API Key belum disetting. Menampilkan mode demo lokal.");
                 teksNamaSekolah.innerText = "SD Negeri Default (Mode Demo)";
@@ -81,12 +80,9 @@
                 
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    
                     teksNamaSekolah.innerText = data.nama_sekolah || "SD Negeri Default";
                     
-                    if (data.logo_url) {
-                        imgLogo.src = data.logo_url;
-                    }
+                    // Skrip pengganti logo dari Firebase DIHAPUS agar tidak menimpa logo1.png
                 } else {
                     teksNamaSekolah.innerText = "Selamat Datang!";
                 }
@@ -98,10 +94,7 @@
 
         muatSplashScreen();
 
-        // Fallback jika logo1.png tidak ditemukan di folder, tampilkan logo Tut Wuri Handayani
-        document.getElementById('imgLogo').addEventListener('error', function() {
-            this.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Tut_Wuri_Handayani.svg/1200px-Tut_Wuri_Handayani.svg.png';
-        });
+        // Skrip fallback error logo juga DIHAPUS agar murni menampilkan logo1.png
 
         // ==========================================
         // FITUR PASSWORD ADMIN
@@ -109,10 +102,9 @@
         window.cekPasswordAdmin = function(e) {
             e.preventDefault();
             
-            // Langsung tampilkan prompt password tanpa jeda suara
+            // Langsung tampilkan prompt password
             let pass = prompt("🔒 Masukkan Password Admin:");
             if (pass === "QA-Roster77") {
-                // Jika password benar, arahkan ke halaman input jadwal
                 window.location.href = "input_jadwal.html"; 
             } else if (pass !== null) {
                 alert("❌ Password Salah! Akses Ditolak.");
