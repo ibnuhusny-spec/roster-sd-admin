@@ -11,46 +11,37 @@
     <!-- Container Splash Screen -->
     <div class="flex flex-col items-center justify-center min-h-screen relative p-6 bg-gradient-to-b from-blue-50 to-blue-200">
         
-        <!-- Judul Aplikasi -->
         <h1 class="text-3xl md:text-4xl font-extrabold text-blue-900 mb-2 tracking-wide text-center drop-shadow-sm">
             APLIKASI ROSTER JADWAL
         </h1>
         
-        <!-- Nama Sekolah (Dinamis) -->
         <h2 id="teksNamaSekolah" class="text-xl md:text-2xl font-bold text-gray-700 mb-10 text-center">
             Memuat Data...
         </h2>
         
-        <!-- Logo Sekolah (Statis dari file lokal logo1.png) -->
         <div class="w-40 h-40 md:w-48 md:h-48 bg-white rounded-full p-4 shadow-xl flex items-center justify-center mb-10 border-4 border-white transform transition hover:scale-105 duration-300">
             <img id="imgLogo" src="logo1.png" alt="Logo Sekolah" class="max-w-full max-h-full object-contain">
         </div>
         
-        <!-- Tombol Mulai (Ke halaman lihat jadwal untuk publik) -->
         <a href="lihat_jadwal.html" class="bg-blue-500 hover:bg-blue-400 text-white text-xl font-bold py-4 px-12 rounded-full shadow-[0_6px_0_#1e3a8a] active:shadow-[0_0px_0_#1e3a8a] active:translate-y-[6px] transition-all duration-100">
             MULAI APLIKASI
         </a>
 
-        <!-- Link Admin (Kecil di bawah tombol) -->
         <a href="#" onclick="bukaModalAdmin(event)" class="mt-8 text-sm text-blue-700 hover:text-blue-900 font-semibold hover:underline cursor-pointer">
             🔒 Masuk sebagai Admin
         </a>
         
-        <!-- Footer Pengembang -->
         <div class="absolute bottom-6 w-full text-center">
             <p class="text-xs text-gray-500 font-medium mb-1">Dikembangkan dengan ❤️ oleh:</p>
             <p class="text-base text-gray-800 font-extrabold tracking-wider">IBNU HUSNY</p>
         </div>
-
     </div>
 
-    <!-- MODAL PASSWORD ADMIN (Tersembunyi secara default) -->
+    <!-- MODAL PASSWORD ADMIN -->
     <div id="modalPassword" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-sm transform scale-100 transition-transform">
             <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 mb-4 text-2xl">
-                    🔒
-                </div>
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 mb-4 text-2xl">🔒</div>
                 <h3 class="text-xl font-bold text-gray-800">Login Admin</h3>
                 <p class="text-sm text-gray-500 mt-1">Masukkan password untuk mengelola jadwal.</p>
             </div>
@@ -67,36 +58,38 @@
         </div>
     </div>
 
-    <!-- Script Firebase & Logika Modal -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         // ========================================================
-        // ⚠️ MASUKKAN FIREBASE CONFIG ANDA DI SINI
+        // KONFIGURASI FIREBASE DENGAN FALLBACK
         // ========================================================
-        const firebaseConfig = {
-             apiKey: "AIzaSyAu8st2VRsNFyzC8UR8TDq8821y4_TVHVk",
-  authDomain: "roster-sekolah-sd.firebaseapp.com",
-  projectId: "roster-sekolah-sd",
-  storageBucket: "roster-sekolah-sd.firebasestorage.app",
-  messagingSenderId: "819380185646",
-  appId: "1:819380185646:web:39ae854591ca40f0498dbf"
+        let firebaseConfig = {
+            apiKey: "API_KEY_ANDA",
+            authDomain: "PROJECT_ID.firebaseapp.com",
+            projectId: "PROJECT_ID",
+            storageBucket: "PROJECT_ID.appspot.com",
+            messagingSenderId: "SENDER_ID",
+            appId: "APP_ID"
         };
+
+        try {
+            const module = await import("./firebase-config.js");
+            if (module && module.firebaseConfig) { firebaseConfig = module.firebaseConfig; }
+        } catch (error) {
+            console.warn("Menjalankan mode preview/lokal.");
+        }
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Menarik pengaturan NAMA sekolah dari database
         async function muatSplashScreen() {
             const teksNamaSekolah = document.getElementById('teksNamaSekolah');
-
             if (firebaseConfig.apiKey === "API_KEY_ANDA") {
-                console.warn("API Key belum disetting. Menampilkan mode demo lokal.");
                 teksNamaSekolah.innerText = "SD Negeri Default (Mode Demo)";
                 return; 
             }
-
             try {
                 const docSnap = await getDoc(doc(db, "pengaturan", "info_sekolah"));
                 if (docSnap.exists()) {
@@ -105,44 +98,36 @@
                     teksNamaSekolah.innerText = "Selamat Datang!";
                 }
             } catch (error) {
-                console.error("Gagal memuat pengaturan:", error);
                 teksNamaSekolah.innerText = "Aplikasi Roster (Mode Offline)";
             }
         }
 
         muatSplashScreen();
 
-        // ==========================================
-        // FITUR MODAL PASSWORD ADMIN
-        // ==========================================
+        // Logika Modal
         const modal = document.getElementById('modalPassword');
         const inputPass = document.getElementById('inputPassword');
         const errorText = document.getElementById('errorPassword');
 
         window.bukaModalAdmin = function(e) {
             e.preventDefault();
-            modal.classList.remove('hidden'); // Tampilkan pop-up
-            inputPass.value = '';             // Kosongkan inputan
-            errorText.classList.add('hidden'); // Sembunyikan error sebelumnya
-            
-            // Fokuskan kursor langsung ke kolom input
+            modal.classList.remove('hidden');
+            inputPass.value = '';
+            errorText.classList.add('hidden');
             setTimeout(() => inputPass.focus(), 100);
         };
 
-        window.tutupModalAdmin = function() {
-            modal.classList.add('hidden'); // Sembunyikan pop-up
-        };
+        window.tutupModalAdmin = function() { modal.classList.add('hidden'); };
 
         window.prosesLoginAdmin = function() {
             if (inputPass.value === "QA-Roster77") {
                 window.location.href = "input_jadwal.html"; 
             } else {
-                errorText.classList.remove('hidden'); // Tampilkan pesan error
-                inputPass.focus(); // Kembalikan kursor ke input agar mudah dihapus
+                errorText.classList.remove('hidden');
+                inputPass.focus();
             }
         };
 
-        // Menambahkan fitur tekan tombol "Enter" di keyboard untuk langsung login
         inputPass.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
