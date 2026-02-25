@@ -86,7 +86,6 @@
     </div>
 
     <script type="module">
-        // Tambahkan import query, where, getDocs untuk fitur pengecekan duplikat
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, getDoc, deleteDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
@@ -125,7 +124,7 @@
             try {
                 await addDoc(collection(db, koleksi), { nama: nilai });
                 inputElemen.value = ""; 
-                inputElemen.focus(); // Kembalikan kursor ke input agar gampang mengetik lagi
+                inputElemen.focus(); 
             } catch (error) {
                 alert("Terjadi kesalahan saat menyimpan data.");
             }
@@ -135,7 +134,7 @@
         function aktifkanTombolEnter(idInput, idTombol) {
             document.getElementById(idInput).addEventListener("keypress", function(event) {
                 if (event.key === "Enter") {
-                    event.preventDefault(); // Mencegah form tersubmit secara bawaan
+                    event.preventDefault(); 
                     document.getElementById(idTombol).click();
                 }
             });
@@ -153,7 +152,6 @@
         document.getElementById('btnKelas').addEventListener('click', () => tambahData("master_kelas", "inputKelas", "Kelas"));
         document.getElementById('btnMapel').addEventListener('click', () => tambahData("master_mapel", "inputMapel", "Mata Pelajaran"));
         document.getElementById('btnJam').addEventListener('click', () => tambahData("master_jam", "inputJam", "Jam Mengajar"));
-
 
         // Fungsi Load Data List dengan Sorting Natural
         function muatDataRealtime(koleksi, idList) {
