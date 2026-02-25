@@ -58,7 +58,16 @@
                     <option value="">-- Memuat Guru... --</option>
                 </select>
             </div>
-            <button type="submit" id="btnSubmit" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition duration-200">
+
+            <!-- FITUR BARU: Checkbox Izinkan Co-Teaching -->
+            <div class="mt-2 bg-yellow-50 border border-yellow-200 p-3 rounded-lg flex items-start gap-2 shadow-inner">
+                <input type="checkbox" id="coTeaching" class="mt-1 w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                <label for="coTeaching" class="text-xs md:text-sm text-yellow-800 font-medium leading-tight">
+                    <b>Izinkan Guru Pendamping</b><br>Centang jika kelas ini diisi oleh 2 guru pada jam yang sama (mengabaikan peringatan bentrok kelas).
+                </label>
+            </div>
+
+            <button type="submit" id="btnSubmit" class="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition duration-200 shadow-md">
                 Simpan Jadwal
             </button>
         </form>
@@ -113,9 +122,7 @@
                 return;
             }
             onSnapshot(collection(db, koleksi), (snapshot) => {
-                // Simpan nilai yang sedang dipilih user saat ini
-                const nilaiTerpilih = elemen.value;
-
+                const nilaiTerpilih = elemen.value; // Simpan nilai yang sedang dipilih
                 elemen.innerHTML = `<option value="">-- ${teksDefault} --</option>`;
                 let arrData = [];
                 snapshot.forEach((doc) => arrData.push(doc.data()));
@@ -139,8 +146,6 @@
             pesanBox.innerHTML = pesan;
             pesanBox.className = `p-4 mb-6 rounded-lg font-medium text-sm block ${tipe === 'sukses' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
             pesanBox.classList.remove('hidden');
-            
-            // Hilangkan pesan sukses otomatis setelah 4 detik
             if(tipe === 'sukses') {
                 setTimeout(() => { pesanBox.classList.add('hidden'); }, 4000);
             }
@@ -205,29 +210,35 @@
             const kelas = document.getElementById('kelas').value;
             const mapel = document.getElementById('mapel').value;
             const guru = document.getElementById('guru').value;
+            const isCoTeaching = document.getElementById('coTeaching').checked;
 
             try {
                 const jadwalRef = collection(db, "jadwal_pelajaran");
 
+                // 1. Cek apakah GURU yang sama sudah mengajar di jam ini
                 const qGuru = query(jadwalRef, where("hari", "==", hari), where("jam_ke", "==", jam_ke), where("guru", "==", guru));
                 if (!(await getDocs(qGuru)).empty) {
-                    tampilkanPesan(`❌ <b>Gagal!</b> ${guru} sudah mengajar di jam ini.`, 'error');
+                    tampilkanPesan(`❌ <b>Gagal!</b> ${guru} sudah ada jadwal mengajar di jam ini.`, 'error');
                 } else {
+                    
+                    // 2. Cek apakah KELAS sudah terisi
                     const qKelas = query(jadwalRef, where("hari", "==", hari), where("jam_ke", "==", jam_ke), where("kelas", "==", kelas));
-                    if (!(await getDocs(qKelas)).empty) {
-                        tampilkanPesan(`❌ <b>Gagal!</b> Kelas ${kelas} sudah ada pelajaran di jam ini.`, 'error');
+                    const kelasDocs = await getDocs(qKelas);
+
+                    // Jika kelas sudah terisi DAN checkbox co-teaching TIDAK dicentang, maka blokir
+                    if (!kelasDocs.empty && !isCoTeaching) {
+                        tampilkanPesan(`❌ <b>Gagal!</b> Kelas ${kelas} sudah terisi di jam ini.<br><span class="text-sm">Centang <b>"Izinkan Guru Pendamping"</b> jika memang diajar oleh 2 guru.</span>`, 'error');
                     } else {
+                        // Jika lolos semua validasi, Simpan data
                         await addDoc(jadwalRef, { hari, jam_ke, kelas, mapel, guru });
-                        tampilkanPesan("✅ <b>Sukses!</b> Jadwal tersimpan. Silakan lanjut ke jadwal berikutnya.", 'sukses');
+                        tampilkanPesan("✅ <b>Sukses!</b> Jadwal tersimpan.", 'sukses');
                         
-                        // form.reset(); <-- INI DIHAPUS agar history input sebelumnya tidak hilang
-                        
-                        // Fokuskan kursor ke jam_ke untuk memudahkan input berurutan
-                        document.getElementById('jam_ke').focus(); 
+                        document.getElementById('coTeaching').checked = false; 
+                        document.getElementById('guru').focus(); 
                     }
                 }
             } catch (error) {
-                tampilkanPesan("❌ Terjadi kesalahan.", 'error');
+                tampilkanPesan("❌ Terjadi kesalahan sistem.", 'error');
             }
             btnSubmit.innerHTML = "Simpan Jadwal";
             btnSubmit.disabled = false;
