@@ -176,11 +176,9 @@
                     if (cocokHari && cocokKelas && cocokGuru) jadwalDifilter.push(data);
                 });
 
-                // Fungsi "Sapu Jagat" untuk menemukan jam bersembunyi di mana saja
+                // Fungsi untuk menemukan jam dari kolom waktu saja (tanpa Jam Ke)
                 function getMenit(jadwal) {
-                    // Gabungkan teks dari kolom Waktu dan Jam Ke
-                    const teks = String(jadwal.waktu || "") + " " + String(jadwal.jam_ke || "");
-                    // Cari format jam (contoh: 09:30, 9.30, 10:00)
+                    const teks = String(jadwal.waktu || "");
                     const match = teks.match(/(\d{1,2})[:.](\d{2})/);
                     if (match) {
                         return (parseInt(match[1], 10) * 60) + parseInt(match[2], 10);
@@ -188,7 +186,7 @@
                     return 999999;
                 }
 
-                // --- LOGIKA PENGURUTAN ABSOLUT TERBARU (SANGAT STABIL) ---
+                // --- LOGIKA PENGURUTAN TANPA JAM KE- ---
                 jadwalDifilter.sort((a, b) => {
                     // 1. Urutkan Hari
                     const urutanHari = { "Senin":1, "Selasa":2, "Rabu":3, "Kamis":4, "Jumat":5, "Sabtu":6, "Minggu":7 };
@@ -196,19 +194,12 @@
                     const hariB = urutanHari[b.hari] || 99;
                     if (hariA !== hariB) return hariA - hariB;
 
-                    // 2. Urutkan Jam Ke (Tangkap angka murni pertama, misal "5")
-                    const matchJamA = String(a.jam_ke || "").match(/\d+/);
-                    const matchJamB = String(b.jam_ke || "").match(/\d+/);
-                    const jamA = matchJamA ? parseInt(matchJamA[0], 10) : 99;
-                    const jamB = matchJamB ? parseInt(matchJamB[0], 10) : 99;
-                    if (jamA !== jamB) return jamA - jamB;
-
-                    // 3. Urutkan Waktu (Membaca dari semua kolom dengan fungsi Sapu Jagat)
+                    // 2. Urutkan Waktu (Membaca langsung dari teks waktu)
                     const menitA = getMenit(a);
                     const menitB = getMenit(b);
                     if (menitA !== menitB) return menitA - menitB;
 
-                    // 4. Fallback terakhir jika waktu sama persis, urutkan nama kelas
+                    // 3. Fallback terakhir jika waktu sama persis, urutkan nama kelas
                     return String(a.kelas || "").localeCompare(String(b.kelas || ""));
                 });
 
@@ -234,26 +225,22 @@
                     jadwalDifilter.forEach(jadwal => {
                         // Persiapkan format Waktu untuk Excel dan Tabel
                         const teksWaktu = jadwal.waktu ? jadwal.waktu : "-";
-                        const teksJamLengkap = `Jam Ke-${jadwal.jam_ke} (${teksWaktu})`;
 
-                        // Masukkan ke array Excel
+                        // Masukkan ke array Excel (Tanpa Jam Ke)
                         dataUntukExcel.push({
                             "Hari": jadwal.hari,
-                            "Waktu": teksJamLengkap,
+                            "Waktu": teksWaktu,
                             "Kelas": jadwal.kelas,
                             "Mata Pelajaran": jadwal.mapel,
                             "Guru Pengajar": jadwal.guru
                         });
 
-                        // Tampilkan di Tabel HTML (Tampilan dirapikan, Waktu dibuat horizontal)
+                        // Tampilkan di Tabel HTML (Badge Jam Ke dihilangkan, Waktu dipercantik)
                         tbody.insertAdjacentHTML('beforeend', `
                             <tr class="hover:bg-blue-50 transition duration-150 border-b border-gray-100">
                                 <td class="py-4 px-4 font-bold text-gray-800 whitespace-nowrap">${jadwal.hari}</td>
                                 <td class="py-4 px-4 whitespace-nowrap">
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-xs font-bold text-white bg-blue-600 px-2 py-1 rounded shadow-sm">Jam ${jadwal.jam_ke}</span>
-                                        <span class="font-semibold text-gray-700">${teksWaktu}</span>
-                                    </div>
+                                    <span class="font-bold text-blue-800 bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 shadow-sm">${teksWaktu}</span>
                                 </td>
                                 <td class="py-4 px-4 whitespace-nowrap">
                                     <span class="bg-green-100 text-green-800 text-sm font-extrabold px-3 py-1 rounded-lg border border-green-200">${jadwal.kelas}</span>
