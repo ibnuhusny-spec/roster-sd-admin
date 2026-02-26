@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Input Jadwal Pelajaran</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Library untuk Export Excel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Library ExcelJS untuk Export Excel dengan Styling Warna & Border -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 </head>
 <body class="bg-slate-50 min-h-screen p-4 md:p-8 font-sans text-gray-800">
 
@@ -228,7 +228,7 @@
                 
                 <div class="flex flex-col-reverse sm:flex-row gap-3 mt-6 pt-4 border-t">
                     <button type="button" onclick="tutupModal('modalExportExcel')" class="w-full sm:w-1/3 px-4 py-3 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors">Batal</button>
-                    <button type="submit" class="w-full sm:w-2/3 px-4 py-3 text-white bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200 rounded-xl font-bold transition-all flex justify-center items-center gap-2">
+                    <button type="submit" id="btnProsesExport" class="w-full sm:w-2/3 px-4 py-3 text-white bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200 rounded-xl font-bold transition-all flex justify-center items-center gap-2">
                         <span>📥</span> Unduh File Excel Sekarang
                     </button>
                 </div>
@@ -259,9 +259,9 @@
         let semuaJadwal = []; 
         let idEditJadwal = null; 
         let kelasSumberAktif = ""; 
-        let namaSekolahSistem = "NAMA SEKOLAH BELUM DISETTING"; // Default untuk excel
+        let namaSekolahSistem = "NAMA SEKOLAH BELUM DISETTING";
 
-        // --- AMBIL NAMA SEKOLAH UNTUK EXCEL ---
+        // --- AMBIL NAMA SEKOLAH ---
         async function ambilNamaSekolah() {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
             try {
@@ -304,7 +304,6 @@
                     }
                 });
 
-                // Khusus untuk modal Set Guru, salin data dari dropdown guru utama
                 if(idSelect === 'pilihGuru') {
                     document.getElementById('pilihGuruMassal').innerHTML = selectEl.innerHTML;
                 }
@@ -515,15 +514,12 @@
             }
         };
 
-        // --- FITUR 2: EXPORT EXCEL ---
+        // --- FITUR 2: EXPORT EXCELJS (DENGAN WARNA GURU & STYLING) ---
         window.bukaModalExport = function() {
             if (semuaJadwal.length === 0) {
                 return alert("⚠️ Tidak ada data jadwal yang bisa di-export.");
             }
-
             const kelasAktif = document.getElementById('filterKelas').value;
-            
-            // Prediksi/Saran inputan awal
             document.getElementById('exTahun').value = `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`;
             
             if (kelasAktif !== "Semua") {
@@ -531,102 +527,212 @@
             } else {
                 document.getElementById('exNamaWali').placeholder = `Kosongkan jika ekspor semua kelas`;
             }
-
             document.getElementById('modalExportExcel').classList.remove('hidden');
         };
 
-        window.prosesExportExcel = function(e) {
+        window.prosesExportExcel = async function(e) {
             e.preventDefault();
 
-            // Ambil Nilai Input
-            const tahun = document.getElementById('exTahun').value.toUpperCase();
-            const tempatTgl = document.getElementById('exTempatTgl').value;
-            const kepsek = document.getElementById('exNamaKepsek').value;
-            const nipKepsek = document.getElementById('exNipKepsek').value;
-            const wali = document.getElementById('exNamaWali').value || "....................................";
-            const nipWali = document.getElementById('exNipWali').value || "..................";
-            
-            const filterKelas = document.getElementById('filterKelas').value;
-            const isSemua = filterKelas === "Semua";
-            
-            let dataExport = isSemua ? semuaJadwal : semuaJadwal.filter(j => j.kelas === filterKelas);
+            const btnExport = document.getElementById('btnProsesExport');
+            const teksAwalBtn = btnExport.innerHTML;
+            btnExport.innerHTML = "⏳ Sedang Memproses Excel..."; btnExport.disabled = true;
 
-            // Urutkan data seperti di tabel web
-            dataExport.sort((a, b) => {
-                if (urutanHari[a.hari] !== urutanHari[b.hari]) return urutanHari[a.hari] - urutanHari[b.hari];
-                return (a.waktu || "").localeCompare(b.waktu || "");
-            });
+            try {
+                // Ambil Nilai Input
+                const tahun = document.getElementById('exTahun').value.toUpperCase();
+                const tempatTgl = document.getElementById('exTempatTgl').value;
+                const kepsek = document.getElementById('exNamaKepsek').value;
+                const nipKepsek = document.getElementById('exNipKepsek').value;
+                const wali = document.getElementById('exNamaWali').value || "....................................";
+                const nipWali = document.getElementById('exNipWali').value || "..................";
+                
+                const filterKelas = document.getElementById('filterKelas').value;
+                const isSemua = filterKelas === "Semua";
+                
+                let dataExport = isSemua ? semuaJadwal : semuaJadwal.filter(j => j.kelas === filterKelas);
 
-            // --- SUSUN ARRAY UNTUK SHEETJS ---
-            const aoa = []; // Array of Arrays
-            
-            // Baris 1-3 (Header/Kop)
-            aoa.push(["ROSTER MATA PELAJARAN"]);
-            aoa.push([namaSekolahSistem]);
-            aoa.push(["TAHUN PELAJARAN " + tahun]);
-            
-            if (!isSemua) {
-                aoa.push(["KELAS: " + filterKelas]);
-            } else {
-                aoa.push([]); // Baris kosong jika semua kelas
+                // Urutkan data
+                dataExport.sort((a, b) => {
+                    if (urutanHari[a.hari] !== urutanHari[b.hari]) return urutanHari[a.hari] - urutanHari[b.hari];
+                    return (a.waktu || "").localeCompare(b.waktu || "");
+                });
+
+                // Buat Workbook ExcelJS
+                const wb = new ExcelJS.Workbook();
+                const sheetName = isSemua ? "Semua_Kelas" : `Kelas_${filterKelas}`;
+                const ws = wb.addWorksheet(sheetName);
+
+                // Pengaturan Gaya Dasar
+                const centerAlign = { vertical: 'middle', horizontal: 'center' };
+                const borderAll = {
+                    top: {style:'thin'}, left: {style:'thin'},
+                    bottom: {style:'thin'}, right: {style:'thin'}
+                };
+
+                // KOP SURAT
+                ws.mergeCells('A1:E1');
+                ws.getCell('A1').value = "ROSTER MATA PELAJARAN";
+                ws.getCell('A1').font = { bold: true, size: 14 };
+                ws.getCell('A1').alignment = centerAlign;
+
+                ws.mergeCells('A2:E2');
+                ws.getCell('A2').value = namaSekolahSistem.toUpperCase();
+                ws.getCell('A2').font = { bold: true, size: 12 };
+                ws.getCell('A2').alignment = centerAlign;
+
+                ws.mergeCells('A3:E3');
+                ws.getCell('A3').value = "TAHUN PELAJARAN " + tahun;
+                ws.getCell('A3').font = { bold: true, size: 11 };
+                ws.getCell('A3').alignment = centerAlign;
+
+                let startRow = 5;
+                if (!isSemua) {
+                    ws.mergeCells('A4:E4');
+                    ws.getCell('A4').value = "KELAS: " + filterKelas;
+                    ws.getCell('A4').font = { bold: true, size: 11 };
+                    ws.getCell('A4').alignment = centerAlign;
+                    startRow = 6;
+                }
+
+                // HEADER TABEL
+                const headers = ["Hari", "Waktu", "Kelas", "Mata Pelajaran", "Guru Pengajar"];
+                const headerRow = ws.getRow(startRow);
+                headers.forEach((h, i) => {
+                    const cell = headerRow.getCell(i + 1);
+                    cell.value = h;
+                    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; // Putih
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } }; // Biru gelap Tailwind blue-900
+                    cell.alignment = centerAlign;
+                    cell.border = borderAll;
+                });
+
+                startRow++;
+
+                // PALET WARNA PASTEL UNTUK GURU (Sama seperti web)
+                const warnaPastel = [
+                    'FFE6F0FF', 'FFFFEBE6', 'FFF0F5E6', 'FFFFF0E6', 'FFE6E6FA',
+                    'FFFFE6F0', 'FFE6FAFF', 'FFFFFAEB', 'FFEBF0FA', 'FFFAF0E6',
+                    'FFE6FFE6', 'FFFFE6E6', 'FFE6E6E6', 'FFFFF5E6', 'FFE6F5FF'
+                ];
+                let warnaGuruMap = {};
+                let indeksWarna = 0;
+
+                // ISI DATA
+                dataExport.forEach((j) => {
+                    const row = ws.getRow(startRow);
+                    row.getCell(1).value = j.hari;
+                    row.getCell(2).value = j.waktu;
+                    row.getCell(3).value = j.kelas;
+                    row.getCell(4).value = j.mapel;
+                    row.getCell(5).value = j.guru || "";
+
+                    // Styling Sel
+                    for(let i=1; i<=5; i++) {
+                        const cell = row.getCell(i);
+                        cell.border = borderAll;
+                        cell.alignment = { vertical: 'middle', horizontal: 'left' };
+                        // Center align untuk Hari, Waktu, Kelas
+                        if (i <= 3) cell.alignment = centerAlign;
+                    }
+
+                    // Terapkan Warna Baris Berdasarkan Guru
+                    if (j.guru) {
+                        if (!warnaGuruMap[j.guru]) {
+                            warnaGuruMap[j.guru] = warnaPastel[indeksWarna % warnaPastel.length];
+                            indeksWarna++;
+                        }
+                        const warnaBaris = warnaGuruMap[j.guru];
+                        for(let i=1; i<=5; i++) {
+                             row.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: warnaBaris } };
+                        }
+                    } else {
+                         // Jika kosong, teks merah miring
+                         row.getCell(5).font = { color: { argb: 'FFFF0000' }, italic: true };
+                         row.getCell(5).value = "Belum diisi";
+                    }
+
+                    startRow++;
+                });
+
+                // MENGATUR LEBAR KOLOM
+                ws.getColumn(1).width = 15; // Hari
+                ws.getColumn(2).width = 20; // Waktu
+                ws.getColumn(3).width = 12; // Kelas
+                ws.getColumn(4).width = 35; // Mapel
+                ws.getColumn(5).width = 35; // Guru
+
+                // AREA TANDA TANGAN (FOOTER)
+                let footerRow = startRow + 2;
+
+                // Tempat dan Tanggal
+                ws.mergeCells(`D${footerRow}:E${footerRow}`);
+                ws.getCell(`D${footerRow}`).value = tempatTgl;
+                ws.getCell(`D${footerRow}`).alignment = centerAlign;
+
+                // Teks Mengetahui
+                footerRow++;
+                ws.mergeCells(`A${footerRow}:B${footerRow}`);
+                ws.getCell(`A${footerRow}`).value = "Mengetahui,";
+                ws.getCell(`A${footerRow}`).alignment = centerAlign;
+
+                ws.mergeCells(`D${footerRow}:E${footerRow}`);
+                ws.getCell(`D${footerRow}`).value = "Wali Kelas,";
+                ws.getCell(`D${footerRow}`).alignment = centerAlign;
+
+                // Kepala Sekolah Title
+                footerRow++;
+                ws.mergeCells(`A${footerRow}:B${footerRow}`);
+                ws.getCell(`A${footerRow}`).value = "Kepala Sekolah,";
+                ws.getCell(`A${footerRow}`).alignment = centerAlign;
+
+                // Ruang untuk tanda tangan
+                footerRow += 4; 
+
+                // Nama Penandatangan
+                ws.mergeCells(`A${footerRow}:B${footerRow}`);
+                ws.getCell(`A${footerRow}`).value = kepsek;
+                ws.getCell(`A${footerRow}`).font = { bold: true, underline: true };
+                ws.getCell(`A${footerRow}`).alignment = centerAlign;
+
+                ws.mergeCells(`D${footerRow}:E${footerRow}`);
+                ws.getCell(`D${footerRow}`).value = wali;
+                ws.getCell(`D${footerRow}`).font = { bold: true, underline: true };
+                ws.getCell(`D${footerRow}`).alignment = centerAlign;
+
+                // NIP
+                footerRow++;
+                ws.mergeCells(`A${footerRow}:B${footerRow}`);
+                ws.getCell(`A${footerRow}`).value = "NIP. " + nipKepsek;
+                ws.getCell(`A${footerRow}`).alignment = centerAlign;
+
+                ws.mergeCells(`D${footerRow}:E${footerRow}`);
+                ws.getCell(`D${footerRow}`).value = "NIP. " + nipWali;
+                ws.getCell(`D${footerRow}`).alignment = centerAlign;
+
+                // PROSES EXPORT DAN DOWNLOAD FILE
+                const buffer = await wb.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                const fileName = `Roster_Jadwal_${sheetName}_${tahun.replace('/', '-')}.xlsx`;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Cleanup
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                tutupModal('modalExportExcel');
+                alert(`✅ Roster jadwal berhasil didownload dengan format berwarna!\nNama File: ${fileName}`);
+
+            } catch (error) {
+                console.error("Gagal export excel:", error);
+                alert("❌ Terjadi kesalahan saat membuat file Excel.");
             }
-            
-            aoa.push([]); // Jarak
 
-            // Baris Header Tabel
-            aoa.push(["Hari", "Waktu", "Kelas", "Mata Pelajaran", "Guru Pengajar"]);
-
-            // Isi Data
-            dataExport.forEach(j => {
-                aoa.push([j.hari, j.waktu, j.kelas, j.mapel, j.guru || ""]);
-            });
-
-            // Area Tanda Tangan (Footer)
-            aoa.push([]); // Jarak
-            aoa.push([]); // Jarak
-            aoa.push(["", "", "", "", tempatTgl]);
-            aoa.push(["Mengetahui,", "", "", "", "Wali Kelas,"]);
-            aoa.push(["Kepala Sekolah,", "", "", "", ""]);
-            aoa.push([]); // Jarak TTD
-            aoa.push([]); // Jarak TTD
-            aoa.push([]); // Jarak TTD
-            aoa.push([kepsek, "", "", "", wali]);
-            aoa.push(["NIP. " + nipKepsek, "", "", "", "NIP. " + nipWali]);
-
-            // Buat Worksheet
-            const ws = XLSX.utils.aoa_to_sheet(aoa);
-
-            // Styling (Merge Cells untuk Header)
-            ws['!merges'] = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }, // Merge ROSTER
-                { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } }, // Merge NAMA SEKOLAH
-                { s: { r: 2, c: 0 }, e: { r: 2, c: 4 } }, // Merge TAHUN
-            ];
-            
-            if (!isSemua) {
-                ws['!merges'].push({ s: { r: 3, c: 0 }, e: { r: 3, c: 4 } }); // Merge KELAS
-            }
-
-            // Lebar Kolom
-            ws['!cols'] = [
-                { wpx: 80 },  // Hari
-                { wpx: 120 }, // Waktu
-                { wpx: 80 },  // Kelas
-                { wpx: 200 }, // Mapel
-                { wpx: 200 }  // Guru
-            ];
-
-            // Buat Workbook dan simpan
-            const wb = XLSX.utils.book_new();
-            const sheetName = isSemua ? "Semua_Kelas" : `Kelas_${filterKelas}`;
-            XLSX.utils.book_append_sheet(wb, ws, sheetName);
-            
-            const fileName = `Roster_Jadwal_${sheetName}_${tahun.replace('/', '-')}.xlsx`;
-            
-            XLSX.writeFile(wb, fileName);
-            
-            tutupModal('modalExportExcel');
-            alert(`✅ File Excel berhasil diunduh dengan nama:\n${fileName}`);
+            btnExport.innerHTML = teksAwalBtn; btnExport.disabled = false;
         };
 
 
