@@ -64,10 +64,12 @@
                     </select>
                 </div>
 
-                <!-- MAPEL -->
+                <!-- MAPEL (Sekarang sudah jadi Dropdown) -->
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Mata Pelajaran</label>
-                    <input type="text" id="inputMapel" required placeholder="Nama Mapel" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-gray-50 font-medium">
+                    <select id="inputMapel" required class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-gray-50 font-medium">
+                        <option value="" disabled selected>-- Memuat... --</option>
+                    </select>
                 </div>
 
                 <!-- GURU -->
@@ -140,13 +142,19 @@
 
                 // Dropdown Waktu
                 const selectWaktu = document.getElementById('inputWaktu');
-                const waktuSnap = await getDocs(collection(db, "master_jam"));
+                const waktuSnap = await getDocs(collection(db, "master_waktu"));
                 selectWaktu.innerHTML = '<option value="" disabled selected>-- Pilih Waktu --</option>';
                 waktuSnap.forEach(w => {
                     // Cek apakah datanya tersimpan di field "waktu" atau "nama" pada kelola_data Anda
                     const nilaiWaktu = w.data().waktu || w.data().nama || "-";
                     selectWaktu.insertAdjacentHTML('beforeend', `<option value="${nilaiWaktu}">${nilaiWaktu}</option>`);
                 });
+
+                // Dropdown Mapel (Menarik data dari master_mapel)
+                const selectMapel = document.getElementById('inputMapel');
+                const mapelSnap = await getDocs(collection(db, "master_mapel"));
+                selectMapel.innerHTML = '<option value="" disabled selected>-- Pilih Mapel --</option>';
+                mapelSnap.forEach(m => selectMapel.insertAdjacentHTML('beforeend', `<option value="${m.data().nama}">${m.data().nama}</option>`));
 
                 // Dropdown Guru
                 const selectGuru = document.getElementById('inputGuru');
