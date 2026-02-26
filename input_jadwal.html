@@ -284,6 +284,9 @@
                         <td class="py-3 px-4">${j.mapel}</td>
                         <td class="py-3 px-4">${j.guru}</td>
                         <td class="py-3 px-4 text-center whitespace-nowrap">
+                            <button onclick="salinJadwal('${j.id}')" class="bg-blue-100 text-blue-600 hover:bg-blue-500 hover:text-white p-2 rounded transition mr-1" title="Salin Jadwal">
+                                📋
+                            </button>
                             <button onclick="editJadwal('${j.id}')" class="bg-yellow-100 text-yellow-600 hover:bg-yellow-500 hover:text-white p-2 rounded transition mr-1" title="Edit">
                                 ✏️
                             </button>
@@ -317,6 +320,32 @@
             btnSubmit.classList.add('w-2/3');
             
             document.getElementById('formTitle').innerText = "✏️ Edit Jadwal";
+            document.getElementById('btnBatalEdit').classList.remove('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // --- FUNGSI SALIN JADWAL ---
+        window.salinJadwal = function(id) {
+            const jadwal = semuaJadwal.find(j => j.id === id);
+            if(!jadwal) return;
+            
+            document.getElementById('pilihHari').value = jadwal.hari;
+            document.getElementById('pilihKelas').value = jadwal.kelas;
+            document.getElementById('pilihWaktu').value = jadwal.waktu;
+            document.getElementById('pilihMapel').value = jadwal.mapel;
+            document.getElementById('pilihGuru').value = jadwal.guru;
+            
+            idEditJadwal = null; // Dikosongkan agar tersimpan sebagai data BARU, bukan update
+            
+            const btnSubmit = document.getElementById('btnSubmitJadwal');
+            btnSubmit.innerHTML = "💾 Simpan Salinan";
+            btnSubmit.classList.remove('bg-green-600', 'hover:bg-green-700'); // Hapus warna hijau mode edit
+            btnSubmit.classList.add('bg-blue-600', 'hover:bg-blue-700'); // Beri warna biru standar
+            btnSubmit.classList.remove('w-full');
+            btnSubmit.classList.add('w-2/3');
+            
+            document.getElementById('formTitle').innerText = "📋 Salin Jadwal";
             document.getElementById('btnBatalEdit').classList.remove('hidden');
             
             window.scrollTo({ top: 0, behavior: 'smooth' });
