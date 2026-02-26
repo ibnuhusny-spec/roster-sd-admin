@@ -176,21 +176,37 @@
                     if (cocokHari && cocokKelas && cocokGuru) jadwalDifilter.push(data);
                 });
 
-                // Urutkan berdasarkan Hari, lalu Jam Ke (Numerik), lalu Waktu
+                // Fungsi bantuan untuk membaca jam dari teks (misal "09:30 - 10:00" jadi menit)
+                function parseWaktuKeMenit(waktuStr) {
+                    if (!waktuStr) return 9999;
+                    const match = waktuStr.match(/(\d{1,2})[:.](\d{2})/);
+                    if (match) {
+                        return (parseInt(match[1]) * 60) + parseInt(match[2]);
+                    }
+                    return 9999;
+                }
+
+                // Urutkan berdasarkan Hari, lalu Jam Ke, lalu Waktu secara akurat
                 const urutanHari = { "Senin":1, "Selasa":2, "Rabu":3, "Kamis":4, "Jumat":5, "Sabtu":6 };
                 jadwalDifilter.sort((a,b) => {
                     // 1. Urutkan berdasarkan Hari
                     const selisihHari = (urutanHari[a.hari] || 99) - (urutanHari[b.hari] || 99);
                     if (selisihHari !== 0) return selisihHari;
                     
-                    // 2. Urutkan berdasarkan Jam Ke (Angka 1-10+)
-                    const selisihJam = String(a.jam_ke).localeCompare(String(b.jam_ke), undefined, {numeric: true});
-                    if (selisihJam !== 0) return selisihJam;
+                    // 2. Urutkan berdasarkan Jam Ke (Pastikan terbaca sebagai Angka)
+                    const jamA = parseInt(String(a.jam_ke).replace(/[^0-9]/g, '')) || 99;
+                    const jamB = parseInt(String(b.jam_ke).replace(/[^0-9]/g, '')) || 99;
+                    if (jamA !== jamB) return jamA - jamB;
 
-                    // 3. Jika Jam Ke sama, urutkan berdasarkan rentang Waktu (misal "09:30" vs "10:00")
+                    // 3. Jika Jam Ke sama, konversi Waktu ke hitungan menit agar 09:30 pasti di atas 10:00
+                    const menitA = parseWaktuKeMenit(a.waktu);
+                    const menitB = parseWaktuKeMenit(b.waktu);
+                    if (menitA !== menitB) return menitA - menitB;
+
+                    // 4. Fallback jika waktu sama persis atau format tidak dikenali
                     const waktuA = a.waktu || "";
                     const waktuB = b.waktu || "";
-                    return waktuA.localeCompare(waktuB, undefined, {numeric: true});
+                    return waktuA.localeCompare(waktuB);
                 });
 
                 // --- TAMPILKAN INFO JUMLAH JAM JIKA GURU DIPILIH ---
