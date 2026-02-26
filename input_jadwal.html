@@ -3,82 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Kelola Data Master</title>
+    <title>Admin - Input Jadwal Pelajaran</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 min-h-screen p-4 md:p-8 font-sans text-gray-800">
+<body class="bg-slate-50 min-h-screen p-4 md:p-8 font-sans text-gray-800">
 
-    <div class="max-w-6xl mx-auto mb-6">
-        <a href="input_jadwal.html" class="inline-block bg-white text-indigo-700 hover:bg-indigo-50 font-bold py-2 px-5 rounded-lg transition duration-200 shadow shadow-indigo-200">
-            ⬅️ Kembali ke Input Jadwal
-        </a>
+    <div class="max-w-7xl mx-auto mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <h1 class="text-3xl font-extrabold text-blue-800">📅 Kelola Jadwal Pelajaran</h1>
+        
+        <div class="flex gap-3">
+            <!-- Tombol ke Halaman Depan -->
+            <a href="/index.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg transition shadow">
+                🏠 Halaman Depan
+            </a>
+            <!-- Tombol ke Master Data -->
+            <a href="/kelola_data.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition shadow flex items-center gap-2">
+                ⚙️ Master Data
+            </a>
+        </div>
     </div>
 
-    <div class="max-w-6xl mx-auto space-y-8">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- PENGATURAN SEKOLAH -->
-        <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-            <h2 class="text-2xl font-bold text-indigo-700 mb-4 border-b pb-2">🏢 Pengaturan Sekolah</h2>
-            <div class="flex gap-4 items-end">
-                <div class="flex-1">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Nama Sekolah</label>
-                    <input type="text" id="inputNamaSekolah" placeholder="Contoh: SD Negeri 1 Jakarta" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+        <!-- FORM INPUT JADWAL -->
+        <div class="lg:col-span-1 bg-white rounded-2xl shadow-xl p-6 border border-blue-100 h-fit">
+            <h2 class="text-xl font-bold text-blue-700 mb-4 border-b pb-2">➕ Tambah Jadwal</h2>
+            
+            <form id="formJadwal" class="space-y-4" onsubmit="simpanJadwal(event)">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Hari</label>
+                    <select id="pilihHari" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50" required>
+                        <option value="">-- Pilih Hari --</option>
+                        <option value="Senin">Senin</option>
+                        <option value="Selasa">Selasa</option>
+                        <option value="Rabu">Rabu</option>
+                        <option value="Kamis">Kamis</option>
+                        <option value="Jumat">Jumat</option>
+                        <option value="Sabtu">Sabtu</option>
+                    </select>
                 </div>
-                <button onclick="simpanInfoSekolah()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow">
-                    Simpan Nama
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Kelas</label>
+                    <select id="pilihKelas" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50" required>
+                        <option value="">Memuat...</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Waktu / Jam</label>
+                    <select id="pilihWaktu" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50" required>
+                        <option value="">Memuat...</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Mata Pelajaran</label>
+                    <select id="pilihMapel" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50" required>
+                        <option value="">Memuat...</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Guru Pengajar</label>
+                    <select id="pilihGuru" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50" required>
+                        <option value="">Memuat...</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition transform hover:-translate-y-0.5">
+                    💾 Simpan Jadwal
                 </button>
-            </div>
-            <p class="text-xs text-gray-500 mt-2">*Catatan: Logo sekolah menggunakan file "logo1.png" di dalam folder aplikasi.</p>
+            </form>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
-            <!-- KELOLA WAKTU (Hanya Waktu, Tanpa Jam Ke-) -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-                <h2 class="text-xl font-bold text-orange-700 mb-4 border-b pb-2">⏰ Master Waktu</h2>
-                <div class="flex flex-col gap-2 mb-4">
-                    <input type="text" id="inputMasterWaktu" placeholder="Waktu (Misal: 07:30 - 08:00)" class="w-full p-2 border rounded">
-                    <button onclick="tambahWaktu()" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded font-bold w-full transition">Tambah Waktu</button>
+        <!-- TABEL PREVIEW JADWAL -->
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4 border-b pb-4">
+                <h2 class="text-xl font-bold text-gray-800">📋 Daftar Jadwal</h2>
+                
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <label class="text-sm font-bold text-gray-600 whitespace-nowrap">Filter Kelas:</label>
+                    <select id="filterKelas" onchange="tampilkanJadwal()" class="w-full sm:w-48 p-2 border border-gray-300 rounded-lg bg-gray-50 font-semibold text-blue-700">
+                        <option value="Semua">Semua Kelas</option>
+                    </select>
                 </div>
-                <ul id="listWaktu" class="space-y-2 max-h-60 overflow-y-auto"></ul>
             </div>
 
-            <!-- KELOLA KELAS -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-                <h2 class="text-xl font-bold text-green-700 mb-4 border-b pb-2">🏫 Master Kelas</h2>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="inputKelas" placeholder="Nama Kelas..." class="w-full p-2 border rounded">
-                    <button onclick="tambahData('master_kelas', 'inputKelas')" class="bg-green-600 text-white px-4 rounded font-bold">+</button>
-                </div>
-                <ul id="listKelas" class="space-y-2 max-h-60 overflow-y-auto"></ul>
+            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                <table class="min-w-full bg-white text-sm text-left">
+                    <thead class="bg-blue-50 text-blue-900 uppercase font-bold text-xs border-b">
+                        <tr>
+                            <th class="py-3 px-4">Hari</th>
+                            <th class="py-3 px-4">Waktu</th>
+                            <th class="py-3 px-4">Kelas</th>
+                            <th class="py-3 px-4">Mata Pelajaran</th>
+                            <th class="py-3 px-4">Guru</th>
+                            <th class="py-3 px-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelJadwal" class="divide-y divide-gray-100">
+                        <tr><td colspan="6" class="text-center py-4 text-gray-500">Memuat data jadwal...</td></tr>
+                    </tbody>
+                </table>
             </div>
-
-            <!-- KELOLA GURU -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-                <h2 class="text-xl font-bold text-blue-700 mb-4 border-b pb-2">👨‍🏫 Master Guru</h2>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="inputGuru" placeholder="Nama Guru..." class="w-full p-2 border rounded">
-                    <button onclick="tambahData('master_guru', 'inputGuru')" class="bg-blue-600 text-white px-4 rounded font-bold">+</button>
-                </div>
-                <ul id="listGuru" class="space-y-2 max-h-60 overflow-y-auto"></ul>
-            </div>
-
-            <!-- KELOLA MAPEL -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-                <h2 class="text-xl font-bold text-purple-700 mb-4 border-b pb-2">📚 Master Mapel</h2>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="inputMapel" placeholder="Mata Pelajaran..." class="w-full p-2 border rounded">
-                    <button onclick="tambahData('master_mapel', 'inputMapel')" class="bg-purple-600 text-white px-4 rounded font-bold">+</button>
-                </div>
-                <ul id="listMapel" class="space-y-2 max-h-60 overflow-y-auto"></ul>
-            </div>
-            
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         // ========================================================
         // KONFIGURASI FIREBASE
@@ -94,110 +128,154 @@
         try {
             const module = await import("./firebase-config.js");
             if (module && module.firebaseConfig) { firebaseConfig = module.firebaseConfig; }
-        } catch (error) { console.warn("Menjalankan mode lokal."); }
+        } catch (error) { console.warn("Mode lokal."); }
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- INFO SEKOLAH ---
-        async function muatInfoSekolah() {
-            if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
-            const docSnap = await getDoc(doc(db, "pengaturan", "info_sekolah"));
-            if (docSnap.exists()) document.getElementById('inputNamaSekolah').value = docSnap.data().nama_sekolah || "";
-        }
-        muatInfoSekolah();
+        let semuaJadwal = []; // Menyimpan semua jadwal di memori
 
-        window.simpanInfoSekolah = async function() {
-            if (firebaseConfig.apiKey === "API_KEY_ANDA") return alert("Isi config Firebase dahulu!");
-            const nama = document.getElementById('inputNamaSekolah').value;
-            await setDoc(doc(db, "pengaturan", "info_sekolah"), { nama_sekolah: nama }, { merge: true });
-            alert("Nama Sekolah Berhasil Disimpan!");
-        };
-
-        // --- KELOLA DATA MASTER (CRUD) ---
-        function muatList(koleksi, idList) {
+        // --- FUNGSI MUAT DROPDOWN DARI MASTER DATA ---
+        function muatDropdown(koleksi, idSelect, isWaktu = false) {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
             onSnapshot(collection(db, koleksi), (snapshot) => {
-                const ul = document.getElementById(idList);
-                ul.innerHTML = '';
-                snapshot.forEach(docSnap => {
-                    ul.insertAdjacentHTML('beforeend', `
-                        <li class="flex justify-between items-center bg-gray-50 p-2 border rounded shadow-sm text-sm">
-                            <span class="font-medium">${docSnap.data().nama}</span>
-                            <button onclick="hapusData('${koleksi}', '${docSnap.id}')" class="text-red-500 hover:text-red-700 font-bold px-2">X</button>
-                        </li>
-                    `);
-                });
-            });
-        }
-
-        muatList("master_kelas", "listKelas");
-        muatList("master_guru", "listGuru");
-        muatList("master_mapel", "listMapel");
-
-        window.tambahData = async function(koleksi, idInput) {
-            if (firebaseConfig.apiKey === "API_KEY_ANDA") return alert("Isi config Firebase dahulu!");
-            const inputEl = document.getElementById(idInput);
-            const nama = inputEl.value.trim();
-            if(!nama) return;
-            await addDoc(collection(db, koleksi), { nama: nama });
-            inputEl.value = '';
-        };
-
-        window.hapusData = async function(koleksi, id) {
-            if(confirm("Hapus data ini?")) { await deleteDoc(doc(db, koleksi, id)); }
-        };
-
-        // --- KHUSUS MASTER WAKTU (Hanya 1 Input) ---
-        function muatListWaktu() {
-            if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
-            onSnapshot(collection(db, "master_waktu"), (snapshot) => {
-                const ul = document.getElementById("listWaktu");
-                ul.innerHTML = '';
-                let arr = [];
-                snapshot.forEach(docSnap => arr.push({id: docSnap.id, ...docSnap.data()}));
+                const selectEl = document.getElementById(idSelect);
+                // Jika ini dropdown untuk filter kelas, pertahankan opsi "Semua Kelas"
+                if (idSelect === 'filterKelas') {
+                    selectEl.innerHTML = '<option value="Semua">Semua Kelas</option>';
+                } else {
+                    selectEl.innerHTML = '<option value="">-- Pilih --</option>';
+                }
                 
-                // Urutkan otomatis berdasarkan jam/menit (Fungsi Sapu Jagat yang sudah kita buat)
-                function getMenit(teks) {
-                    const match = String(teks || "").match(/\d+/g);
-                    if (match && match.length >= 2) {
-                        return (parseInt(match[0], 10) * 60) + parseInt(match[1], 10);
-                    } else if (match && match.length === 1) {
-                        return parseInt(match[0], 10) * 60;
-                    }
-                    return 999999;
+                let dataArr = [];
+                snapshot.forEach(docSnap => dataArr.push(docSnap.data()));
+
+                // Pengurutan khusus untuk Waktu agar berurutan sesuai jam
+                if(isWaktu) {
+                    dataArr.sort((a, b) => {
+                        let t1 = a.waktu || a.nama || "";
+                        let t2 = b.waktu || b.nama || "";
+                        return t1.localeCompare(t2);
+                    });
+                } else {
+                    // Urut abjad untuk yang lain
+                    dataArr.sort((a,b) => (a.nama || "").localeCompare(b.nama || ""));
                 }
 
-                arr.sort((a, b) => {
-                    const menitA = getMenit(a.waktu || a.nama);
-                    const menitB = getMenit(b.waktu || b.nama);
-                    if (menitA !== menitB) return menitA - menitB;
-                    // Fallback jika menit sama persis
-                    return String(a.waktu || a.nama || "").localeCompare(String(b.waktu || b.nama || ""));
-                });
-                
-                arr.forEach(data => {
-                    const nilaiWaktu = data.waktu || data.nama || "-";
-                    ul.insertAdjacentHTML('beforeend', `
-                        <li class="flex justify-between items-center bg-gray-50 p-2 border rounded shadow-sm text-sm">
-                            <span class="font-bold text-blue-800 bg-blue-100 px-3 py-1 rounded-lg border border-blue-200">${nilaiWaktu}</span>
-                            <button onclick="hapusData('master_waktu', '${data.id}')" class="text-red-500 hover:text-red-700 font-extrabold px-2">X</button>
-                        </li>
-                    `);
+                dataArr.forEach(data => {
+                    const nilai = data.nama || data.waktu;
+                    if(nilai) {
+                        selectEl.insertAdjacentHTML('beforeend', `<option value="${nilai}">${nilai}</option>`);
+                    }
                 });
             });
         }
-        muatListWaktu();
 
-        window.tambahWaktu = async function() {
+        // Panggil untuk mengisi semua pilihan
+        muatDropdown("master_kelas", "pilihKelas");
+        muatDropdown("master_kelas", "filterKelas"); // Untuk filter tabel
+        muatDropdown("master_waktu", "pilihWaktu", true);
+        muatDropdown("master_mapel", "pilihMapel");
+        muatDropdown("master_guru", "pilihGuru");
+
+        // --- FUNGSI SIMPAN JADWAL ---
+        window.simpanJadwal = async function(e) {
+            e.preventDefault();
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return alert("Isi config Firebase dahulu!");
-            const waktu = document.getElementById('inputMasterWaktu').value.trim();
-            if(!waktu) return alert("Harap isi Waktu (Misal: 08:00 - 09:30)!");
-            
-            // Simpan ke database dengan nama koleksi "master_waktu" agar sinkron dengan input_jadwal.html
-            await addDoc(collection(db, "master_waktu"), { waktu: waktu });
-            document.getElementById('inputMasterWaktu').value = '';
+
+            const jadwalBaru = {
+                hari: document.getElementById('pilihHari').value,
+                kelas: document.getElementById('pilihKelas').value,
+                waktu: document.getElementById('pilihWaktu').value,
+                mapel: document.getElementById('pilihMapel').value,
+                guru: document.getElementById('pilihGuru').value,
+                timestamp: new Date().getTime()
+            };
+
+            try {
+                // Simpan ke koleksi 'jadwal_pelajaran'
+                await addDoc(collection(db, "jadwal_pelajaran"), jadwalBaru);
+                alert("✅ Jadwal Berhasil Disimpan!");
+            } catch (error) {
+                console.error("Error menambah jadwal: ", error);
+                alert("❌ Gagal menyimpan jadwal.");
+            }
         };
+
+        // --- FUNGSI TAMPILKAN JADWAL DI TABEL ---
+        function muatDataJadwal() {
+            if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
+            onSnapshot(collection(db, "jadwal_pelajaran"), (snapshot) => {
+                semuaJadwal = [];
+                snapshot.forEach(docSnap => {
+                    semuaJadwal.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                tampilkanJadwal();
+            });
+        }
+
+        const urutanHari = { "Senin":1, "Selasa":2, "Rabu":3, "Kamis":4, "Jumat":5, "Sabtu":6, "Minggu":7 };
+
+        window.tampilkanJadwal = function() {
+            const tabel = document.getElementById('tabelJadwal');
+            const kelasDipilih = document.getElementById('filterKelas').value;
+            tabel.innerHTML = '';
+
+            // Filter di JavaScript
+            let jadwalTerfilter = semuaJadwal;
+            if (kelasDipilih !== "Semua") {
+                jadwalTerfilter = semuaJadwal.filter(j => j.kelas === kelasDipilih);
+            }
+
+            // Urutkan berdasarkan Hari, lalu Waktu
+            jadwalTerfilter.sort((a, b) => {
+                if (urutanHari[a.hari] !== urutanHari[b.hari]) {
+                    return urutanHari[a.hari] - urutanHari[b.hari];
+                }
+                return (a.waktu || "").localeCompare(b.waktu || "");
+            });
+
+            if (jadwalTerfilter.length === 0) {
+                tabel.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-gray-500 italic">Belum ada data jadwal untuk kelas ini.</td></tr>`;
+                return;
+            }
+
+            jadwalTerfilter.forEach(j => {
+                // Warna background beda untuk tiap hari agar mudah dibaca
+                let bgHari = "bg-gray-50";
+                if(j.hari === "Senin") bgHari = "bg-red-50 text-red-700";
+                if(j.hari === "Selasa") bgHari = "bg-orange-50 text-orange-700";
+                if(j.hari === "Rabu") bgHari = "bg-yellow-50 text-yellow-700";
+                if(j.hari === "Kamis") bgHari = "bg-green-50 text-green-700";
+                if(j.hari === "Jumat") bgHari = "bg-blue-50 text-blue-700";
+                if(j.hari === "Sabtu") bgHari = "bg-purple-50 text-purple-700";
+
+                tabel.insertAdjacentHTML('beforeend', `
+                    <tr class="hover:bg-gray-50 transition duration-150">
+                        <td class="py-3 px-4"><span class="px-2 py-1 rounded-md font-bold text-xs ${bgHari}">${j.hari}</span></td>
+                        <td class="py-3 px-4 font-medium">${j.waktu}</td>
+                        <td class="py-3 px-4 font-bold text-gray-700">${j.kelas}</td>
+                        <td class="py-3 px-4">${j.mapel}</td>
+                        <td class="py-3 px-4">${j.guru}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="hapusJadwal('${j.id}')" class="bg-red-100 text-red-600 hover:bg-red-500 hover:text-white p-2 rounded transition" title="Hapus">
+                                🗑️
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+        };
+
+        // --- FUNGSI HAPUS JADWAL ---
+        window.hapusJadwal = async function(id) {
+            if(confirm("Apakah Anda yakin ingin menghapus jadwal ini?")) {
+                await deleteDoc(doc(db, "jadwal_pelajaran", id));
+            }
+        };
+
+        // Inisialisasi
+        muatDataJadwal();
     </script>
 </body>
 </html>
