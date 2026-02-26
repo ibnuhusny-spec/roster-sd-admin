@@ -121,6 +121,29 @@
         </div>
     </div>
 
+    <!-- MODAL SALIN JADWAL KELAS -->
+    <div id="modalSalinJadwal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-md transform scale-100 transition-transform">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 mb-4 text-2xl">📋</div>
+                <h3 class="text-xl font-bold text-gray-800">Salin Jadwal Kelas</h3>
+                <p class="text-sm text-gray-500 mt-1">Salin semua jadwal dari <span id="textKelasSumber" class="font-bold text-blue-600"></span> ke kelas lain.</p>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Kelas Tujuan:</label>
+                <select id="pilihKelasTarget" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-800 font-semibold">
+                    <!-- Pilihan kelas akan dimuat di sini otomatis -->
+                </select>
+            </div>
+            
+            <div class="flex flex-col-reverse sm:flex-row gap-3 mt-6">
+                <button onclick="tutupModalSalin()" class="w-full px-4 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors">Batal</button>
+                <button onclick="prosesSalinJadwal()" id="btnProsesSalin" class="w-full px-4 py-2.5 text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 rounded-xl font-semibold transition-all">Salin Sekarang</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -325,8 +348,11 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // --- FUNGSI SALIN JADWAL KELAS (MASSAL) ---
-        window.salinJadwalKelas = async function() {
+        // --- FUNGSI SALIN JADWAL KELAS (MASSAL) DENGAN MODAL DROPDOWN ---
+        let kelasSumberSalin = "";
+        let jadwalSumberSalin = [];
+
+        window.salinJadwalKelas = function() {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return alert("Isi config Firebase dahulu!");
             
             const kelasSumber = document.getElementById('filterKelas').value;
@@ -339,44 +365,73 @@
                 return alert(`Tidak ada jadwal di kelas ${kelasSumber} untuk disalin.`);
             }
 
-            const kelasTarget = prompt(`Anda akan menyalin ${jadwalSumber.length} jadwal dari kelas ${kelasSumber}.\n\nMasukkan NAMA KELAS TUJUAN (contoh: 1B):`);
+            // Simpan state untuk diproses nanti
+            kelasSumberSalin = kelasSumber;
+            jadwalSumberSalin = jadwalSumber;
+
+            // Update UI Modal
+            document.getElementById('textKelasSumber').innerText = kelasSumber;
             
-            if (!kelasTarget || kelasTarget.trim() === "") return; // Dibatalkan oleh user
+            // Ambil data dropdown kelas dari form input utama yang sudah dimuat oleh Firebase
+            const selectTarget = document.getElementById('pilihKelasTarget');
+            selectTarget.innerHTML = document.getElementById('pilihKelas').innerHTML;
             
-            if (kelasTarget.trim() === kelasSumber) {
-                return alert("❌ Kelas tujuan tidak boleh sama dengan kelas sumber!");
+            // Hapus opsi kelas sumber agar tidak bisa menyalin ke kelas yang sama
+            for (let i = 0; i < selectTarget.options.length; i++) {
+                if (selectTarget.options[i].value === kelasSumber) {
+                    selectTarget.remove(i);
+                    break;
+                }
             }
 
-            if (confirm(`Yakin ingin menyalin jadwal ${kelasSumber} ke ${kelasTarget}? \n(Hari, Waktu, dan Mapel akan disamakan, tetapi Nama Guru akan dikosongkan agar Anda bisa mengisinya ulang)`)) {
+            // Tampilkan Modal
+            document.getElementById('modalSalinJadwal').classList.remove('hidden');
+        };
+
+        window.tutupModalSalin = function() {
+            document.getElementById('modalSalinJadwal').classList.add('hidden');
+        };
+
+        window.prosesSalinJadwal = async function() {
+            const kelasTarget = document.getElementById('pilihKelasTarget').value;
+            
+            if (!kelasTarget) {
+                return alert("⚠️ Silakan pilih kelas tujuan terlebih dahulu!");
+            }
+
+            if (confirm(`Yakin ingin menyalin ${jadwalSumberSalin.length} jadwal dari ${kelasSumberSalin} ke ${kelasTarget}? \n(Guru akan dikosongkan agar Anda bisa mengisinya ulang)`)) {
+                const btnSubmit = document.getElementById('btnProsesSalin');
+                const textAsli = btnSubmit.innerHTML;
+                btnSubmit.innerHTML = "⏳ Menyalin..."; btnSubmit.disabled = true;
+
                 try {
                     const batch = writeBatch(db);
                     
-                    jadwalSumber.forEach(j => {
+                    jadwalSumberSalin.forEach(j => {
                         const docRef = doc(collection(db, "jadwal_pelajaran")); // Auto-generate ID dokumen baru
                         batch.set(docRef, {
                             hari: j.hari,
                             waktu: j.waktu,
                             mapel: j.mapel,
-                            kelas: kelasTarget.trim(),
-                            guru: "", // Sengaja dikosongkan agar diisi ulang
+                            kelas: kelasTarget,
+                            guru: "", // Sengaja dikosongkan
                             timestamp: new Date().getTime()
                         });
                     });
 
                     await batch.commit();
-                    alert(`✅ Berhasil menyalin ${jadwalSumber.length} jadwal ke kelas ${kelasTarget.trim()}!\nSilakan edit jadwal di kelas tersebut untuk mengisi nama guru.`);
+                    alert(`✅ Berhasil menyalin ${jadwalSumberSalin.length} jadwal ke kelas ${kelasTarget}!\nSilakan filter ke kelas tersebut untuk mengisi nama guru.`);
                     
                     // Otomatis ubah filter ke kelas hasil salinan
-                    const filterEl = document.getElementById('filterKelas');
-                    if (![...filterEl.options].some(opt => opt.value === kelasTarget.trim())) {
-                        filterEl.insertAdjacentHTML('beforeend', `<option value="${kelasTarget.trim()}">${kelasTarget.trim()}</option>`);
-                    }
-                    filterEl.value = kelasTarget.trim();
+                    document.getElementById('filterKelas').value = kelasTarget;
                     tampilkanJadwal();
-
+                    
+                    tutupModalSalin();
                 } catch (e) {
                     console.error("Error menyalin jadwal massal: ", e);
                     alert("❌ Gagal menyalin jadwal massal.");
+                } finally {
+                    btnSubmit.innerHTML = textAsli; btnSubmit.disabled = false;
                 }
             }
         };
