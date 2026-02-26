@@ -176,6 +176,18 @@
                     if (cocokHari && cocokKelas && cocokGuru) jadwalDifilter.push(data);
                 });
 
+                // Fungsi "Sapu Jagat" untuk menemukan jam bersembunyi di mana saja
+                function getMenit(jadwal) {
+                    // Gabungkan teks dari kolom Waktu dan Jam Ke
+                    const teks = String(jadwal.waktu || "") + " " + String(jadwal.jam_ke || "");
+                    // Cari format jam (contoh: 09:30, 9.30, 10:00)
+                    const match = teks.match(/(\d{1,2})[:.](\d{2})/);
+                    if (match) {
+                        return (parseInt(match[1], 10) * 60) + parseInt(match[2], 10);
+                    }
+                    return 999999;
+                }
+
                 // --- LOGIKA PENGURUTAN ABSOLUT TERBARU (SANGAT STABIL) ---
                 jadwalDifilter.sort((a, b) => {
                     // 1. Urutkan Hari
@@ -184,25 +196,16 @@
                     const hariB = urutanHari[b.hari] || 99;
                     if (hariA !== hariB) return hariA - hariB;
 
-                    // 2. Urutkan Jam Ke (Tangkap angka murni dengan aman)
+                    // 2. Urutkan Jam Ke (Tangkap angka murni pertama, misal "5")
                     const matchJamA = String(a.jam_ke || "").match(/\d+/);
                     const matchJamB = String(b.jam_ke || "").match(/\d+/);
                     const jamA = matchJamA ? parseInt(matchJamA[0], 10) : 99;
                     const jamB = matchJamB ? parseInt(matchJamB[0], 10) : 99;
                     if (jamA !== jamB) return jamA - jamB;
 
-                    // 3. Urutkan Waktu (Ubah paksa jadi menit matematika)
-                    const matchWaktuA = String(a.waktu || "").match(/\d+/g);
-                    const matchWaktuB = String(b.waktu || "").match(/\d+/g);
-                    
-                    let menitA = 999999;
-                    if (matchWaktuA && matchWaktuA.length >= 2) menitA = (parseInt(matchWaktuA[0], 10) * 60) + parseInt(matchWaktuA[1], 10);
-                    else if (matchWaktuA && matchWaktuA.length === 1) menitA = parseInt(matchWaktuA[0], 10) * 60;
-
-                    let menitB = 999999;
-                    if (matchWaktuB && matchWaktuB.length >= 2) menitB = (parseInt(matchWaktuB[0], 10) * 60) + parseInt(matchWaktuB[1], 10);
-                    else if (matchWaktuB && matchWaktuB.length === 1) menitB = parseInt(matchWaktuB[0], 10) * 60;
-
+                    // 3. Urutkan Waktu (Membaca dari semua kolom dengan fungsi Sapu Jagat)
+                    const menitA = getMenit(a);
+                    const menitB = getMenit(b);
                     if (menitA !== menitB) return menitA - menitB;
 
                     // 4. Fallback terakhir jika waktu sama persis, urutkan nama kelas
