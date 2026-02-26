@@ -86,6 +86,9 @@
                 <h2 class="text-xl font-bold text-gray-800">📋 Daftar Jadwal</h2>
                 
                 <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <button onclick="salinJadwalKelas()" class="bg-blue-100 hover:bg-blue-600 text-blue-700 hover:text-white font-bold py-2 px-4 rounded-lg text-sm transition shadow flex items-center gap-1" title="Salin seluruh jadwal kelas ini ke kelas lain">
+                        📋 Salin Kelas
+                    </button>
                     <button onclick="hapusSemuaJadwal()" class="bg-red-100 hover:bg-red-600 text-red-700 hover:text-white font-bold py-2 px-4 rounded-lg text-sm transition shadow flex items-center gap-1">
                         🗑️ Hapus Semua
                     </button>
@@ -282,11 +285,8 @@
                         <td class="py-3 px-4 font-medium">${j.waktu}</td>
                         <td class="py-3 px-4 font-bold text-gray-700">${j.kelas}</td>
                         <td class="py-3 px-4">${j.mapel}</td>
-                        <td class="py-3 px-4">${j.guru}</td>
+                        <td class="py-3 px-4">${j.guru ? j.guru : '<span class="text-red-500 italic font-semibold">Belum diisi</span>'}</td>
                         <td class="py-3 px-4 text-center whitespace-nowrap">
-                            <button onclick="salinJadwal('${j.id}')" class="bg-blue-100 text-blue-600 hover:bg-blue-500 hover:text-white p-2 rounded transition mr-1" title="Salin Jadwal">
-                                📋
-                            </button>
                             <button onclick="editJadwal('${j.id}')" class="bg-yellow-100 text-yellow-600 hover:bg-yellow-500 hover:text-white p-2 rounded transition mr-1" title="Edit">
                                 ✏️
                             </button>
@@ -325,30 +325,60 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // --- FUNGSI SALIN JADWAL ---
-        window.salinJadwal = function(id) {
-            const jadwal = semuaJadwal.find(j => j.id === id);
-            if(!jadwal) return;
+        // --- FUNGSI SALIN JADWAL KELAS (MASSAL) ---
+        window.salinJadwalKelas = async function() {
+            if (firebaseConfig.apiKey === "API_KEY_ANDA") return alert("Isi config Firebase dahulu!");
             
-            document.getElementById('pilihHari').value = jadwal.hari;
-            document.getElementById('pilihKelas').value = jadwal.kelas;
-            document.getElementById('pilihWaktu').value = jadwal.waktu;
-            document.getElementById('pilihMapel').value = jadwal.mapel;
-            document.getElementById('pilihGuru').value = jadwal.guru;
+            const kelasSumber = document.getElementById('filterKelas').value;
+            if (kelasSumber === "Semua") {
+                return alert("⚠️ Pilih kelas sumber yang ingin disalin dari dropdown 'Filter Kelas' terlebih dahulu! (Misal: 1A)");
+            }
+
+            const jadwalSumber = semuaJadwal.filter(j => j.kelas === kelasSumber);
+            if (jadwalSumber.length === 0) {
+                return alert(`Tidak ada jadwal di kelas ${kelasSumber} untuk disalin.`);
+            }
+
+            const kelasTarget = prompt(`Anda akan menyalin ${jadwalSumber.length} jadwal dari kelas ${kelasSumber}.\n\nMasukkan NAMA KELAS TUJUAN (contoh: 1B):`);
             
-            idEditJadwal = null; // Dikosongkan agar tersimpan sebagai data BARU, bukan update
+            if (!kelasTarget || kelasTarget.trim() === "") return; // Dibatalkan oleh user
             
-            const btnSubmit = document.getElementById('btnSubmitJadwal');
-            btnSubmit.innerHTML = "💾 Simpan Salinan";
-            btnSubmit.classList.remove('bg-green-600', 'hover:bg-green-700'); // Hapus warna hijau mode edit
-            btnSubmit.classList.add('bg-blue-600', 'hover:bg-blue-700'); // Beri warna biru standar
-            btnSubmit.classList.remove('w-full');
-            btnSubmit.classList.add('w-2/3');
-            
-            document.getElementById('formTitle').innerText = "📋 Salin Jadwal";
-            document.getElementById('btnBatalEdit').classList.remove('hidden');
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (kelasTarget.trim() === kelasSumber) {
+                return alert("❌ Kelas tujuan tidak boleh sama dengan kelas sumber!");
+            }
+
+            if (confirm(`Yakin ingin menyalin jadwal ${kelasSumber} ke ${kelasTarget}? \n(Hari, Waktu, dan Mapel akan disamakan, tetapi Nama Guru akan dikosongkan agar Anda bisa mengisinya ulang)`)) {
+                try {
+                    const batch = writeBatch(db);
+                    
+                    jadwalSumber.forEach(j => {
+                        const docRef = doc(collection(db, "jadwal_pelajaran")); // Auto-generate ID dokumen baru
+                        batch.set(docRef, {
+                            hari: j.hari,
+                            waktu: j.waktu,
+                            mapel: j.mapel,
+                            kelas: kelasTarget.trim(),
+                            guru: "", // Sengaja dikosongkan agar diisi ulang
+                            timestamp: new Date().getTime()
+                        });
+                    });
+
+                    await batch.commit();
+                    alert(`✅ Berhasil menyalin ${jadwalSumber.length} jadwal ke kelas ${kelasTarget.trim()}!\nSilakan edit jadwal di kelas tersebut untuk mengisi nama guru.`);
+                    
+                    // Otomatis ubah filter ke kelas hasil salinan
+                    const filterEl = document.getElementById('filterKelas');
+                    if (![...filterEl.options].some(opt => opt.value === kelasTarget.trim())) {
+                        filterEl.insertAdjacentHTML('beforeend', `<option value="${kelasTarget.trim()}">${kelasTarget.trim()}</option>`);
+                    }
+                    filterEl.value = kelasTarget.trim();
+                    tampilkanJadwal();
+
+                } catch (e) {
+                    console.error("Error menyalin jadwal massal: ", e);
+                    alert("❌ Gagal menyalin jadwal massal.");
+                }
+            }
         };
 
         // --- FUNGSI HAPUS SATUAN ---
