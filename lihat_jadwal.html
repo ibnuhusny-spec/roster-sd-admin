@@ -176,7 +176,7 @@
                     if (cocokHari && cocokKelas && cocokGuru) jadwalDifilter.push(data);
                 });
 
-                // --- LOGIKA PENGURUTAN ABSOLUT TERBARU ---
+                // --- LOGIKA PENGURUTAN ABSOLUT TERBARU (SANGAT STABIL) ---
                 jadwalDifilter.sort((a, b) => {
                     // 1. Urutkan Hari
                     const urutanHari = { "Senin":1, "Selasa":2, "Rabu":3, "Kamis":4, "Jumat":5, "Sabtu":6, "Minggu":7 };
@@ -184,22 +184,24 @@
                     const hariB = urutanHari[b.hari] || 99;
                     if (hariA !== hariB) return hariA - hariB;
 
-                    // 2. Urutkan Jam Ke (Tangkap angka murni)
-                    const jamA = parseInt(String(a.jam_ke || "99").match(/\d+/) || [99], 10);
-                    const jamB = parseInt(String(b.jam_ke || "99").match(/\d+/) || [99], 10);
+                    // 2. Urutkan Jam Ke (Tangkap angka murni dengan aman)
+                    const matchJamA = String(a.jam_ke || "").match(/\d+/);
+                    const matchJamB = String(b.jam_ke || "").match(/\d+/);
+                    const jamA = matchJamA ? parseInt(matchJamA[0], 10) : 99;
+                    const jamB = matchJamB ? parseInt(matchJamB[0], 10) : 99;
                     if (jamA !== jamB) return jamA - jamB;
 
                     // 3. Urutkan Waktu (Ubah paksa jadi menit matematika)
-                    const angkaA = String(a.waktu || "").match(/\d+/g);
-                    const angkaB = String(b.waktu || "").match(/\d+/g);
+                    const matchWaktuA = String(a.waktu || "").match(/\d+/g);
+                    const matchWaktuB = String(b.waktu || "").match(/\d+/g);
                     
                     let menitA = 999999;
-                    if (angkaA && angkaA.length >= 2) menitA = (parseInt(angkaA[0], 10) * 60) + parseInt(angkaA[1], 10);
-                    else if (angkaA && angkaA.length === 1) menitA = parseInt(angkaA[0], 10) * 60;
+                    if (matchWaktuA && matchWaktuA.length >= 2) menitA = (parseInt(matchWaktuA[0], 10) * 60) + parseInt(matchWaktuA[1], 10);
+                    else if (matchWaktuA && matchWaktuA.length === 1) menitA = parseInt(matchWaktuA[0], 10) * 60;
 
                     let menitB = 999999;
-                    if (angkaB && angkaB.length >= 2) menitB = (parseInt(angkaB[0], 10) * 60) + parseInt(angkaB[1], 10);
-                    else if (angkaB && angkaB.length === 1) menitB = parseInt(angkaB[0], 10) * 60;
+                    if (matchWaktuB && matchWaktuB.length >= 2) menitB = (parseInt(matchWaktuB[0], 10) * 60) + parseInt(matchWaktuB[1], 10);
+                    else if (matchWaktuB && matchWaktuB.length === 1) menitB = parseInt(matchWaktuB[0], 10) * 60;
 
                     if (menitA !== menitB) return menitA - menitB;
 
