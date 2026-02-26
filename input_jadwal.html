@@ -12,22 +12,20 @@
         <h1 class="text-3xl font-extrabold text-blue-800">📅 Kelola Jadwal Pelajaran</h1>
         
         <div class="flex gap-3">
-            <!-- Tombol ke Halaman Depan -->
             <a href="/index.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg transition shadow">
                 🏠 Halaman Depan
             </a>
-            <!-- Tombol ke Master Data -->
             <a href="/kelola_data.html" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition shadow flex items-center gap-2">
                 ⚙️ Master Data
             </a>
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         
-        <!-- FORM INPUT JADWAL -->
-        <div class="lg:col-span-1 bg-white rounded-2xl shadow-xl p-6 border border-blue-100 h-fit">
-            <h2 class="text-xl font-bold text-blue-700 mb-4 border-b pb-2">➕ Tambah Jadwal</h2>
+        <!-- FORM INPUT JADWAL (Sticky) -->
+        <div class="lg:col-span-1 bg-white rounded-2xl shadow-xl p-6 border border-blue-100 h-fit sticky top-6">
+            <h2 id="formTitle" class="text-xl font-bold text-blue-700 mb-4 border-b pb-2">➕ Tambah Jadwal</h2>
             
             <form id="formJadwal" class="space-y-4" onsubmit="simpanJadwal(event)">
                 <div>
@@ -71,9 +69,14 @@
                     </select>
                 </div>
 
-                <button type="submit" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition transform hover:-translate-y-0.5">
-                    💾 Simpan Jadwal
-                </button>
+                <div class="flex gap-2 mt-4">
+                    <button type="button" id="btnBatalEdit" onclick="batalEdit()" class="hidden w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-4 rounded-xl shadow transition">
+                        Batal
+                    </button>
+                    <button type="submit" id="btnSubmitJadwal" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition transform hover:-translate-y-0.5">
+                        💾 Simpan Jadwal
+                    </button>
+                </div>
             </form>
         </div>
 
@@ -83,23 +86,28 @@
                 <h2 class="text-xl font-bold text-gray-800">📋 Daftar Jadwal</h2>
                 
                 <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <label class="text-sm font-bold text-gray-600 whitespace-nowrap">Filter Kelas:</label>
+                    <button onclick="hapusSemuaJadwal()" class="bg-red-100 hover:bg-red-600 text-red-700 hover:text-white font-bold py-2 px-4 rounded-lg text-sm transition shadow flex items-center gap-1">
+                        🗑️ Hapus Semua
+                    </button>
+
+                    <label class="text-sm font-bold text-gray-600 whitespace-nowrap ml-2">Filter Kelas:</label>
                     <select id="filterKelas" onchange="tampilkanJadwal()" class="w-full sm:w-48 p-2 border border-gray-300 rounded-lg bg-gray-50 font-semibold text-blue-700">
                         <option value="Semua">Semua Kelas</option>
                     </select>
                 </div>
             </div>
 
-            <div class="overflow-x-auto rounded-lg border border-gray-200">
-                <table class="min-w-full bg-white text-sm text-left">
-                    <thead class="bg-blue-50 text-blue-900 uppercase font-bold text-xs border-b">
+            <!-- Tabel yang bisa di-scroll sendiri -->
+            <div class="overflow-y-auto max-h-[calc(100vh-220px)] rounded-lg border border-gray-200 relative">
+                <table class="min-w-full bg-white text-sm text-left relative">
+                    <thead class="bg-blue-50 text-blue-900 uppercase font-bold text-xs sticky top-0 z-10 shadow-sm">
                         <tr>
-                            <th class="py-3 px-4">Hari</th>
-                            <th class="py-3 px-4">Waktu</th>
-                            <th class="py-3 px-4">Kelas</th>
-                            <th class="py-3 px-4">Mata Pelajaran</th>
-                            <th class="py-3 px-4">Guru</th>
-                            <th class="py-3 px-4 text-center">Aksi</th>
+                            <th class="py-3 px-4 bg-blue-50">Hari</th>
+                            <th class="py-3 px-4 bg-blue-50">Waktu</th>
+                            <th class="py-3 px-4 bg-blue-50">Kelas</th>
+                            <th class="py-3 px-4 bg-blue-50">Mata Pelajaran</th>
+                            <th class="py-3 px-4 bg-blue-50">Guru</th>
+                            <th class="py-3 px-4 bg-blue-50 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="tabelJadwal" class="divide-y divide-gray-100">
@@ -112,11 +120,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        // ========================================================
-        // KONFIGURASI FIREBASE
-        // ========================================================
         let firebaseConfig = { 
             apiKey: "API_KEY_ANDA",
             authDomain: "PROJECT_ID.firebaseapp.com",
@@ -133,14 +138,14 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let semuaJadwal = []; // Menyimpan semua jadwal di memori
+        let semuaJadwal = []; 
+        let idEditJadwal = null; 
 
-        // --- FUNGSI MUAT DROPDOWN DARI MASTER DATA ---
+        // --- MUAT DROPDOWN ---
         function muatDropdown(koleksi, idSelect, isWaktu = false) {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
             onSnapshot(collection(db, koleksi), (snapshot) => {
                 const selectEl = document.getElementById(idSelect);
-                // Jika ini dropdown untuk filter kelas, pertahankan opsi "Semua Kelas"
                 if (idSelect === 'filterKelas') {
                     selectEl.innerHTML = '<option value="Semua">Semua Kelas</option>';
                 } else {
@@ -150,7 +155,6 @@
                 let dataArr = [];
                 snapshot.forEach(docSnap => dataArr.push(docSnap.data()));
 
-                // Pengurutan khusus untuk Waktu agar berurutan sesuai jam
                 if(isWaktu) {
                     dataArr.sort((a, b) => {
                         let t1 = a.waktu || a.nama || "";
@@ -158,7 +162,6 @@
                         return t1.localeCompare(t2);
                     });
                 } else {
-                    // Urut abjad untuk yang lain
                     dataArr.sort((a,b) => (a.nama || "").localeCompare(b.nama || ""));
                 }
 
@@ -171,14 +174,27 @@
             });
         }
 
-        // Panggil untuk mengisi semua pilihan
         muatDropdown("master_kelas", "pilihKelas");
-        muatDropdown("master_kelas", "filterKelas"); // Untuk filter tabel
+        muatDropdown("master_kelas", "filterKelas");
         muatDropdown("master_waktu", "pilihWaktu", true);
         muatDropdown("master_mapel", "pilihMapel");
         muatDropdown("master_guru", "pilihGuru");
 
-        // --- FUNGSI SIMPAN JADWAL ---
+        // --- FUNGSI BATAL EDIT ---
+        window.batalEdit = function() {
+            idEditJadwal = null;
+            document.getElementById('formJadwal').reset();
+            const btnSubmit = document.getElementById('btnSubmitJadwal');
+            btnSubmit.innerHTML = "💾 Simpan Jadwal";
+            btnSubmit.classList.replace("bg-green-600", "bg-blue-600");
+            btnSubmit.classList.replace("hover:bg-green-700", "hover:bg-blue-700");
+            document.getElementById('formTitle').innerText = "➕ Tambah Jadwal";
+            document.getElementById('btnBatalEdit').classList.add('hidden');
+            btnSubmit.classList.remove('w-2/3');
+            btnSubmit.classList.add('w-full');
+        };
+
+        // --- FUNGSI SIMPAN & UPDATE ---
         window.simpanJadwal = async function(e) {
             e.preventDefault();
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return alert("Isi config Firebase dahulu!");
@@ -192,17 +208,29 @@
                 timestamp: new Date().getTime()
             };
 
+            const btnSubmit = document.getElementById('btnSubmitJadwal');
+            const teksAsli = btnSubmit.innerHTML;
+            btnSubmit.innerHTML = "⏳ Memproses..."; btnSubmit.disabled = true;
+
             try {
-                // Simpan ke koleksi 'jadwal_pelajaran'
-                await addDoc(collection(db, "jadwal_pelajaran"), jadwalBaru);
-                alert("✅ Jadwal Berhasil Disimpan!");
+                if (idEditJadwal) {
+                    await updateDoc(doc(db, "jadwal_pelajaran", idEditJadwal), jadwalBaru);
+                    alert("✅ Jadwal Berhasil Diperbarui!");
+                    batalEdit();
+                } else {
+                    await addDoc(collection(db, "jadwal_pelajaran"), jadwalBaru);
+                    alert("✅ Jadwal Berhasil Disimpan!");
+                    document.getElementById('formJadwal').reset();
+                }
             } catch (error) {
-                console.error("Error menambah jadwal: ", error);
+                console.error("Error menyimpan jadwal: ", error);
                 alert("❌ Gagal menyimpan jadwal.");
             }
+            
+            btnSubmit.innerHTML = teksAsli; btnSubmit.disabled = false;
         };
 
-        // --- FUNGSI TAMPILKAN JADWAL DI TABEL ---
+        // --- FUNGSI TAMPILKAN JADWAL ---
         function muatDataJadwal() {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
             onSnapshot(collection(db, "jadwal_pelajaran"), (snapshot) => {
@@ -221,13 +249,11 @@
             const kelasDipilih = document.getElementById('filterKelas').value;
             tabel.innerHTML = '';
 
-            // Filter di JavaScript
             let jadwalTerfilter = semuaJadwal;
             if (kelasDipilih !== "Semua") {
                 jadwalTerfilter = semuaJadwal.filter(j => j.kelas === kelasDipilih);
             }
 
-            // Urutkan berdasarkan Hari, lalu Waktu
             jadwalTerfilter.sort((a, b) => {
                 if (urutanHari[a.hari] !== urutanHari[b.hari]) {
                     return urutanHari[a.hari] - urutanHari[b.hari];
@@ -241,7 +267,6 @@
             }
 
             jadwalTerfilter.forEach(j => {
-                // Warna background beda untuk tiap hari agar mudah dibaca
                 let bgHari = "bg-gray-50";
                 if(j.hari === "Senin") bgHari = "bg-red-50 text-red-700";
                 if(j.hari === "Selasa") bgHari = "bg-orange-50 text-orange-700";
@@ -257,7 +282,10 @@
                         <td class="py-3 px-4 font-bold text-gray-700">${j.kelas}</td>
                         <td class="py-3 px-4">${j.mapel}</td>
                         <td class="py-3 px-4">${j.guru}</td>
-                        <td class="py-3 px-4 text-center">
+                        <td class="py-3 px-4 text-center whitespace-nowrap">
+                            <button onclick="editJadwal('${j.id}')" class="bg-yellow-100 text-yellow-600 hover:bg-yellow-500 hover:text-white p-2 rounded transition mr-1" title="Edit">
+                                ✏️
+                            </button>
                             <button onclick="hapusJadwal('${j.id}')" class="bg-red-100 text-red-600 hover:bg-red-500 hover:text-white p-2 rounded transition" title="Hapus">
                                 🗑️
                             </button>
@@ -267,10 +295,71 @@
             });
         };
 
-        // --- FUNGSI HAPUS JADWAL ---
+        // --- FUNGSI EDIT JADWAL ---
+        window.editJadwal = function(id) {
+            const jadwal = semuaJadwal.find(j => j.id === id);
+            if(!jadwal) return;
+            
+            document.getElementById('pilihHari').value = jadwal.hari;
+            document.getElementById('pilihKelas').value = jadwal.kelas;
+            document.getElementById('pilihWaktu').value = jadwal.waktu;
+            document.getElementById('pilihMapel').value = jadwal.mapel;
+            document.getElementById('pilihGuru').value = jadwal.guru;
+            
+            idEditJadwal = id; 
+            
+            const btnSubmit = document.getElementById('btnSubmitJadwal');
+            btnSubmit.innerHTML = "🔄 Update Jadwal";
+            btnSubmit.classList.replace("bg-blue-600", "bg-green-600");
+            btnSubmit.classList.replace("hover:bg-blue-700", "hover:bg-green-700");
+            btnSubmit.classList.remove('w-full');
+            btnSubmit.classList.add('w-2/3');
+            
+            document.getElementById('formTitle').innerText = "✏️ Edit Jadwal";
+            document.getElementById('btnBatalEdit').classList.remove('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // --- FUNGSI HAPUS SATUAN ---
         window.hapusJadwal = async function(id) {
             if(confirm("Apakah Anda yakin ingin menghapus jadwal ini?")) {
                 await deleteDoc(doc(db, "jadwal_pelajaran", id));
+            }
+        };
+
+        // --- FUNGSI HAPUS MASSAL ---
+        window.hapusSemuaJadwal = async function() {
+            if (firebaseConfig.apiKey === "API_KEY_ANDA") return alert("Isi config Firebase dahulu!");
+            
+            const kelasDipilih = document.getElementById('filterKelas').value;
+            let pesan = kelasDipilih === "Semua" 
+                ? "PERINGATAN Keras!\n\nAnda yakin ingin menghapus SEMUA jadwal dari semua kelas?\nTindakan ini tidak bisa dibatalkan!" 
+                : `Yakin ingin menghapus SEMUA jadwal KHUSUS UNTUK KELAS ${kelasDipilih}?\n(Kelas lain tidak akan terhapus)`;
+
+            if(confirm(pesan)) {
+                try {
+                    const batch = writeBatch(db);
+                    let jumlahDihapus = 0;
+
+                    semuaJadwal.forEach(j => {
+                        if (kelasDipilih === "Semua" || j.kelas === kelasDipilih) {
+                            const docRef = doc(db, "jadwal_pelajaran", j.id);
+                            batch.delete(docRef);
+                            jumlahDihapus++;
+                        }
+                    });
+
+                    if (jumlahDihapus > 0) {
+                        await batch.commit();
+                        alert(`✅ Berhasil menghapus ${jumlahDihapus} jadwal.`);
+                    } else {
+                        alert("Tidak ada jadwal yang bisa dihapus pada filter saat ini.");
+                    }
+                } catch(e) {
+                    console.error("Error menghapus massal: ", e);
+                    alert("❌ Gagal menghapus jadwal.");
+                }
             }
         };
 
