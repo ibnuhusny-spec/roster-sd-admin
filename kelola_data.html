@@ -157,12 +157,24 @@
                 let arr = [];
                 snapshot.forEach(docSnap => arr.push({id: docSnap.id, ...docSnap.data()}));
                 
-                // Urutkan otomatis berdasarkan jam/menit
+                // Urutkan otomatis berdasarkan jam/menit (Fungsi Sapu Jagat yang sudah kita buat)
                 function getMenit(teks) {
-                    const match = String(teks || "").match(/(\d{1,2})[:.](\d{2})/);
-                    return match ? (parseInt(match[1], 10) * 60) + parseInt(match[2], 10) : 999999;
+                    const match = String(teks || "").match(/\d+/g);
+                    if (match && match.length >= 2) {
+                        return (parseInt(match[0], 10) * 60) + parseInt(match[1], 10);
+                    } else if (match && match.length === 1) {
+                        return parseInt(match[0], 10) * 60;
+                    }
+                    return 999999;
                 }
-                arr.sort((a,b) => getMenit(a.waktu || a.nama) - getMenit(b.waktu || b.nama));
+
+                arr.sort((a, b) => {
+                    const menitA = getMenit(a.waktu || a.nama);
+                    const menitB = getMenit(b.waktu || b.nama);
+                    if (menitA !== menitB) return menitA - menitB;
+                    // Fallback jika menit sama persis
+                    return String(a.waktu || a.nama || "").localeCompare(String(b.waktu || b.nama || ""));
+                });
                 
                 arr.forEach(data => {
                     const nilaiWaktu = data.waktu || data.nama || "-";
