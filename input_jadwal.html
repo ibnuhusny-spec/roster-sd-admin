@@ -142,7 +142,7 @@
 
                 // Dropdown Waktu
                 const selectWaktu = document.getElementById('inputWaktu');
-                const waktuSnap = await getDocs(collection(db, "master_waktu"));
+                const waktuSnap = await getDocs(collection(db, "master_jam"));
                 selectWaktu.innerHTML = '<option value="" disabled selected>-- Pilih Waktu --</option>';
                 waktuSnap.forEach(w => {
                     // Cek apakah datanya tersimpan di field "waktu" atau "nama" pada kelola_data Anda
