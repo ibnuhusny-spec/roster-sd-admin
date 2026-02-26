@@ -8,13 +8,11 @@
 </head>
 <body class="bg-slate-100 min-h-screen p-4 md:p-8 font-sans text-gray-800">
 
-    <!-- Tombol Kembali menggunakan metode FORM (Anti-Gagal) -->
+    <!-- Tombol Kembali menggunakan fungsi JavaScript Murni -->
     <div class="max-w-6xl mx-auto mb-6">
-        <form action="input_jadwal.html" method="get">
-            <button type="submit" class="inline-block bg-white text-indigo-700 hover:bg-indigo-50 font-bold py-2 px-5 rounded-lg transition duration-200 shadow shadow-indigo-200 cursor-pointer text-center flex items-center gap-2">
-                <span>⬅️</span> Kembali ke Input Jadwal
-            </button>
-        </form>
+        <button onclick="kembaliKeJadwal()" class="inline-block bg-white text-indigo-700 hover:bg-indigo-50 font-bold py-2 px-5 rounded-lg transition duration-200 shadow shadow-indigo-200 cursor-pointer text-center flex items-center gap-2">
+            <span>⬅️</span> Kembali ke Input Jadwal
+        </button>
     </div>
 
     <div class="max-w-6xl mx-auto space-y-8">
@@ -22,16 +20,16 @@
         <!-- PENGATURAN SEKOLAH -->
         <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
             <h2 class="text-2xl font-bold text-indigo-700 mb-4 border-b pb-2">🏢 Pengaturan Sekolah</h2>
-            <div class="flex gap-4 items-end">
-                <div class="flex-1">
+            <div class="flex flex-col sm:flex-row gap-4 items-end">
+                <div class="flex-1 w-full">
                     <label class="block text-sm font-bold text-gray-700 mb-2">Nama Sekolah</label>
                     <input type="text" id="inputNamaSekolah" placeholder="Contoh: SD Negeri 1 Jakarta" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
                 </div>
-                <button onclick="simpanInfoSekolah()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow">
+                <button onclick="simpanInfoSekolah()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow">
                     Simpan Nama
                 </button>
             </div>
-            <p class="text-xs text-gray-500 mt-2">*Catatan: Logo sekolah menggunakan file "logo1.png" di dalam folder aplikasi.</p>
+            <p class="text-xs text-gray-500 mt-2">*Catatan: Logo sekolah disetting secara otomatis dari tampilan depan.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -40,44 +38,51 @@
             <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
                 <h2 class="text-xl font-bold text-orange-700 mb-4 border-b pb-2">⏰ Master Waktu</h2>
                 <div class="flex flex-col gap-2 mb-4">
-                    <input type="text" id="inputMasterWaktu" placeholder="Waktu (Misal: 07:30 - 08:00)" class="w-full p-2 border rounded">
+                    <input type="text" id="inputMasterWaktu" placeholder="Waktu (Misal: 07:30 - 08:00)" class="w-full p-2 border rounded border-gray-300">
                     <button onclick="tambahWaktu()" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded font-bold w-full transition">Tambah Waktu</button>
                 </div>
-                <ul id="listWaktu" class="space-y-2 max-h-60 overflow-y-auto"></ul>
+                <ul id="listWaktu" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
             </div>
 
             <!-- KELOLA KELAS -->
             <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
                 <h2 class="text-xl font-bold text-green-700 mb-4 border-b pb-2">🏫 Master Kelas</h2>
                 <div class="flex gap-2 mb-4">
-                    <input type="text" id="inputKelas" placeholder="Nama Kelas..." class="w-full p-2 border rounded">
-                    <button onclick="tambahData('master_kelas', 'inputKelas')" class="bg-green-600 text-white px-4 rounded font-bold">+</button>
+                    <input type="text" id="inputKelas" placeholder="Nama Kelas..." class="w-full p-2 border rounded border-gray-300">
+                    <button onclick="tambahData('master_kelas', 'inputKelas')" class="bg-green-600 hover:bg-green-700 text-white px-4 rounded font-bold transition">+</button>
                 </div>
-                <ul id="listKelas" class="space-y-2 max-h-60 overflow-y-auto"></ul>
+                <ul id="listKelas" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
             </div>
 
             <!-- KELOLA GURU -->
             <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
                 <h2 class="text-xl font-bold text-blue-700 mb-4 border-b pb-2">👨‍🏫 Master Guru</h2>
                 <div class="flex gap-2 mb-4">
-                    <input type="text" id="inputGuru" placeholder="Nama Guru..." class="w-full p-2 border rounded">
-                    <button onclick="tambahData('master_guru', 'inputGuru')" class="bg-blue-600 text-white px-4 rounded font-bold">+</button>
+                    <input type="text" id="inputGuru" placeholder="Nama Guru..." class="w-full p-2 border rounded border-gray-300">
+                    <button onclick="tambahData('master_guru', 'inputGuru')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded font-bold transition">+</button>
                 </div>
-                <ul id="listGuru" class="space-y-2 max-h-60 overflow-y-auto"></ul>
+                <ul id="listGuru" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
             </div>
 
             <!-- KELOLA MAPEL -->
             <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
                 <h2 class="text-xl font-bold text-purple-700 mb-4 border-b pb-2">📚 Master Mapel</h2>
                 <div class="flex gap-2 mb-4">
-                    <input type="text" id="inputMapel" placeholder="Mata Pelajaran..." class="w-full p-2 border rounded">
-                    <button onclick="tambahData('master_mapel', 'inputMapel')" class="bg-purple-600 text-white px-4 rounded font-bold">+</button>
+                    <input type="text" id="inputMapel" placeholder="Mata Pelajaran..." class="w-full p-2 border rounded border-gray-300">
+                    <button onclick="tambahData('master_mapel', 'inputMapel')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 rounded font-bold transition">+</button>
                 </div>
-                <ul id="listMapel" class="space-y-2 max-h-60 overflow-y-auto"></ul>
+                <ul id="listMapel" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
             </div>
             
         </div>
     </div>
+
+    <!-- Script Navigasi -->
+    <script>
+        function kembaliKeJadwal() {
+            window.location.href = "input_jadwal.html";
+        }
+    </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -94,10 +99,13 @@
             messagingSenderId: "SENDER_ID",
             appId: "APP_ID"
         };
+        
         try {
             const module = await import("./firebase-config.js");
             if (module && module.firebaseConfig) { firebaseConfig = module.firebaseConfig; }
-        } catch (error) { console.warn("Menjalankan mode lokal."); }
+        } catch (error) { 
+            console.warn("Menjalankan mode lokal/preview."); 
+        }
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -105,29 +113,48 @@
         // --- INFO SEKOLAH ---
         async function muatInfoSekolah() {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
-            const docSnap = await getDoc(doc(db, "pengaturan", "info_sekolah"));
-            if (docSnap.exists()) document.getElementById('inputNamaSekolah').value = docSnap.data().nama_sekolah || "";
+            try {
+                const docSnap = await getDoc(doc(db, "pengaturan", "info_sekolah"));
+                if (docSnap.exists()) document.getElementById('inputNamaSekolah').value = docSnap.data().nama_sekolah || "";
+            } catch (e) {
+                console.error("Gagal memuat info sekolah", e);
+            }
         }
         muatInfoSekolah();
 
         window.simpanInfoSekolah = async function() {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return alert("Isi config Firebase dahulu!");
             const nama = document.getElementById('inputNamaSekolah').value;
-            await setDoc(doc(db, "pengaturan", "info_sekolah"), { nama_sekolah: nama }, { merge: true });
-            alert("Nama Sekolah Berhasil Disimpan!");
+            try {
+                await setDoc(doc(db, "pengaturan", "info_sekolah"), { nama_sekolah: nama }, { merge: true });
+                alert("Nama Sekolah Berhasil Disimpan!");
+            } catch (e) {
+                console.error("Gagal menyimpan info sekolah", e);
+                alert("Gagal menyimpan info sekolah.");
+            }
         };
 
-        // --- KELOLA DATA MASTER (CRUD) ---
+        // --- KELOLA DATA MASTER (CRUD & SORTING ABJAD) ---
         function muatList(koleksi, idList) {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
             onSnapshot(collection(db, koleksi), (snapshot) => {
                 const ul = document.getElementById(idList);
                 ul.innerHTML = '';
+                
+                let dataArr = [];
                 snapshot.forEach(docSnap => {
+                    dataArr.push({ id: docSnap.id, nama: docSnap.data().nama });
+                });
+
+                // PROSES PENGURUTAN ABJAD (A-Z)
+                dataArr.sort((a, b) => (a.nama || "").localeCompare(b.nama || ""));
+
+                // Tampilkan data yang sudah diurutkan
+                dataArr.forEach(data => {
                     ul.insertAdjacentHTML('beforeend', `
-                        <li class="flex justify-between items-center bg-gray-50 p-2 border rounded shadow-sm text-sm">
-                            <span class="font-medium">${docSnap.data().nama}</span>
-                            <button onclick="hapusData('${koleksi}', '${docSnap.id}')" class="text-red-500 hover:text-red-700 font-bold px-2">X</button>
+                        <li class="flex justify-between items-center bg-gray-50 p-2 border rounded shadow-sm text-sm hover:bg-gray-100 transition">
+                            <span class="font-medium text-gray-700">${data.nama}</span>
+                            <button onclick="hapusData('${koleksi}', '${data.id}')" class="text-red-500 hover:text-red-700 font-bold px-2 py-1 bg-red-50 rounded" title="Hapus">X</button>
                         </li>
                     `);
                 });
@@ -143,15 +170,29 @@
             const inputEl = document.getElementById(idInput);
             const nama = inputEl.value.trim();
             if(!nama) return;
-            await addDoc(collection(db, koleksi), { nama: nama });
-            inputEl.value = '';
+            
+            try {
+                await addDoc(collection(db, koleksi), { nama: nama });
+                inputEl.value = '';
+            } catch (e) {
+                console.error("Gagal menambah data", e);
+                alert("Gagal menambahkan data.");
+            }
         };
 
         window.hapusData = async function(koleksi, id) {
-            if(confirm("Hapus data ini?")) { await deleteDoc(doc(db, koleksi, id)); }
+            if (firebaseConfig.apiKey === "API_KEY_ANDA") return alert("Isi config Firebase dahulu!");
+            if(confirm("Hapus data ini?")) { 
+                try {
+                    await deleteDoc(doc(db, koleksi, id)); 
+                } catch (e) {
+                    console.error("Gagal menghapus data", e);
+                    alert("Gagal menghapus data.");
+                }
+            }
         };
 
-        // --- KHUSUS MASTER WAKTU ---
+        // --- KHUSUS MASTER WAKTU (SORTING BERDASARKAN JAM) ---
         function muatListWaktu() {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
             onSnapshot(collection(db, "master_waktu"), (snapshot) => {
@@ -170,6 +211,7 @@
                     return 999999;
                 }
 
+                // Proses pengurutan jam
                 arr.sort((a, b) => {
                     const menitA = getMenit(a.waktu || a.nama);
                     const menitB = getMenit(b.waktu || b.nama);
@@ -180,9 +222,9 @@
                 arr.forEach(data => {
                     const nilaiWaktu = data.waktu || data.nama || "-";
                     ul.insertAdjacentHTML('beforeend', `
-                        <li class="flex justify-between items-center bg-gray-50 p-2 border rounded shadow-sm text-sm">
+                        <li class="flex justify-between items-center bg-gray-50 p-2 border rounded shadow-sm text-sm hover:bg-gray-100 transition">
                             <span class="font-bold text-blue-800 bg-blue-100 px-3 py-1 rounded-lg border border-blue-200">${nilaiWaktu}</span>
-                            <button onclick="hapusData('master_waktu', '${data.id}')" class="text-red-500 hover:text-red-700 font-extrabold px-2">X</button>
+                            <button onclick="hapusData('master_waktu', '${data.id}')" class="text-red-500 hover:text-red-700 font-extrabold px-2 py-1 bg-red-50 rounded" title="Hapus">X</button>
                         </li>
                     `);
                 });
@@ -195,8 +237,13 @@
             const waktu = document.getElementById('inputMasterWaktu').value.trim();
             if(!waktu) return alert("Harap isi Waktu (Misal: 08:00 - 09:30)!");
             
-            await addDoc(collection(db, "master_waktu"), { waktu: waktu });
-            document.getElementById('inputMasterWaktu').value = '';
+            try {
+                await addDoc(collection(db, "master_waktu"), { waktu: waktu });
+                document.getElementById('inputMasterWaktu').value = '';
+            } catch (e) {
+                console.error("Gagal menambah waktu", e);
+                alert("Gagal menambahkan waktu.");
+            }
         };
     </script>
 </body>
