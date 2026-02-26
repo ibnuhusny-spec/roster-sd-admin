@@ -126,18 +126,24 @@
                     teksSekolah.innerText = "Jadwal Pelajaran Sekolah";
                 }
                 
-                // Dropdown Kelas
+                // Dropdown Kelas (Diurutkan Sesuai Abjad)
                 const kelasSnap = await getDocs(collection(db, "master_kelas"));
                 const selectKelas = document.getElementById('filterKelas');
-                kelasSnap.forEach(k => {
-                    selectKelas.insertAdjacentHTML('beforeend', `<option value="${k.data().nama}">${k.data().nama}</option>`);
+                let arrKelas = [];
+                kelasSnap.forEach(k => arrKelas.push(k.data().nama));
+                arrKelas.sort((a, b) => (a || "").localeCompare(b || "")); // Proses pengurutan
+                arrKelas.forEach(nama => {
+                    if(nama) selectKelas.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                 });
 
-                // Dropdown Guru (BARU)
+                // Dropdown Guru (Diurutkan Sesuai Abjad)
                 const guruSnap = await getDocs(collection(db, "master_guru"));
                 const selectGuru = document.getElementById('filterGuru');
-                guruSnap.forEach(g => {
-                    selectGuru.insertAdjacentHTML('beforeend', `<option value="${g.data().nama}">${g.data().nama}</option>`);
+                let arrGuru = [];
+                guruSnap.forEach(g => arrGuru.push(g.data().nama));
+                arrGuru.sort((a, b) => (a || "").localeCompare(b || "")); // Proses pengurutan
+                arrGuru.forEach(nama => {
+                    if(nama) selectGuru.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                 });
 
             } catch (error) { console.error("Gagal memuat data awal:", error); }
