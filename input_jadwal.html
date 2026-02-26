@@ -184,6 +184,13 @@
             </div>
             
             <form id="formExport" onsubmit="prosesExportExcel(event)" class="space-y-4">
+                
+                <!-- NAMA SEKOLAH -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Nama Sekolah</label>
+                    <input type="text" id="exNamaSekolah" placeholder="Contoh: SD Negeri 1 Jakarta" class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 text-blue-800 font-semibold" required>
+                </div>
+
                 <!-- Tahun & Tempat -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -197,7 +204,7 @@
                 </div>
 
                 <!-- Kepala Sekolah -->
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-2">
                     <h4 class="font-bold text-blue-800 mb-3 text-sm">Data Kepala Sekolah</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -212,7 +219,7 @@
                 </div>
 
                 <!-- Wali Kelas -->
-                <div class="bg-green-50 p-4 rounded-xl border border-green-100">
+                <div class="bg-green-50 p-4 rounded-xl border border-green-100 mt-2">
                     <h4 class="font-bold text-green-800 mb-3 text-sm">Data Wali Kelas (Opsional)</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -266,8 +273,8 @@
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
             try {
                 const docSnap = await getDoc(doc(db, "pengaturan", "info_sekolah"));
-                if (docSnap.exists()) {
-                    namaSekolahSistem = docSnap.data().nama_sekolah || namaSekolahSistem;
+                if (docSnap.exists() && docSnap.data().nama_sekolah) {
+                    namaSekolahSistem = docSnap.data().nama_sekolah;
                 }
             } catch (e) { console.error("Gagal mengambil nama sekolah", e); }
         }
@@ -514,12 +521,15 @@
             }
         };
 
-        // --- FITUR 2: EXPORT EXCELJS (DENGAN WARNA GURU & STYLING) ---
+        // --- FITUR 2: EXPORT EXCELJS (DENGAN NAMA SEKOLAH DINAMIS) ---
         window.bukaModalExport = function() {
             if (semuaJadwal.length === 0) {
                 return alert("⚠️ Tidak ada data jadwal yang bisa di-export.");
             }
             const kelasAktif = document.getElementById('filterKelas').value;
+            
+            // Set Default Input
+            document.getElementById('exNamaSekolah').value = namaSekolahSistem !== "NAMA SEKOLAH BELUM DISETTING" ? namaSekolahSistem : "";
             document.getElementById('exTahun').value = `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`;
             
             if (kelasAktif !== "Semua") {
@@ -539,6 +549,7 @@
 
             try {
                 // Ambil Nilai Input
+                const namaSekolahExport = document.getElementById('exNamaSekolah').value.toUpperCase();
                 const tahun = document.getElementById('exTahun').value.toUpperCase();
                 const tempatTgl = document.getElementById('exTempatTgl').value;
                 const kepsek = document.getElementById('exNamaKepsek').value;
@@ -575,8 +586,9 @@
                 ws.getCell('A1').font = { bold: true, size: 14 };
                 ws.getCell('A1').alignment = centerAlign;
 
+                // Nama Sekolah yang diketik User
                 ws.mergeCells('A2:E2');
-                ws.getCell('A2').value = namaSekolahSistem.toUpperCase();
+                ws.getCell('A2').value = namaSekolahExport; 
                 ws.getCell('A2').font = { bold: true, size: 12 };
                 ws.getCell('A2').alignment = centerAlign;
 
@@ -601,14 +613,14 @@
                     const cell = headerRow.getCell(i + 1);
                     cell.value = h;
                     cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; // Putih
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } }; // Biru gelap Tailwind blue-900
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } }; // Biru gelap Tailwind
                     cell.alignment = centerAlign;
                     cell.border = borderAll;
                 });
 
                 startRow++;
 
-                // PALET WARNA PASTEL UNTUK GURU (Sama seperti web)
+                // PALET WARNA PASTEL UNTUK GURU
                 const warnaPastel = [
                     'FFE6F0FF', 'FFFFEBE6', 'FFF0F5E6', 'FFFFF0E6', 'FFE6E6FA',
                     'FFFFE6F0', 'FFE6FAFF', 'FFFFFAEB', 'FFEBF0FA', 'FFFAF0E6',
@@ -646,7 +658,6 @@
                              row.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: warnaBaris } };
                         }
                     } else {
-                         // Jika kosong, teks merah miring
                          row.getCell(5).font = { color: { argb: 'FFFF0000' }, italic: true };
                          row.getCell(5).value = "Belum diisi";
                     }
@@ -664,12 +675,10 @@
                 // AREA TANDA TANGAN (FOOTER)
                 let footerRow = startRow + 2;
 
-                // Tempat dan Tanggal
                 ws.mergeCells(`D${footerRow}:E${footerRow}`);
                 ws.getCell(`D${footerRow}`).value = tempatTgl;
                 ws.getCell(`D${footerRow}`).alignment = centerAlign;
 
-                // Teks Mengetahui
                 footerRow++;
                 ws.mergeCells(`A${footerRow}:B${footerRow}`);
                 ws.getCell(`A${footerRow}`).value = "Mengetahui,";
@@ -679,16 +688,13 @@
                 ws.getCell(`D${footerRow}`).value = "Wali Kelas,";
                 ws.getCell(`D${footerRow}`).alignment = centerAlign;
 
-                // Kepala Sekolah Title
                 footerRow++;
                 ws.mergeCells(`A${footerRow}:B${footerRow}`);
                 ws.getCell(`A${footerRow}`).value = "Kepala Sekolah,";
                 ws.getCell(`A${footerRow}`).alignment = centerAlign;
 
-                // Ruang untuk tanda tangan
                 footerRow += 4; 
 
-                // Nama Penandatangan
                 ws.mergeCells(`A${footerRow}:B${footerRow}`);
                 ws.getCell(`A${footerRow}`).value = kepsek;
                 ws.getCell(`A${footerRow}`).font = { bold: true, underline: true };
@@ -699,7 +705,6 @@
                 ws.getCell(`D${footerRow}`).font = { bold: true, underline: true };
                 ws.getCell(`D${footerRow}`).alignment = centerAlign;
 
-                // NIP
                 footerRow++;
                 ws.mergeCells(`A${footerRow}:B${footerRow}`);
                 ws.getCell(`A${footerRow}`).value = "NIP. " + nipKepsek;
@@ -720,12 +725,11 @@
                 document.body.appendChild(a);
                 a.click();
                 
-                // Cleanup
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
                 
                 tutupModal('modalExportExcel');
-                alert(`✅ Roster jadwal berhasil didownload dengan format berwarna!\nNama File: ${fileName}`);
+                alert(`✅ Roster jadwal berhasil didownload!\nNama Sekolah di Excel: ${namaSekolahExport}`);
 
             } catch (error) {
                 console.error("Gagal export excel:", error);
