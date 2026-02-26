@@ -220,7 +220,8 @@
                 } else {
                     await addDoc(collection(db, "jadwal_pelajaran"), jadwalBaru);
                     alert("✅ Jadwal Berhasil Disimpan!");
-                    document.getElementById('formJadwal').reset();
+                    // Menghapus perintah reset form agar isian sebelumnya tetap ada
+                    // document.getElementById('formJadwal').reset();
                 }
             } catch (error) {
                 console.error("Error menyimpan jadwal: ", error);
