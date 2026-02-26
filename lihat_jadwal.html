@@ -176,37 +176,48 @@
                     if (cocokHari && cocokKelas && cocokGuru) jadwalDifilter.push(data);
                 });
 
-                // Fungsi bantuan untuk membaca jam dari teks (misal "09:30 - 10:00" jadi menit)
+                // Fungsi super akurat untuk mengambil angka waktu (menghindari 10 terbaca lebih dulu dari 9)
                 function parseWaktuKeMenit(waktuStr) {
                     if (!waktuStr) return 9999;
-                    const match = waktuStr.match(/(\d{1,2})[:.](\d{2})/);
-                    if (match) {
-                        return (parseInt(match[1]) * 60) + parseInt(match[2]);
+                    const str = String(waktuStr);
+                    // 1. Cari pola jam lengkap misal 09:30 atau 9.30
+                    const matchJam = str.match(/(\d{1,2})[:.](\d{2})/);
+                    if (matchJam) {
+                        return (parseInt(matchJam[1], 10) * 60) + parseInt(matchJam[2], 10);
+                    }
+                    // 2. Fallback: Jika hanya ngetik "9" atau "10" tanpa titik dua
+                    const matchAngka = str.match(/\d+/);
+                    if (matchAngka) {
+                        return parseInt(matchAngka[0], 10) * 60;
                     }
                     return 9999;
                 }
 
-                // Urutkan berdasarkan Hari, lalu Jam Ke, lalu Waktu secara akurat
+                // Fungsi ambil satu angka dari teks (misal "Jam ke 5" -> 5)
+                function getAngka(teks) {
+                    const match = String(teks || "").match(/\d+/);
+                    return match ? parseInt(match[0], 10) : 99;
+                }
+
+                // Urutkan berdasarkan Hari, lalu Jam Ke, lalu Waktu secara matematika absolut
                 const urutanHari = { "Senin":1, "Selasa":2, "Rabu":3, "Kamis":4, "Jumat":5, "Sabtu":6 };
                 jadwalDifilter.sort((a,b) => {
                     // 1. Urutkan berdasarkan Hari
                     const selisihHari = (urutanHari[a.hari] || 99) - (urutanHari[b.hari] || 99);
                     if (selisihHari !== 0) return selisihHari;
                     
-                    // 2. Urutkan berdasarkan Jam Ke (Pastikan terbaca sebagai Angka)
-                    const jamA = parseInt(String(a.jam_ke).replace(/[^0-9]/g, '')) || 99;
-                    const jamB = parseInt(String(b.jam_ke).replace(/[^0-9]/g, '')) || 99;
+                    // 2. Urutkan berdasarkan Jam Ke (Hanya ambil angka pertama)
+                    const jamA = getAngka(a.jam_ke);
+                    const jamB = getAngka(b.jam_ke);
                     if (jamA !== jamB) return jamA - jamB;
 
-                    // 3. Jika Jam Ke sama, konversi Waktu ke hitungan menit agar 09:30 pasti di atas 10:00
+                    // 3. Konversi Waktu ke hitungan menit (Ini menjamin 9 pasti di atas 10)
                     const menitA = parseWaktuKeMenit(a.waktu);
                     const menitB = parseWaktuKeMenit(b.waktu);
                     if (menitA !== menitB) return menitA - menitB;
 
-                    // 4. Fallback jika waktu sama persis atau format tidak dikenali
-                    const waktuA = a.waktu || "";
-                    const waktuB = b.waktu || "";
-                    return waktuA.localeCompare(waktuB);
+                    // 4. Fallback terakhir jika semua nilai sama persis
+                    return String(a.waktu || "").localeCompare(String(b.waktu || ""));
                 });
 
                 // --- TAMPILKAN INFO JUMLAH JAM JIKA GURU DIPILIH ---
