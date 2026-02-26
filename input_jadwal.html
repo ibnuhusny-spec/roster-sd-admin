@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Input Jadwal Pelajaran</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Library untuk Export Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body class="bg-slate-50 min-h-screen p-4 md:p-8 font-sans text-gray-800">
 
@@ -83,20 +85,28 @@
         <!-- TABEL PREVIEW JADWAL -->
         <div class="lg:col-span-2 bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
             <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4 border-b pb-4">
-                <h2 class="text-xl font-bold text-gray-800">📋 Daftar Jadwal</h2>
+                <h2 class="text-xl font-bold text-gray-800 whitespace-nowrap">📋 Daftar Jadwal</h2>
                 
-                <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <button onclick="salinJadwalKelas()" class="bg-blue-100 hover:bg-blue-600 text-blue-700 hover:text-white font-bold py-2 px-4 rounded-lg text-sm transition shadow flex items-center gap-1" title="Salin seluruh jadwal kelas ini ke kelas lain">
+                <div class="flex flex-wrap items-center justify-end gap-2 w-full">
+                    <button onclick="bukaModalSetGuru()" class="bg-indigo-100 hover:bg-indigo-600 text-indigo-700 hover:text-white font-bold py-2 px-3 rounded-lg text-sm transition shadow flex items-center gap-1" title="Isi otomatis guru untuk jadwal yang kosong">
+                        👨‍🏫 Set Guru Massal
+                    </button>
+                    <button onclick="salinJadwalKelas()" class="bg-blue-100 hover:bg-blue-600 text-blue-700 hover:text-white font-bold py-2 px-3 rounded-lg text-sm transition shadow flex items-center gap-1" title="Salin seluruh jadwal kelas ini ke kelas lain">
                         📋 Salin Kelas
                     </button>
-                    <button onclick="hapusSemuaJadwal()" class="bg-red-100 hover:bg-red-600 text-red-700 hover:text-white font-bold py-2 px-4 rounded-lg text-sm transition shadow flex items-center gap-1">
-                        🗑️ Hapus Semua
+                    <button onclick="bukaModalExport()" class="bg-green-100 hover:bg-green-600 text-green-700 hover:text-white font-bold py-2 px-3 rounded-lg text-sm transition shadow flex items-center gap-1" title="Download Excel Roster">
+                        📥 Export Excel
+                    </button>
+                    <button onclick="hapusSemuaJadwal()" class="bg-red-100 hover:bg-red-600 text-red-700 hover:text-white font-bold py-2 px-3 rounded-lg text-sm transition shadow flex items-center gap-1" title="Hapus Jadwal Berdasarkan Filter">
+                        🗑️ Hapus
                     </button>
 
-                    <label class="text-sm font-bold text-gray-600 whitespace-nowrap ml-2">Filter Kelas:</label>
-                    <select id="filterKelas" onchange="tampilkanJadwal()" class="w-full sm:w-48 p-2 border border-gray-300 rounded-lg bg-gray-50 font-semibold text-blue-700">
-                        <option value="Semua">Semua Kelas</option>
-                    </select>
+                    <div class="flex items-center ml-auto w-full sm:w-auto mt-2 sm:mt-0">
+                        <label class="text-sm font-bold text-gray-600 whitespace-nowrap mr-2">Filter Kelas:</label>
+                        <select id="filterKelas" onchange="tampilkanJadwal()" class="w-full sm:w-40 p-2 border border-gray-300 rounded-lg bg-gray-50 font-semibold text-blue-700">
+                            <option value="Semua">Semua Kelas</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -121,32 +131,114 @@
         </div>
     </div>
 
-    <!-- MODAL SALIN JADWAL KELAS -->
-    <div id="modalSalinJadwal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+    <!-- MODAL SALIN KELAS -->
+    <div id="modalSalinKelas" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-md transform scale-100 transition-transform">
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 mb-4 text-2xl">📋</div>
-                <h3 class="text-xl font-bold text-gray-800">Salin Jadwal Kelas</h3>
-                <p class="text-sm text-gray-500 mt-1">Salin semua jadwal dari <span id="textKelasSumber" class="font-bold text-blue-600"></span> ke kelas lain.</p>
+            <div class="mb-6">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">📋 Salin Jadwal Kelas</h3>
+                <p class="text-sm text-gray-500 mt-1" id="teksInfoSalin">Pilih kelas tujuan untuk menyalin jadwal.</p>
             </div>
             
             <div class="mb-4">
-                <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Kelas Tujuan:</label>
-                <select id="pilihKelasTarget" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-800 font-semibold">
-                    <!-- Pilihan kelas akan dimuat di sini otomatis -->
+                <label class="block text-sm font-bold text-gray-700 mb-2">Kelas Tujuan</label>
+                <select id="pilihKelasTujuan" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 font-semibold text-blue-700">
+                    <option value="">Memuat...</option>
                 </select>
             </div>
             
             <div class="flex flex-col-reverse sm:flex-row gap-3 mt-6">
-                <button onclick="tutupModalSalin()" class="w-full px-4 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors">Batal</button>
-                <button onclick="prosesSalinJadwal()" id="btnProsesSalin" class="w-full px-4 py-2.5 text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 rounded-xl font-semibold transition-all">Salin Sekarang</button>
+                <button onclick="tutupModal('modalSalinKelas')" class="w-full px-4 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors">Batal</button>
+                <button onclick="prosesSalinKelas(event)" class="w-full px-4 py-2.5 text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 rounded-xl font-semibold transition-all">Salin Sekarang</button>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL SET GURU MASSAL -->
+    <div id="modalSetGuru" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-md transform scale-100 transition-transform">
+            <div class="mb-6">
+                <h3 class="text-xl font-bold text-indigo-800 flex items-center gap-2">👨‍🏫 Set Guru Massal</h3>
+                <p class="text-sm text-gray-500 mt-1" id="teksInfoGuruMassal">Isi otomatis nama guru untuk jadwal yang masih <span class="text-red-500 font-bold">KOSONG</span> di kelas ini.</p>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Guru (Wali Kelas/Guru Utama)</label>
+                <select id="pilihGuruMassal" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-gray-50 font-semibold text-indigo-700">
+                    <option value="">Memuat...</option>
+                </select>
+            </div>
+            
+            <div class="flex flex-col-reverse sm:flex-row gap-3 mt-6">
+                <button onclick="tutupModal('modalSetGuru')" class="w-full px-4 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors">Batal</button>
+                <button onclick="prosesSetGuruMassal(event)" class="w-full px-4 py-2.5 text-white bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-200 rounded-xl font-semibold transition-all">Tetapkan Guru</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EXPORT EXCEL -->
+    <div id="modalExportExcel" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-2xl transform scale-100 transition-transform my-8">
+            <div class="mb-6 border-b pb-4">
+                <h3 class="text-xl font-bold text-green-700 flex items-center gap-2">📥 Download Excel Roster</h3>
+                <p class="text-sm text-gray-500 mt-1">Lengkapi data di bawah ini untuk Kop dan Tanda Tangan pada file Excel.</p>
+            </div>
+            
+            <form id="formExport" onsubmit="prosesExportExcel(event)" class="space-y-4">
+                <!-- Tahun & Tempat -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Tahun Pelajaran</label>
+                        <input type="text" id="exTahun" placeholder="Contoh: 2023/2024" class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Tempat, Tanggal Pembuatan</label>
+                        <input type="text" id="exTempatTgl" placeholder="Contoh: Makassar, 15 Juli 2024" class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                </div>
+
+                <!-- Kepala Sekolah -->
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                    <h4 class="font-bold text-blue-800 mb-3 text-sm">Data Kepala Sekolah</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Nama Kepala Sekolah</label>
+                            <input type="text" id="exNamaKepsek" placeholder="Nama Lengkap beserta gelar" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">NIP Kepala Sekolah</label>
+                            <input type="text" id="exNipKepsek" placeholder="Nomor Induk Pegawai" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wali Kelas -->
+                <div class="bg-green-50 p-4 rounded-xl border border-green-100">
+                    <h4 class="font-bold text-green-800 mb-3 text-sm">Data Wali Kelas (Opsional)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Nama Wali Kelas</label>
+                            <input type="text" id="exNamaWali" placeholder="Kosongkan jika ekspor Semua Kelas" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">NIP Wali Kelas</label>
+                            <input type="text" id="exNipWali" placeholder="Kosongkan jika tidak ada" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col-reverse sm:flex-row gap-3 mt-6 pt-4 border-t">
+                    <button type="button" onclick="tutupModal('modalExportExcel')" class="w-full sm:w-1/3 px-4 py-3 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors">Batal</button>
+                    <button type="submit" class="w-full sm:w-2/3 px-4 py-3 text-white bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200 rounded-xl font-bold transition-all flex justify-center items-center gap-2">
+                        <span>📥</span> Unduh File Excel Sekarang
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, getDoc, onSnapshot, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         let firebaseConfig = { 
             apiKey: "API_KEY_ANDA",
@@ -166,6 +258,20 @@
 
         let semuaJadwal = []; 
         let idEditJadwal = null; 
+        let kelasSumberAktif = ""; 
+        let namaSekolahSistem = "NAMA SEKOLAH BELUM DISETTING"; // Default untuk excel
+
+        // --- AMBIL NAMA SEKOLAH UNTUK EXCEL ---
+        async function ambilNamaSekolah() {
+            if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
+            try {
+                const docSnap = await getDoc(doc(db, "pengaturan", "info_sekolah"));
+                if (docSnap.exists()) {
+                    namaSekolahSistem = docSnap.data().nama_sekolah || namaSekolahSistem;
+                }
+            } catch (e) { console.error("Gagal mengambil nama sekolah", e); }
+        }
+        ambilNamaSekolah();
 
         // --- MUAT DROPDOWN ---
         function muatDropdown(koleksi, idSelect, isWaktu = false) {
@@ -197,14 +303,25 @@
                         selectEl.insertAdjacentHTML('beforeend', `<option value="${nilai}">${nilai}</option>`);
                     }
                 });
+
+                // Khusus untuk modal Set Guru, salin data dari dropdown guru utama
+                if(idSelect === 'pilihGuru') {
+                    document.getElementById('pilihGuruMassal').innerHTML = selectEl.innerHTML;
+                }
             });
         }
 
         muatDropdown("master_kelas", "pilihKelas");
         muatDropdown("master_kelas", "filterKelas");
+        muatDropdown("master_kelas", "pilihKelasTujuan");
         muatDropdown("master_waktu", "pilihWaktu", true);
         muatDropdown("master_mapel", "pilihMapel");
         muatDropdown("master_guru", "pilihGuru");
+
+        // --- FUNGSI GLOBAL TUTUP MODAL ---
+        window.tutupModal = function(idModal) {
+            document.getElementById(idModal).classList.add('hidden');
+        };
 
         // --- FUNGSI BATAL EDIT ---
         window.batalEdit = function() {
@@ -246,8 +363,6 @@
                 } else {
                     await addDoc(collection(db, "jadwal_pelajaran"), jadwalBaru);
                     alert("✅ Jadwal Berhasil Disimpan!");
-                    // Menghapus perintah reset form agar isian sebelumnya tetap ada
-                    // document.getElementById('formJadwal').reset();
                 }
             } catch (error) {
                 console.error("Error menyimpan jadwal: ", error);
@@ -348,10 +463,174 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // --- FUNGSI SALIN JADWAL KELAS (MASSAL) DENGAN MODAL DROPDOWN ---
-        let kelasSumberSalin = "";
-        let jadwalSumberSalin = [];
+        // --- FITUR 1: SET GURU MASSAL ---
+        window.bukaModalSetGuru = function() {
+            const kelasAktif = document.getElementById('filterKelas').value;
+            if (kelasAktif === "Semua") {
+                return alert("⚠️ Harap pilih satu kelas di bagian 'Filter Kelas' terlebih dahulu! (Misalnya: Kelas 1A)");
+            }
 
+            const jadwalKosong = semuaJadwal.filter(j => j.kelas === kelasAktif && (!j.guru || j.guru.trim() === ""));
+            
+            if (jadwalKosong.length === 0) {
+                return alert(`🎉 Luar biasa! Tidak ada jadwal yang kosong/tanpa guru di kelas ${kelasAktif}.`);
+            }
+
+            document.getElementById('teksInfoGuruMassal').innerHTML = `Terdapat <span class="font-bold text-red-600">${jadwalKosong.length} jadwal kosong</span> di kelas <b>${kelasAktif}</b>. Pilih guru untuk mengisi semua jadwal kosong tersebut:`;
+            document.getElementById('pilihGuruMassal').value = "";
+            document.getElementById('modalSetGuru').classList.remove('hidden');
+        };
+
+        window.prosesSetGuruMassal = async function(e) {
+            const guruPilihan = document.getElementById('pilihGuruMassal').value;
+            const kelasAktif = document.getElementById('filterKelas').value;
+
+            if (!guruPilihan) return alert("Pilih nama guru terlebih dahulu!");
+
+            const jadwalKosong = semuaJadwal.filter(j => j.kelas === kelasAktif && (!j.guru || j.guru.trim() === ""));
+
+            if (confirm(`Yakin ingin menetapkan "${guruPilihan}" untuk ${jadwalKosong.length} jadwal yang kosong di kelas ${kelasAktif}?`)) {
+                
+                const btnSubmit = e.target;
+                const teksAsli = btnSubmit.innerHTML;
+                btnSubmit.innerHTML = "⏳ Memproses..."; btnSubmit.disabled = true;
+
+                try {
+                    const batch = writeBatch(db);
+                    
+                    jadwalKosong.forEach(j => {
+                        const docRef = doc(db, "jadwal_pelajaran", j.id);
+                        batch.update(docRef, { guru: guruPilihan });
+                    });
+
+                    await batch.commit();
+                    alert(`✅ Berhasil menetapkan ${guruPilihan} ke ${jadwalKosong.length} jadwal di kelas ${kelasAktif}!`);
+                    tutupModal('modalSetGuru');
+                } catch (error) {
+                    console.error("Error update massal guru: ", error);
+                    alert("❌ Gagal mengupdate guru.");
+                }
+
+                btnSubmit.innerHTML = teksAsli; btnSubmit.disabled = false;
+            }
+        };
+
+        // --- FITUR 2: EXPORT EXCEL ---
+        window.bukaModalExport = function() {
+            if (semuaJadwal.length === 0) {
+                return alert("⚠️ Tidak ada data jadwal yang bisa di-export.");
+            }
+
+            const kelasAktif = document.getElementById('filterKelas').value;
+            
+            // Prediksi/Saran inputan awal
+            document.getElementById('exTahun').value = `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`;
+            
+            if (kelasAktif !== "Semua") {
+                document.getElementById('exNamaWali').placeholder = `Wali Kelas ${kelasAktif}`;
+            } else {
+                document.getElementById('exNamaWali').placeholder = `Kosongkan jika ekspor semua kelas`;
+            }
+
+            document.getElementById('modalExportExcel').classList.remove('hidden');
+        };
+
+        window.prosesExportExcel = function(e) {
+            e.preventDefault();
+
+            // Ambil Nilai Input
+            const tahun = document.getElementById('exTahun').value.toUpperCase();
+            const tempatTgl = document.getElementById('exTempatTgl').value;
+            const kepsek = document.getElementById('exNamaKepsek').value;
+            const nipKepsek = document.getElementById('exNipKepsek').value;
+            const wali = document.getElementById('exNamaWali').value || "....................................";
+            const nipWali = document.getElementById('exNipWali').value || "..................";
+            
+            const filterKelas = document.getElementById('filterKelas').value;
+            const isSemua = filterKelas === "Semua";
+            
+            let dataExport = isSemua ? semuaJadwal : semuaJadwal.filter(j => j.kelas === filterKelas);
+
+            // Urutkan data seperti di tabel web
+            dataExport.sort((a, b) => {
+                if (urutanHari[a.hari] !== urutanHari[b.hari]) return urutanHari[a.hari] - urutanHari[b.hari];
+                return (a.waktu || "").localeCompare(b.waktu || "");
+            });
+
+            // --- SUSUN ARRAY UNTUK SHEETJS ---
+            const aoa = []; // Array of Arrays
+            
+            // Baris 1-3 (Header/Kop)
+            aoa.push(["ROSTER MATA PELAJARAN"]);
+            aoa.push([namaSekolahSistem]);
+            aoa.push(["TAHUN PELAJARAN " + tahun]);
+            
+            if (!isSemua) {
+                aoa.push(["KELAS: " + filterKelas]);
+            } else {
+                aoa.push([]); // Baris kosong jika semua kelas
+            }
+            
+            aoa.push([]); // Jarak
+
+            // Baris Header Tabel
+            aoa.push(["Hari", "Waktu", "Kelas", "Mata Pelajaran", "Guru Pengajar"]);
+
+            // Isi Data
+            dataExport.forEach(j => {
+                aoa.push([j.hari, j.waktu, j.kelas, j.mapel, j.guru || ""]);
+            });
+
+            // Area Tanda Tangan (Footer)
+            aoa.push([]); // Jarak
+            aoa.push([]); // Jarak
+            aoa.push(["", "", "", "", tempatTgl]);
+            aoa.push(["Mengetahui,", "", "", "", "Wali Kelas,"]);
+            aoa.push(["Kepala Sekolah,", "", "", "", ""]);
+            aoa.push([]); // Jarak TTD
+            aoa.push([]); // Jarak TTD
+            aoa.push([]); // Jarak TTD
+            aoa.push([kepsek, "", "", "", wali]);
+            aoa.push(["NIP. " + nipKepsek, "", "", "", "NIP. " + nipWali]);
+
+            // Buat Worksheet
+            const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+            // Styling (Merge Cells untuk Header)
+            ws['!merges'] = [
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }, // Merge ROSTER
+                { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } }, // Merge NAMA SEKOLAH
+                { s: { r: 2, c: 0 }, e: { r: 2, c: 4 } }, // Merge TAHUN
+            ];
+            
+            if (!isSemua) {
+                ws['!merges'].push({ s: { r: 3, c: 0 }, e: { r: 3, c: 4 } }); // Merge KELAS
+            }
+
+            // Lebar Kolom
+            ws['!cols'] = [
+                { wpx: 80 },  // Hari
+                { wpx: 120 }, // Waktu
+                { wpx: 80 },  // Kelas
+                { wpx: 200 }, // Mapel
+                { wpx: 200 }  // Guru
+            ];
+
+            // Buat Workbook dan simpan
+            const wb = XLSX.utils.book_new();
+            const sheetName = isSemua ? "Semua_Kelas" : `Kelas_${filterKelas}`;
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+            
+            const fileName = `Roster_Jadwal_${sheetName}_${tahun.replace('/', '-')}.xlsx`;
+            
+            XLSX.writeFile(wb, fileName);
+            
+            tutupModal('modalExportExcel');
+            alert(`✅ File Excel berhasil diunduh dengan nama:\n${fileName}`);
+        };
+
+
+        // --- FUNGSI SALIN JADWAL KELAS (MASSAL) DENGAN MODAL ---
         window.salinJadwalKelas = function() {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return alert("Isi config Firebase dahulu!");
             
@@ -365,74 +644,58 @@
                 return alert(`Tidak ada jadwal di kelas ${kelasSumber} untuk disalin.`);
             }
 
-            // Simpan state untuk diproses nanti
-            kelasSumberSalin = kelasSumber;
-            jadwalSumberSalin = jadwalSumber;
-
-            // Update UI Modal
-            document.getElementById('textKelasSumber').innerText = kelasSumber;
-            
-            // Ambil data dropdown kelas dari form input utama yang sudah dimuat oleh Firebase
-            const selectTarget = document.getElementById('pilihKelasTarget');
-            selectTarget.innerHTML = document.getElementById('pilihKelas').innerHTML;
-            
-            // Hapus opsi kelas sumber agar tidak bisa menyalin ke kelas yang sama
-            for (let i = 0; i < selectTarget.options.length; i++) {
-                if (selectTarget.options[i].value === kelasSumber) {
-                    selectTarget.remove(i);
-                    break;
-                }
-            }
-
-            // Tampilkan Modal
-            document.getElementById('modalSalinJadwal').classList.remove('hidden');
+            kelasSumberAktif = kelasSumber;
+            document.getElementById('teksInfoSalin').innerText = `Menyalin ${jadwalSumber.length} baris jadwal dari kelas ${kelasSumber}. Pilih kelas tujuan:`;
+            document.getElementById('pilihKelasTujuan').value = ""; 
+            document.getElementById('modalSalinKelas').classList.remove('hidden');
         };
 
-        window.tutupModalSalin = function() {
-            document.getElementById('modalSalinJadwal').classList.add('hidden');
-        };
-
-        window.prosesSalinJadwal = async function() {
-            const kelasTarget = document.getElementById('pilihKelasTarget').value;
+        window.prosesSalinKelas = async function(e) {
+            const kelasTarget = document.getElementById('pilihKelasTujuan').value;
             
-            if (!kelasTarget) {
-                return alert("⚠️ Silakan pilih kelas tujuan terlebih dahulu!");
+            if (!kelasTarget) return alert("Pilih kelas tujuan terlebih dahulu!");
+            
+            if (kelasTarget === kelasSumberAktif) {
+                return alert("❌ Kelas tujuan tidak boleh sama dengan kelas sumber!");
             }
 
-            if (confirm(`Yakin ingin menyalin ${jadwalSumberSalin.length} jadwal dari ${kelasSumberSalin} ke ${kelasTarget}? \n(Guru akan dikosongkan agar Anda bisa mengisinya ulang)`)) {
-                const btnSubmit = document.getElementById('btnProsesSalin');
-                const textAsli = btnSubmit.innerHTML;
+            const jadwalSumber = semuaJadwal.filter(j => j.kelas === kelasSumberAktif);
+
+            if (confirm(`Yakin ingin menyalin jadwal ${kelasSumberAktif} ke ${kelasTarget}? \n(Hari, Waktu, dan Mapel akan disamakan, tetapi Nama Guru akan dikosongkan agar Anda bisa mengisinya ulang)`)) {
+                
+                const btnSubmit = e.target;
+                const teksAsli = btnSubmit.innerHTML;
                 btnSubmit.innerHTML = "⏳ Menyalin..."; btnSubmit.disabled = true;
 
                 try {
                     const batch = writeBatch(db);
                     
-                    jadwalSumberSalin.forEach(j => {
-                        const docRef = doc(collection(db, "jadwal_pelajaran")); // Auto-generate ID dokumen baru
+                    jadwalSumber.forEach(j => {
+                        const docRef = doc(collection(db, "jadwal_pelajaran")); 
                         batch.set(docRef, {
                             hari: j.hari,
                             waktu: j.waktu,
                             mapel: j.mapel,
                             kelas: kelasTarget,
-                            guru: "", // Sengaja dikosongkan
+                            guru: "", 
                             timestamp: new Date().getTime()
                         });
                     });
 
                     await batch.commit();
-                    alert(`✅ Berhasil menyalin ${jadwalSumberSalin.length} jadwal ke kelas ${kelasTarget}!\nSilakan filter ke kelas tersebut untuk mengisi nama guru.`);
+                    alert(`✅ Berhasil menyalin ${jadwalSumber.length} jadwal ke kelas ${kelasTarget}!\nSilakan edit jadwal di kelas tersebut untuk mengisi nama guru.`);
                     
-                    // Otomatis ubah filter ke kelas hasil salinan
+                    tutupModal('modalSalinKelas');
+                    
                     document.getElementById('filterKelas').value = kelasTarget;
                     tampilkanJadwal();
-                    
-                    tutupModalSalin();
-                } catch (e) {
-                    console.error("Error menyalin jadwal massal: ", e);
+
+                } catch (error) {
+                    console.error("Error menyalin jadwal massal: ", error);
                     alert("❌ Gagal menyalin jadwal massal.");
-                } finally {
-                    btnSubmit.innerHTML = textAsli; btnSubmit.disabled = false;
                 }
+
+                btnSubmit.innerHTML = teksAsli; btnSubmit.disabled = false;
             }
         };
 
