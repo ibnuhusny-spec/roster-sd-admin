@@ -176,9 +176,22 @@
                     if (cocokHari && cocokKelas && cocokGuru) jadwalDifilter.push(data);
                 });
 
-                // Urutkan berdasarkan Hari dan Jam (Numerik)
+                // Urutkan berdasarkan Hari, lalu Jam Ke (Numerik), lalu Waktu
                 const urutanHari = { "Senin":1, "Selasa":2, "Rabu":3, "Kamis":4, "Jumat":5, "Sabtu":6 };
-                jadwalDifilter.sort((a,b) => (urutanHari[a.hari]||99) - (urutanHari[b.hari]||99) || String(a.jam_ke).localeCompare(String(b.jam_ke), undefined, {numeric: true}));
+                jadwalDifilter.sort((a,b) => {
+                    // 1. Urutkan berdasarkan Hari
+                    const selisihHari = (urutanHari[a.hari] || 99) - (urutanHari[b.hari] || 99);
+                    if (selisihHari !== 0) return selisihHari;
+                    
+                    // 2. Urutkan berdasarkan Jam Ke (Angka 1-10+)
+                    const selisihJam = String(a.jam_ke).localeCompare(String(b.jam_ke), undefined, {numeric: true});
+                    if (selisihJam !== 0) return selisihJam;
+
+                    // 3. Jika Jam Ke sama, urutkan berdasarkan rentang Waktu (misal "09:30" vs "10:00")
+                    const waktuA = a.waktu || "";
+                    const waktuB = b.waktu || "";
+                    return waktuA.localeCompare(waktuB, undefined, {numeric: true});
+                });
 
                 // --- TAMPILKAN INFO JUMLAH JAM JIKA GURU DIPILIH ---
                 const infoSesi = document.getElementById('infoSesi');
