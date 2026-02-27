@@ -115,12 +115,22 @@
                     </div>
                     
                     <!-- TOMBOL FITUR EKSKLUSIF -->
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="bukaModalSalinKelas()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
-                            <span>📑</span> Salin Jadwal Kelas
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <button onclick="bukaModalTerapkanGuru()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1">
+                            <span>👨‍🏫</span> Terapkan Guru
                         </button>
-                        <button onclick="bukaModalExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
-                            <span>📊</span> Unduh Excel
+                        <button onclick="bukaModalSalinKelas()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1">
+                            <span>📑</span> Salin Kelas
+                        </button>
+                        <button onclick="bukaModalExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1">
+                            <span>📊</span> Excel
+                        </button>
+                        <div class="h-6 w-px bg-gray-300 hidden md:block mx-1"></div>
+                        <button onclick="hapusJadwalPerKelas()" class="bg-red-400 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1" title="Hapus seluruh jadwal dari kelas yang sedang difilter">
+                            <span>🧹</span> Hapus Kelas
+                        </button>
+                        <button onclick="hapusSemuaJadwal()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1" title="Hapus seluruh database jadwal">
+                            <span>🚨</span> Hapus Semua
                         </button>
                     </div>
                 </div>
@@ -228,6 +238,43 @@
         </div>
     </div>
 
+    <!-- MODAL TERAPKAN GURU -->
+    <div id="modalTerapkanGuru" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
+            <div class="bg-amber-500 p-4 flex justify-between items-center text-white">
+                <h3 class="font-bold text-lg flex items-center gap-2"><span>👨‍🏫</span> Terapkan Guru Massal</h3>
+                <button onclick="tutupModalTerapkanGuru()" class="text-white hover:text-gray-100 font-bold text-xl">&times;</button>
+            </div>
+            <div class="p-6 space-y-4 text-sm">
+                <p class="text-gray-600 text-xs mb-4">Fitur ini akan mengisi atau mengganti nama guru pada kelas dan mata pelajaran tertentu sekaligus (sangat berguna setelah proses Salin Kelas).</p>
+                <div>
+                    <label class="block font-bold text-gray-700 mb-1">Pilih Kelas:</label>
+                    <select id="terapkanKelas" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50">
+                        <option value="">-- Pilih Kelas --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-700 mb-1">Mata Pelajaran:</label>
+                    <select id="terapkanMapel" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50">
+                        <option value="">-- Pilih Mapel --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-700 mb-1">Terapkan Guru:</label>
+                    <select id="terapkanGuru" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50">
+                        <option value="">-- Pilih Guru --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 border-t flex justify-end gap-3">
+                <button onclick="tutupModalTerapkanGuru()" class="px-4 py-2 text-gray-600 bg-gray-200 hover:bg-gray-300 rounded-lg font-bold">Batal</button>
+                <button onclick="prosesTerapkanGuru()" id="btnProsesTerapkan" class="px-4 py-2 text-white bg-amber-500 hover:bg-amber-600 rounded-lg font-bold flex items-center gap-2">
+                    <span>✅</span> Terapkan
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -264,11 +311,13 @@
                 const filterKelas = document.getElementById('filterKelasTable');
                 const salinDari = document.getElementById('salinDariKelas');
                 const salinKe = document.getElementById('salinKeKelas');
+                const terapkanKls = document.getElementById('terapkanKelas');
 
                 selKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
                 filterKelas.innerHTML = '<option value="Semua">Semua Kelas</option>';
                 if(salinDari) salinDari.innerHTML = '<option value="">-- Pilih Kelas Asal --</option>';
                 if(salinKe) salinKe.innerHTML = '<option value="">-- Pilih Kelas Tujuan --</option>';
+                if(terapkanKls) terapkanKls.innerHTML = '<option value="">-- Pilih Kelas --</option>';
 
                 let arr = []; snapshot.forEach(d => arr.push(d.data().nama));
                 arr.sort((a,b)=>a.localeCompare(b)).forEach(nama => {
@@ -276,6 +325,7 @@
                     filterKelas.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                     if(salinDari) salinDari.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                     if(salinKe) salinKe.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
+                    if(terapkanKls) terapkanKls.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                 });
                 $('#inputKelas').trigger('change'); $('#filterKelasTable').trigger('change');
             });
@@ -303,16 +353,28 @@
             // MASTER MAPEL & GURU
             onSnapshot(collection(db, "master_mapel"), (snapshot) => {
                 const sel = document.getElementById('inputMapel');
+                const terapkanMpl = document.getElementById('terapkanMapel');
                 sel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+                if(terapkanMpl) terapkanMpl.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+
                 let arr = []; snapshot.forEach(d => arr.push(d.data().nama));
-                arr.sort().forEach(nama => sel.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`));
+                arr.sort().forEach(nama => {
+                    sel.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
+                    if(terapkanMpl) terapkanMpl.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
+                });
                 $('#inputMapel').trigger('change');
             });
             onSnapshot(collection(db, "master_guru"), (snapshot) => {
                 const sel = document.getElementById('inputGuru');
+                const terapkanGr = document.getElementById('terapkanGuru');
                 sel.innerHTML = '<option value="">-- Pilih Guru --</option>';
+                if(terapkanGr) terapkanGr.innerHTML = '<option value="">-- Pilih Guru --</option>';
+
                 let arr = []; snapshot.forEach(d => arr.push(d.data().nama));
-                arr.sort().forEach(nama => sel.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`));
+                arr.sort().forEach(nama => {
+                    sel.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
+                    if(terapkanGr) terapkanGr.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
+                });
                 $('#inputGuru').trigger('change');
             });
         }
@@ -467,7 +529,41 @@
 
         window.hapusJadwal = async function(id) {
             if (!db) return alert("❌ Koneksi database tidak tersedia.");
-            if(confirm("⚠️ Yakin hapus jadwal ini?")) await deleteDoc(doc(db, "jadwal_pelajaran", id));
+            if(confirm("⚠️ Yakin hapus baris jadwal ini?")) await deleteDoc(doc(db, "jadwal_pelajaran", id));
+        };
+
+        window.hapusJadwalPerKelas = async function() {
+            const kelas = document.getElementById('filterKelasTable').value;
+            if (kelas === "Semua") return alert("❌ Silakan filter tabel ke SATU KELAS terlebih dahulu (dropdown di atas tabel) untuk menghapus seluruh jadwal kelas tersebut.");
+            
+            if (!confirm(`⚠️ PERINGATAN!\n\nAnda yakin ingin menghapus SELURUH jadwal untuk KELAS ${kelas}?\nData yang dihapus tidak dapat dikembalikan.`)) return;
+
+            const dataHapus = semuaJadwal.filter(j => j.kelas === kelas);
+            if(dataHapus.length === 0) return alert(`Tidak ada jadwal di kelas ${kelas}.`);
+
+            let terhapus = 0;
+            for(const j of dataHapus) {
+                try {
+                    await deleteDoc(doc(db, "jadwal_pelajaran", j.id));
+                    terhapus++;
+                } catch(e) { console.error("Gagal hapus", e); }
+            }
+            alert(`✅ Berhasil menghapus ${terhapus} jadwal di Kelas ${kelas}.`);
+        };
+
+        window.hapusSemuaJadwal = async function() {
+            if (!confirm(`🚨 AWAS! TINDAKAN BERBAHAYA!\n\nAnda akan menghapus SEMUA JADWAL DARI SELURUH KELAS! Apakah Anda 100% yakin?`)) return;
+            const ketik = prompt("Untuk melanjutkan, ketik kata 'HAPUS' di bawah ini (huruf besar semua):");
+            if (ketik !== "HAPUS") return alert("❌ Aksi dibatalkan. Kata kunci tidak cocok.");
+
+            let terhapus = 0;
+            for(const j of semuaJadwal) {
+                try {
+                    await deleteDoc(doc(db, "jadwal_pelajaran", j.id));
+                    terhapus++;
+                } catch(e) { console.error("Gagal hapus", e); }
+            }
+            alert(`✅ SELURUH JADWAL BERHASIL DIKOSONGKAN. Total ${terhapus} baris data dihapus.`);
         };
 
         window.resetForm = function() {
@@ -537,6 +633,53 @@
             btn.innerHTML = "<span>📋</span> Proses Salin"; btn.disabled = false;
         };
 
+        // --- FITUR TERAPKAN GURU MASSAL ---
+        window.bukaModalTerapkanGuru = function() {
+            document.getElementById('modalTerapkanGuru').classList.remove('hidden');
+            const filterSaatIni = document.getElementById('filterKelasTable').value;
+            if(filterSaatIni !== "Semua") {
+                document.getElementById('terapkanKelas').value = filterSaatIni;
+            } else {
+                document.getElementById('terapkanKelas').value = "";
+            }
+        };
+        
+        window.tutupModalTerapkanGuru = function() { document.getElementById('modalTerapkanGuru').classList.add('hidden'); };
+
+        window.prosesTerapkanGuru = async function() {
+            const kls = document.getElementById('terapkanKelas').value;
+            const mpl = document.getElementById('terapkanMapel').value;
+            const gr = document.getElementById('terapkanGuru').value;
+
+            if(!kls || !mpl || !gr) return alert("❌ Harap pilih Kelas, Mata Pelajaran, dan Guru!");
+
+            const jadwalTarget = semuaJadwal.filter(j => j.kelas === kls && j.mapel === mpl);
+            if(jadwalTarget.length === 0) return alert(`❌ Tidak ada jadwal mata pelajaran ${mpl} di kelas ${kls}.`);
+
+            const btn = document.getElementById('btnProsesTerapkan');
+            btn.innerHTML = "⏳ Memproses..."; btn.disabled = true;
+
+            let berhasil = 0;
+            let dilewati = 0;
+
+            for(const j of jadwalTarget) {
+                try {
+                    // Pengecekan agar guru tidak bentrok mengajar di kelas lain pada hari & jam yang sama
+                    const cekBentrok = semuaJadwal.find(tj => tj.hari === j.hari && tj.waktu === j.waktu && tj.guru === gr && tj.id !== j.id);
+                    if(cekBentrok) {
+                        dilewati++;
+                        continue; // Jika guru sudah mengajar di kelas lain di jam yang sama, maka abaikan jadwal ini
+                    }
+                    await updateDoc(doc(db, "jadwal_pelajaran", j.id), { guru: gr });
+                    berhasil++;
+                } catch(e) { console.error("Gagal terapkan guru", e); }
+            }
+
+            tutupModalTerapkanGuru();
+            alert(`✅ Selesai!\n\nBerhasil diterapkan: ${berhasil} jadwal\nDilewati (karena bentrok jam dengan kelas lain): ${dilewati} jadwal`);
+            btn.innerHTML = "<span>✅</span> Terapkan"; btn.disabled = false;
+        };
+
         // --- FITUR DOWNLOAD EXCEL DENGAN MODAL (BERWARNA) ---
         window.bukaModalExcel = function() { document.getElementById('modalExcel').classList.remove('hidden'); }
         window.tutupModalExcel = function() { document.getElementById('modalExcel').classList.add('hidden'); }
@@ -563,6 +706,23 @@
                 return val1 - val2;
             });
 
+            // Membuat Palette Warna Cerah untuk Membedakan Guru
+            const warnaCerah = [
+                "#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", "#BAE1FF", 
+                "#E8BAFF", "#FFB3E6", "#C4FAF8", "#E2F0CB", "#FFC4C4", 
+                "#FFDEAA", "#E0BBE4", "#957DAD", "#D291BC", "#FEC8D8", "#FDEB71"
+            ];
+            let mapWarnaGuru = {};
+            let indexWarna = 0;
+            
+            // Assign warna unik per guru yang ada di data
+            data.forEach(j => {
+                if (j.guru && !mapWarnaGuru[j.guru]) {
+                    mapWarnaGuru[j.guru] = warnaCerah[indexWarna % warnaCerah.length];
+                    indexWarna++;
+                }
+            });
+
             // Membuat tabel HTML untuk dikonversi ke Excel dengan pengaturan warna (Inline CSS)
             let tabelHTML = `
             <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
@@ -586,14 +746,8 @@
 
             let no = 1;
             data.forEach(j => {
-                // Memberikan warna background selang-seling berdasarkan hari (agar cantik di Excel)
-                let bgWarna = "#ffffff";
-                if(j.hari === "Senin") bgWarna = "#fee2e2"; // merah muda
-                else if(j.hari === "Selasa") bgWarna = "#ffedd5"; // orange muda
-                else if(j.hari === "Rabu") bgWarna = "#fef3c7"; // kuning muda
-                else if(j.hari === "Kamis") bgWarna = "#dcfce7"; // hijau muda
-                else if(j.hari === "Jumat") bgWarna = "#dbeafe"; // biru muda
-                else if(j.hari === "Sabtu") bgWarna = "#f3e8ff"; // ungu muda
+                // Memberikan warna background berdasarkan nama guru, biarkan putih jika belum ada guru
+                let bgWarna = j.guru ? mapWarnaGuru[j.guru] : "#ffffff";
 
                 tabelHTML += `
                     <tr>
