@@ -32,7 +32,7 @@
         <div class="flex flex-col md:flex-row justify-between items-end mb-6 gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <div>
                 <h1 class="text-3xl font-extrabold text-blue-800 mb-2">📅 Jadwal Pelajaran</h1>
-                <p class="text-gray-500">Pilih kelas untuk melihat jadwal secara spesifik.</p>
+                <p class="text-gray-500">Pilih kelas atau guru untuk melihat jadwal secara spesifik.</p>
             </div>
             
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
@@ -70,6 +70,22 @@
             </div>
         </div>
 
+        <!-- Info Jam Mengajar (Muncul Otomatis saat Guru Dipilih) -->
+        <div id="infoJamMengajar" class="hidden mb-6 transition-all duration-300 transform origin-top scale-95 opacity-0">
+            <div class="inline-flex items-center p-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg border border-blue-400 w-full md:w-auto">
+                <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm mr-4 text-white shadow-inner">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <p class="text-blue-100 text-sm font-medium mb-0.5">Total Jam Mengajar <span id="namaGuruInfo" class="font-bold text-white ml-1"></span></p>
+                    <div class="flex items-baseline gap-1.5">
+                        <span id="angkaJamMengajar" class="text-3xl font-extrabold text-white leading-none tracking-tight">0</span>
+                        <span class="text-blue-200 font-semibold text-sm uppercase tracking-wider">Jam Pelajaran (JP)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tabel Jadwal Publik -->
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
             <div class="overflow-x-auto">
@@ -91,7 +107,7 @@
         </div>
     </div>
 
-    <!-- MODAL EXPORT EXCEL (Sama persis dengan Admin) -->
+    <!-- MODAL EXPORT EXCEL -->
     <div id="modalExportExcel" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity overflow-y-auto">
         <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-2xl transform scale-100 transition-transform my-8">
             <div class="mb-6 border-b pb-4">
@@ -134,16 +150,16 @@
                     </div>
                 </div>
 
-                <!-- Wali Kelas -->
+                <!-- Wali Kelas / Guru -->
                 <div class="bg-green-50 p-4 rounded-xl border border-green-100 mt-2">
-                    <h4 class="font-bold text-green-800 mb-3 text-sm flex items-center gap-2">👩‍🏫 Data Wali Kelas <span id="labelWaliKelas" class="font-normal text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded"></span></h4>
+                    <h4 class="font-bold text-green-800 mb-3 text-sm flex items-center gap-2">👩‍🏫 Data Wali Kelas / Guru <span id="labelWaliKelas" class="font-normal text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded"></span></h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1">Nama Wali Kelas</label>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">Nama Wali / Guru</label>
                             <input type="text" id="exNamaWali" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1">NIP Wali Kelas</label>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">NIP Wali / Guru</label>
                             <input type="text" id="exNipWali" placeholder="Kosongkan jika tidak ada" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
                         </div>
                     </div>
@@ -248,7 +264,7 @@
         }
         muatDataJadwal();
 
-        // --- MENAMPILKAN JADWAL DI TABEL ---
+        // --- MENAMPILKAN JADWAL DI TABEL & JUMLAH JAM ---
         window.tampilkanJadwal = function() {
             const tabel = document.getElementById('tabelJadwal');
             const kelasDipilih = document.getElementById('filterKelas').value;
@@ -263,6 +279,30 @@
                 return matchKelas && matchHari && matchGuru;
             });
 
+            // LOGIKA MENAMPILKAN KARTU JUMLAH JAM MENGAJAR
+            const infoJamDiv = document.getElementById('infoJamMengajar');
+            const angkaJamSpan = document.getElementById('angkaJamMengajar');
+            const namaGuruSpan = document.getElementById('namaGuruInfo');
+
+            if (guruDipilih !== "Semua") {
+                // Tampilkan card dengan animasi
+                infoJamDiv.classList.remove('hidden');
+                setTimeout(() => {
+                    infoJamDiv.classList.remove('scale-95', 'opacity-0');
+                    infoJamDiv.classList.add('scale-100', 'opacity-100');
+                }, 10); // sedikit jeda agar animasi berjalan
+
+                angkaJamSpan.innerText = jadwalTerfilter.length;
+                namaGuruSpan.innerText = `(${guruDipilih})`;
+            } else {
+                // Sembunyikan card dengan animasi
+                infoJamDiv.classList.remove('scale-100', 'opacity-100');
+                infoJamDiv.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    infoJamDiv.classList.add('hidden');
+                }, 300); // jeda sesuai dengan duration-300 di class CSS
+            }
+
             // Urutkan berdasarkan Hari lalu Waktu
             jadwalTerfilter.sort((a, b) => {
                 if (urutanHari[a.hari] !== urutanHari[b.hari]) {
@@ -272,12 +312,11 @@
             });
 
             if (jadwalTerfilter.length === 0) {
-                tabel.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-500 text-lg bg-gray-50">📭 Belum ada jadwal untuk kelas ini.</td></tr>`;
+                tabel.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-500 text-lg bg-gray-50">📭 Belum ada jadwal yang sesuai dengan filter.</td></tr>`;
                 return;
             }
 
             jadwalTerfilter.forEach((j, index) => {
-                // Warna latar belakang baris (belang-belang)
                 const isEven = index % 2 === 0;
                 const rowBgClass = isEven ? 'bg-white' : 'bg-slate-50';
 
@@ -324,15 +363,13 @@
             const kelasAktif = document.getElementById('filterKelas').value;
             const guruAktif = document.getElementById('filterGuru').value;
             
-            // Ambil data dari LocalStorage agar tidak capek mengetik ulang
+            // Ambil data dari LocalStorage
             const dataTersimpan = JSON.parse(localStorage.getItem('savedDataExportExcelPublic') || '{}');
 
-            // Set Default Input (Nama Sekolah prioritas dari Database jika ada)
             document.getElementById('exNamaSekolah').value = (namaSekolahSistem !== "NAMA SEKOLAH BELUM DISETTING") 
                 ? namaSekolahSistem 
                 : (dataTersimpan.sekolah || "");
             
-            // Format Tanggal Hari Ini untuk default Tempat/Tgl
             const bulanIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             const tglSekarang = new Date();
             const formatTgl = `${tglSekarang.getDate()} ${bulanIndo[tglSekarang.getMonth()]} ${tglSekarang.getFullYear()}`;
@@ -340,11 +377,9 @@
             document.getElementById('exTahun').value = dataTersimpan.tahun || `${tglSekarang.getFullYear()}/${tglSekarang.getFullYear() + 1}`;
             document.getElementById('exTempatTgl').value = dataTersimpan.tempat || `Makassar, ${formatTgl}`;
             
-            // Data Kepala Sekolah (Tersimpan otomatis)
             document.getElementById('exNamaKepsek').value = dataTersimpan.kepsek || "";
             document.getElementById('exNipKepsek').value = dataTersimpan.nipKepsek || "";
             
-            // Penyesuaian Wali Kelas berdasarkan Filter
             if (guruAktif !== "Semua") {
                 document.getElementById('labelWaliKelas').innerText = `(Guru: ${guruAktif})`;
                 document.getElementById('exNamaWali').placeholder = `Nama Guru Yang Bersangkutan`;
@@ -353,7 +388,7 @@
             } else if (kelasAktif !== "Semua") {
                 document.getElementById('labelWaliKelas').innerText = `(Kelas ${kelasAktif})`;
                 document.getElementById('exNamaWali').placeholder = `Masukkan Nama Wali Kelas ${kelasAktif}`;
-                document.getElementById('exNamaWali').value = ""; // Kosongkan saat ganti kelas
+                document.getElementById('exNamaWali').value = ""; 
                 document.getElementById('exNipWali').value = "";
             } else {
                 document.getElementById('labelWaliKelas').innerText = `(Dikosongkan karena ekspor Semua Data)`;
@@ -373,7 +408,6 @@
             btnExport.innerHTML = "⏳ Sedang Menyiapkan Excel..."; btnExport.disabled = true;
 
             try {
-                // Ambil Nilai Input
                 const namaSekolahExport = document.getElementById('exNamaSekolah').value.toUpperCase();
                 const tahun = document.getElementById('exTahun').value.toUpperCase();
                 const tempatTgl = document.getElementById('exTempatTgl').value;
@@ -386,7 +420,6 @@
                 const hariAktif = document.getElementById('filterHari').value;
                 const guruAktif = document.getElementById('filterGuru').value;
 
-                // Simpan Info Kepsek ke LocalStorage Publik agar diingat
                 localStorage.setItem('savedDataExportExcelPublic', JSON.stringify({
                     sekolah: namaSekolahExport,
                     tahun: document.getElementById('exTahun').value,
@@ -402,36 +435,31 @@
                     return matchKelas && matchHari && matchGuru;
                 });
 
-                // Urutkan data sesuai Hari dan Waktu
                 dataExport.sort((a, b) => {
                     if (urutanHari[a.hari] !== urutanHari[b.hari]) return urutanHari[a.hari] - urutanHari[b.hari];
                     return (a.waktu || "").localeCompare(b.waktu || "");
                 });
 
-                // Buat Workbook ExcelJS
                 const wb = new ExcelJS.Workbook();
                 let sheetName = "Jadwal";
                 if(kelasAktif !== "Semua") sheetName += `_Kls_${kelasAktif}`;
                 if(guruAktif !== "Semua") sheetName += `_Guru`;
                 if(sheetName === "Jadwal") sheetName = "Semua_Jadwal";
-                sheetName = sheetName.substring(0, 31); // Batas maksimal karakter nama sheet Excel
+                sheetName = sheetName.substring(0, 31); 
                 
                 const ws = wb.addWorksheet(sheetName);
 
-                // Pengaturan Gaya Dasar
                 const centerAlign = { vertical: 'middle', horizontal: 'center' };
                 const borderAll = {
                     top: {style:'thin'}, left: {style:'thin'},
                     bottom: {style:'thin'}, right: {style:'thin'}
                 };
 
-                // KOP SURAT
                 ws.mergeCells('A1:E1');
                 ws.getCell('A1').value = "ROSTER MATA PELAJARAN";
                 ws.getCell('A1').font = { bold: true, size: 14 };
                 ws.getCell('A1').alignment = centerAlign;
 
-                // Nama Sekolah yang diketik User
                 ws.mergeCells('A2:E2');
                 ws.getCell('A2').value = namaSekolahExport; 
                 ws.getCell('A2').font = { bold: true, size: 12 };
@@ -459,26 +487,23 @@
                     startRow++;
                 }
                 
-                // Jika tidak ada filter yang menghasilkan baris tambahan, beri jarak 1 baris
                 if (kelasAktif === "Semua" && guruAktif === "Semua") {
                      startRow++; 
                 }
 
-                // HEADER TABEL
                 const headers = ["Hari", "Waktu", "Kelas", "Mata Pelajaran", "Guru Pengajar"];
                 const headerRow = ws.getRow(startRow);
                 headers.forEach((h, i) => {
                     const cell = headerRow.getCell(i + 1);
                     cell.value = h;
-                    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; // Tulisan Putih
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } }; // Biru gelap
+                    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
                     cell.alignment = centerAlign;
                     cell.border = borderAll;
                 });
 
                 startRow++;
 
-                // PALET WARNA CERAH & KONTRAS UNTUK GURU
                 const warnaKontras = [
                     'FFFFFF99', 'FF99FF99', 'FF99FFFF', 'FF99CCFF', 'FFCC99FF', 
                     'FFFF99CC', 'FFFF9999', 'FFFFCC99', 'FFCCFF99', 'FF66FFCC', 
@@ -487,7 +512,6 @@
                 let warnaGuruMap = {};
                 let indeksWarna = 0;
 
-                // ISI DATA
                 dataExport.forEach((j) => {
                     const row = ws.getRow(startRow);
                     row.getCell(1).value = j.hari;
@@ -503,7 +527,6 @@
                         if (i <= 3) cell.alignment = centerAlign;
                     }
 
-                    // Terapkan Warna Baris jika ada gurunya
                     if (j.guru) {
                         if (!warnaGuruMap[j.guru]) {
                             warnaGuruMap[j.guru] = warnaKontras[indeksWarna % warnaKontras.length];
@@ -521,14 +544,12 @@
                     startRow++;
                 });
 
-                // MENGATUR LEBAR KOLOM
-                ws.getColumn(1).width = 15; // Hari
-                ws.getColumn(2).width = 20; // Waktu
-                ws.getColumn(3).width = 12; // Kelas
-                ws.getColumn(4).width = 35; // Mapel
-                ws.getColumn(5).width = 35; // Guru
+                ws.getColumn(1).width = 15;
+                ws.getColumn(2).width = 20;
+                ws.getColumn(3).width = 12;
+                ws.getColumn(4).width = 35;
+                ws.getColumn(5).width = 35;
 
-                // AREA TANDA TANGAN (FOOTER)
                 let footerRow = startRow + 2;
 
                 ws.mergeCells(`D${footerRow}:E${footerRow}`);
@@ -570,7 +591,6 @@
                 ws.getCell(`D${footerRow}`).value = "NIP. " + nipWali;
                 ws.getCell(`D${footerRow}`).alignment = centerAlign;
 
-                // PROSES EXPORT DAN DOWNLOAD FILE
                 const buffer = await wb.xlsx.writeBuffer();
                 const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
                 const url = window.URL.createObjectURL(blob);
