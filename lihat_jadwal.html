@@ -37,9 +37,30 @@
             
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
                 <div class="flex-grow md:flex-grow-0">
-                    <label class="block text-sm font-bold text-gray-600 mb-1">Filter Kelas:</label>
-                    <select id="filterKelas" onchange="tampilkanJadwal()" class="w-full md:w-48 p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 font-semibold text-blue-700 shadow-sm cursor-pointer">
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Hari:</label>
+                    <select id="filterHari" onchange="tampilkanJadwal()" class="w-full md:w-36 p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 font-semibold text-blue-700 shadow-sm cursor-pointer">
+                        <option value="Semua">Semua Hari</option>
+                        <option value="Senin">Senin</option>
+                        <option value="Selasa">Selasa</option>
+                        <option value="Rabu">Rabu</option>
+                        <option value="Kamis">Kamis</option>
+                        <option value="Jumat">Jumat</option>
+                        <option value="Sabtu">Sabtu</option>
+                        <option value="Minggu">Minggu</option>
+                    </select>
+                </div>
+
+                <div class="flex-grow md:flex-grow-0">
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Kelas:</label>
+                    <select id="filterKelas" onchange="tampilkanJadwal()" class="w-full md:w-36 p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 font-semibold text-blue-700 shadow-sm cursor-pointer">
                         <option value="Semua">Semua Kelas</option>
+                    </select>
+                </div>
+
+                <div class="flex-grow md:flex-grow-0">
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Guru:</label>
+                    <select id="filterGuru" onchange="tampilkanJadwal()" class="w-full md:w-48 p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 font-semibold text-blue-700 shadow-sm cursor-pointer">
+                        <option value="Semua">Semua Guru</option>
                     </select>
                 </div>
                 
@@ -193,6 +214,24 @@
         }
         muatFilterKelas();
 
+        // --- MEMUAT FILTER GURU ---
+        function muatFilterGuru() {
+            if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
+            onSnapshot(collection(db, "master_guru"), (snapshot) => {
+                const selectEl = document.getElementById('filterGuru');
+                selectEl.innerHTML = '<option value="Semua">Semua Guru</option>';
+                
+                let guruArr = [];
+                snapshot.forEach(docSnap => guruArr.push(docSnap.data().nama));
+                guruArr.sort((a,b) => a.localeCompare(b));
+                
+                guruArr.forEach(nama => {
+                    selectEl.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
+                });
+            });
+        }
+        muatFilterGuru();
+
         // --- URUTAN HARI ---
         const urutanHari = { "Senin":1, "Selasa":2, "Rabu":3, "Kamis":4, "Jumat":5, "Sabtu":6, "Minggu":7 };
 
@@ -213,12 +252,16 @@
         window.tampilkanJadwal = function() {
             const tabel = document.getElementById('tabelJadwal');
             const kelasDipilih = document.getElementById('filterKelas').value;
+            const hariDipilih = document.getElementById('filterHari').value;
+            const guruDipilih = document.getElementById('filterGuru').value;
             tabel.innerHTML = '';
 
-            let jadwalTerfilter = semuaJadwal;
-            if (kelasDipilih !== "Semua") {
-                jadwalTerfilter = semuaJadwal.filter(j => j.kelas === kelasDipilih);
-            }
+            let jadwalTerfilter = semuaJadwal.filter(j => {
+                let matchKelas = (kelasDipilih === "Semua" || j.kelas === kelasDipilih);
+                let matchHari = (hariDipilih === "Semua" || j.hari === hariDipilih);
+                let matchGuru = (guruDipilih === "Semua" || j.guru === guruDipilih);
+                return matchKelas && matchHari && matchGuru;
+            });
 
             // Urutkan berdasarkan Hari lalu Waktu
             jadwalTerfilter.sort((a, b) => {
@@ -273,6 +316,7 @@
                 return alert("⚠️ Tidak ada data jadwal yang bisa di-export saat ini.");
             }
             const kelasAktif = document.getElementById('filterKelas').value;
+            const guruAktif = document.getElementById('filterGuru').value;
             
             // Ambil data dari LocalStorage agar tidak capek mengetik ulang
             const dataTersimpan = JSON.parse(localStorage.getItem('savedDataExportExcelPublic') || '{}');
@@ -295,14 +339,19 @@
             document.getElementById('exNipKepsek').value = dataTersimpan.nipKepsek || "";
             
             // Penyesuaian Wali Kelas berdasarkan Filter
-            if (kelasAktif !== "Semua") {
+            if (guruAktif !== "Semua") {
+                document.getElementById('labelWaliKelas').innerText = `(Guru: ${guruAktif})`;
+                document.getElementById('exNamaWali').placeholder = `Nama Guru Yang Bersangkutan`;
+                document.getElementById('exNamaWali').value = guruAktif; 
+                document.getElementById('exNipWali').value = "";
+            } else if (kelasAktif !== "Semua") {
                 document.getElementById('labelWaliKelas').innerText = `(Kelas ${kelasAktif})`;
                 document.getElementById('exNamaWali').placeholder = `Masukkan Nama Wali Kelas ${kelasAktif}`;
                 document.getElementById('exNamaWali').value = ""; // Kosongkan saat ganti kelas
                 document.getElementById('exNipWali').value = "";
             } else {
-                document.getElementById('labelWaliKelas').innerText = `(Dikosongkan karena ekspor Semua Kelas)`;
-                document.getElementById('exNamaWali').placeholder = `Kosongkan jika ekspor semua kelas`;
+                document.getElementById('labelWaliKelas').innerText = `(Dikosongkan karena ekspor Semua Data)`;
+                document.getElementById('exNamaWali').placeholder = `Kosongkan jika ekspor semua data`;
                 document.getElementById('exNamaWali').value = ""; 
                 document.getElementById('exNipWali').value = "";
             }
@@ -327,8 +376,9 @@
                 const wali = document.getElementById('exNamaWali').value || "....................................";
                 const nipWali = document.getElementById('exNipWali').value || "..................";
                 
-                const filterKelas = document.getElementById('filterKelas').value;
-                const isSemua = filterKelas === "Semua";
+                const kelasAktif = document.getElementById('filterKelas').value;
+                const hariAktif = document.getElementById('filterHari').value;
+                const guruAktif = document.getElementById('filterGuru').value;
 
                 // Simpan Info Kepsek ke LocalStorage Publik agar diingat
                 localStorage.setItem('savedDataExportExcelPublic', JSON.stringify({
@@ -339,7 +389,12 @@
                     nipKepsek: nipKepsek
                 }));
                 
-                let dataExport = isSemua ? semuaJadwal : semuaJadwal.filter(j => j.kelas === filterKelas);
+                let dataExport = semuaJadwal.filter(j => {
+                    let matchKelas = (kelasAktif === "Semua" || j.kelas === kelasAktif);
+                    let matchHari = (hariAktif === "Semua" || j.hari === hariAktif);
+                    let matchGuru = (guruAktif === "Semua" || j.guru === guruAktif);
+                    return matchKelas && matchHari && matchGuru;
+                });
 
                 // Urutkan data sesuai Hari dan Waktu
                 dataExport.sort((a, b) => {
@@ -349,7 +404,12 @@
 
                 // Buat Workbook ExcelJS
                 const wb = new ExcelJS.Workbook();
-                const sheetName = isSemua ? "Semua_Kelas" : `Kelas_${filterKelas}`;
+                let sheetName = "Jadwal";
+                if(kelasAktif !== "Semua") sheetName += `_Kls_${kelasAktif}`;
+                if(guruAktif !== "Semua") sheetName += `_Guru`;
+                if(sheetName === "Jadwal") sheetName = "Semua_Jadwal";
+                sheetName = sheetName.substring(0, 31); // Batas maksimal karakter nama sheet Excel
+                
                 const ws = wb.addWorksheet(sheetName);
 
                 // Pengaturan Gaya Dasar
@@ -376,13 +436,26 @@
                 ws.getCell('A3').font = { bold: true, size: 11 };
                 ws.getCell('A3').alignment = centerAlign;
 
-                let startRow = 5;
-                if (!isSemua) {
-                    ws.mergeCells('A4:E4');
-                    ws.getCell('A4').value = "KELAS: " + filterKelas;
-                    ws.getCell('A4').font = { bold: true, size: 11 };
-                    ws.getCell('A4').alignment = centerAlign;
-                    startRow = 6;
+                let startRow = 4;
+                
+                if (kelasAktif !== "Semua") {
+                    ws.mergeCells(`A${startRow}:E${startRow}`);
+                    ws.getCell(`A${startRow}`).value = "KELAS: " + kelasAktif;
+                    ws.getCell(`A${startRow}`).font = { bold: true, size: 11 };
+                    ws.getCell(`A${startRow}`).alignment = centerAlign;
+                    startRow++;
+                }
+                if (guruAktif !== "Semua") {
+                    ws.mergeCells(`A${startRow}:E${startRow}`);
+                    ws.getCell(`A${startRow}`).value = "GURU: " + guruAktif;
+                    ws.getCell(`A${startRow}`).font = { bold: true, size: 11 };
+                    ws.getCell(`A${startRow}`).alignment = centerAlign;
+                    startRow++;
+                }
+                
+                // Jika tidak ada filter yang menghasilkan baris tambahan, beri jarak 1 baris
+                if (kelasAktif === "Semua" && guruAktif === "Semua") {
+                     startRow++; 
                 }
 
                 // HEADER TABEL
@@ -462,7 +535,7 @@
                 ws.getCell(`A${footerRow}`).alignment = centerAlign;
 
                 ws.mergeCells(`D${footerRow}:E${footerRow}`);
-                ws.getCell(`D${footerRow}`).value = "Wali Kelas,";
+                ws.getCell(`D${footerRow}`).value = (guruAktif !== "Semua") ? "Guru Pengajar," : "Wali Kelas,";
                 ws.getCell(`D${footerRow}`).alignment = centerAlign;
 
                 footerRow++;
