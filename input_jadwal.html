@@ -3,550 +3,492 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Input Jadwal - ROSTERKU</title>
+    <title>Sistem Manajemen Jadwal Pelajaran</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <!-- jQuery & Select2 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    
     <style>
         .select2-container .select2-selection--single {
-            height: 46px !important; border-radius: 0.75rem !important; border: 1px solid #d1d5db !important;
-            background-color: #f9fafb !important; display: flex !important; align-items: center !important;
-            padding-left: 0.25rem;
+            height: 38px !important;
+            border-color: #d1d5db !important;
+            border-radius: 0.375rem !important;
+            display: flex;
+            align-items: center;
         }
         .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 44px !important; right: 10px !important;
+            height: 36px !important;
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans text-gray-800">
+<body class="bg-gray-100 min-h-screen font-sans">
 
     <!-- Navbar -->
-    <nav class="bg-blue-800 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <span class="text-2xl">⚙️</span>
-                    <span class="font-bold text-white text-lg tracking-wide">Panel Admin Jadwal</span>
-                </div>
-                <div class="flex gap-4">
-                    <a href="kelola_data.html" class="text-blue-200 hover:text-white font-medium flex items-center gap-1 transition text-sm">
-                        <span>📁</span> Kelola Data Master
-                    </a>
-                    <a href="index.html" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg font-medium flex items-center gap-1 transition text-sm shadow-sm">
-                        <span>🚪</span> Keluar
-                    </a>
-                </div>
-            </div>
+    <nav class="bg-blue-700 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold flex items-center gap-2">
+                <span>📅</span> Manajemen Jadwal Pelajaran
+            </h1>
+            <div id="authStatus" class="text-sm bg-blue-800 px-3 py-1 rounded-full">Menghubungkan...</div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto p-4 md:p-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- FORM INPUT JADWAL -->
-            <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 h-fit sticky top-6">
-                <h2 id="judulForm" class="text-xl font-extrabold text-blue-800 mb-4 flex items-center gap-2">
-                    <span>➕</span> Tambah Jadwal Baru
-                </h2>
+    <div class="container mx-auto p-4 mt-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Kolom Kiri: Form Input -->
+        <div class="bg-white p-5 rounded-lg shadow-md lg:col-span-1 h-fit">
+            <h2 id="judulForm" class="text-xl font-bold mb-4 text-gray-800 border-b pb-2 flex items-center gap-2">
+                <span>➕</span> Tambah Jadwal Baru
+            </h2>
+            <form id="formJadwal" class="space-y-4">
+                <input type="hidden" id="editId">
                 
-                <form id="formJadwal" onsubmit="simpanJadwal(event)" class="space-y-4">
-                    <input type="hidden" id="editId">
-                    
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Hari</label>
-                        <select id="inputHari" class="w-full searchable" required>
-                            <option value="">-- Pilih Hari --</option>
-                            <option value="Senin">Senin</option><option value="Selasa">Selasa</option>
-                            <option value="Rabu">Rabu</option><option value="Kamis">Kamis</option>
-                            <option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Waktu</label>
-                        <!-- Mengambil dari master_waktu -->
-                        <select id="inputWaktu" class="w-full searchable" required>
-                            <option value="">-- Pilih Waktu --</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Kelas</label>
-                        <select id="inputKelas" class="w-full searchable" required>
-                            <option value="">-- Pilih Kelas --</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Mata Pelajaran</label>
-                        <select id="inputMapel" class="w-full searchable" required>
-                            <option value="">-- Pilih Mapel --</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Guru Pengajar</label>
-                        <select id="inputGuru" class="w-full searchable" required>
-                            <option value="">-- Pilih Guru --</option>
-                        </select>
-                    </div>
-
-                    <div class="pt-4 flex gap-2">
-                        <button type="button" id="btnBatal" onclick="resetForm()" class="hidden w-1/3 px-4 py-3 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition">Batal</button>
-                        <button type="submit" id="btnSimpan" class="w-full px-4 py-3 text-white bg-blue-600 hover:bg-blue-700 shadow-lg rounded-xl font-bold transition flex justify-center items-center gap-2">
-                            💾 Simpan Jadwal
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- TABEL & ACTIONS -->
-            <div class="lg:col-span-2">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div>
-                        <h2 class="text-xl font-extrabold text-gray-800 mb-1">Daftar Jadwal</h2>
-                        <select id="filterKelasTable" class="p-2 border border-gray-300 rounded-lg bg-gray-50 text-sm font-semibold text-blue-700 searchable">
-                            <option value="Semua">Semua Kelas</option>
-                        </select>
-                    </div>
-                    
-                    <!-- TOMBOL FITUR EKSKLUSIF -->
-                    <div class="flex flex-wrap gap-2 items-center">
-                        <button onclick="bukaModalTerapkanGuru()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1">
-                            <span>👨‍🏫</span> Terapkan Guru
-                        </button>
-                        <button onclick="bukaModalSalinKelas()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1">
-                            <span>📑</span> Salin Kelas
-                        </button>
-                        <button onclick="bukaModalExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1">
-                            <span>📊</span> Excel
-                        </button>
-                        <div class="h-6 w-px bg-gray-300 hidden md:block mx-1"></div>
-                        <button onclick="hapusJadwalPerKelas()" class="bg-red-400 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1" title="Hapus seluruh jadwal dari kelas yang sedang difilter">
-                            <span>🧹</span> Hapus Kelas
-                        </button>
-                        <button onclick="hapusSemuaJadwal()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1" title="Hapus seluruh database jadwal">
-                            <span>🚨</span> Hapus Semua
-                        </button>
-                    </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Hari</label>
+                    <select id="inputHari" class="w-full select2" required>
+                        <option value="">-- Pilih Hari --</option>
+                        <option value="Senin">Senin</option>
+                        <option value="Selasa">Selasa</option>
+                        <option value="Rabu">Rabu</option>
+                        <option value="Kamis">Kamis</option>
+                        <option value="Jumat">Jumat</option>
+                        <option value="Sabtu">Sabtu</option>
+                    </select>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200">
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-sm text-left">
-                            <thead class="bg-gray-50 text-gray-600 uppercase font-bold text-xs border-b">
-                                <tr>
-                                    <th class="py-3 px-4">Hari</th>
-                                    <th class="py-3 px-4">Waktu</th>
-                                    <th class="py-3 px-4">Kelas</th>
-                                    <th class="py-3 px-4">Mapel & Guru</th>
-                                    <th class="py-3 px-4 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabelJadwal" class="divide-y divide-gray-100">
-                                <tr><td colspan="5" class="text-center py-6 text-gray-400 italic">Memuat data...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Waktu (Jam Ke / Pukul)</label>
+                    <select id="inputWaktu" class="w-full select2-tags" required>
+                        <option value="">-- Ketik/Pilih Waktu --</option>
+                        <option value="07:00 - 08:30">07:00 - 08:30</option>
+                        <option value="08:30 - 10:00">08:30 - 10:00</option>
+                        <option value="10:15 - 11:45">10:15 - 11:45</option>
+                    </select>
                 </div>
-            </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Kelas</label>
+                    <select id="inputKelas" class="w-full select2-tags" required>
+                        <option value="">-- Ketik/Pilih Kelas --</option>
+                        <option value="X-A">X-A</option>
+                        <option value="X-B">X-B</option>
+                        <option value="XI-A">XI-A</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Mata Pelajaran</label>
+                    <select id="inputMapel" class="w-full select2-tags" required>
+                        <option value="">-- Ketik/Pilih Mapel --</option>
+                        <option value="Matematika">Matematika</option>
+                        <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                        <option value="Bahasa Inggris">Bahasa Inggris</option>
+                        <option value="IPA">IPA</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Guru Pengajar</label>
+                    <select id="inputGuru" class="w-full select2-tags">
+                        <option value="">-- Ketik/Pilih Guru --</option>
+                        <option value="Budi Santoso, S.Pd">Budi Santoso, S.Pd</option>
+                        <option value="Siti Aminah, M.Pd">Siti Aminah, M.Pd</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" id="btnSimpan" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors">
+                        💾 Simpan Jadwal
+                    </button>
+                    <button type="button" id="btnBatal" onclick="resetForm()" class="hidden bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded transition-colors">
+                        Batal
+                    </button>
+                </div>
+            </form>
         </div>
-    </div>
 
-    <!-- MODAL DOWNLOAD EXCEL -->
-    <div id="modalExcel" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up">
-            <div class="bg-emerald-600 p-4 flex justify-between items-center text-white">
-                <h3 class="font-bold text-lg flex items-center gap-2"><span>📊</span> Pengaturan Cetak Excel</h3>
-                <button onclick="tutupModalExcel()" class="text-white hover:text-gray-200 font-bold text-xl">&times;</button>
-            </div>
-            <div class="p-6 space-y-4 text-sm">
-                <div>
-                    <label class="block font-bold text-gray-700 mb-1">Kop Surat Baris 1</label>
-                    <input type="text" id="exKop1" value="PEMERINTAH KABUPATEN / KOTA" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-emerald-500">
-                </div>
-                <div>
-                    <label class="block font-bold text-gray-700 mb-1">Kop Surat Baris 2 (Nama Sekolah)</label>
-                    <input type="text" id="exKop2" value="UPT SD NEGERI CONTOH" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-emerald-500">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-bold text-gray-700 mb-1">Nama Kepala Sekolah</label>
-                        <input type="text" id="exKepsek" placeholder="Nama Kepsek..." class="w-full p-2 border rounded-lg">
-                    </div>
-                    <div>
-                        <label class="block font-bold text-gray-700 mb-1">NIP Kepala Sekolah</label>
-                        <input type="text" id="exNipKepsek" placeholder="NIP Kepsek..." class="w-full p-2 border rounded-lg">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block font-bold text-gray-700 mb-1">Nama Wali Kelas / Guru</label>
-                        <input type="text" id="exWali" placeholder="Nama Guru..." class="w-full p-2 border rounded-lg">
-                    </div>
-                    <div>
-                        <label class="block font-bold text-gray-700 mb-1">NIP Wali Kelas</label>
-                        <input type="text" id="exNipWali" placeholder="NIP Guru..." class="w-full p-2 border rounded-lg">
-                    </div>
-                </div>
-                <div>
-                    <label class="block font-bold text-gray-700 mb-1">Tempat & Tanggal (Tanda Tangan)</label>
-                    <input type="text" id="exTanggal" placeholder="Contoh: Makassar, 27 Februari 2026" class="w-full p-2 border rounded-lg">
+        <!-- Kolom Kanan: Tabel Data & Tools -->
+        <div class="bg-white p-5 rounded-lg shadow-md lg:col-span-2">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                <h2 class="text-xl font-bold text-gray-800 border-b pb-2 flex-1 w-full">📋 Daftar Jadwal</h2>
+                
+                <div class="w-full md:w-64 flex items-center gap-2">
+                    <label class="text-sm font-bold text-gray-600">Filter:</label>
+                    <select id="filterKelasTable" class="w-full p-2 border rounded border-gray-300" onchange="renderTable()">
+                        <option value="Semua">Semua Kelas</option>
+                        <!-- Options generated dynamically -->
+                    </select>
                 </div>
             </div>
-            <div class="bg-gray-50 p-4 border-t flex justify-end gap-3">
-                <button onclick="tutupModalExcel()" class="px-4 py-2 text-gray-600 bg-gray-200 hover:bg-gray-300 rounded-lg font-bold">Batal</button>
-                <button onclick="prosesDownloadExcel()" class="px-4 py-2 text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg font-bold flex items-center gap-2">
-                    <span>⬇️</span> Download File .xls
+
+            <!-- Toolbar Aksi -->
+            <div class="flex flex-wrap gap-2 mb-4 bg-gray-50 p-3 rounded border border-gray-200">
+                <button onclick="bukaModalSalinKelas()" class="bg-indigo-500 hover:bg-indigo-600 text-white text-sm px-3 py-1.5 rounded flex items-center gap-1 shadow-sm">
+                    <span>📋</span> Salin Kelas
+                </button>
+                <button onclick="bukaModalTerapkanGuru()" class="bg-teal-500 hover:bg-teal-600 text-white text-sm px-3 py-1.5 rounded flex items-center gap-1 shadow-sm">
+                    <span>👨‍🏫</span> Terapkan Guru
+                </button>
+                <button onclick="bukaModalExcel()" class="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1.5 rounded flex items-center gap-1 shadow-sm">
+                    <span>📊</span> Download Excel
+                </button>
+                <div class="flex-1"></div>
+                <button onclick="hapusJadwalPerKelas()" class="bg-orange-500 hover:bg-orange-600 text-white text-sm px-3 py-1.5 rounded flex items-center gap-1 shadow-sm">
+                    <span>🧹</span> Hapus Per Kelas
+                </button>
+                <button onclick="hapusSemuaJadwal()" class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1.5 rounded flex items-center gap-1 shadow-sm">
+                    <span>🚨</span> Kosongkan Semua
                 </button>
             </div>
-        </div>
-    </div>
 
-    <!-- MODAL SALIN JADWAL KELAS -->
-    <div id="modalSalin" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
-            <div class="bg-indigo-600 p-4 flex justify-between items-center text-white">
-                <h3 class="font-bold text-lg flex items-center gap-2"><span>📑</span> Salin Jadwal Antar Kelas</h3>
-                <button onclick="tutupModalSalinKelas()" class="text-white hover:text-gray-200 font-bold text-xl">&times;</button>
-            </div>
-            <div class="p-6 space-y-4 text-sm">
-                <p class="text-gray-600 text-xs mb-4">Fitur ini akan menyalin seluruh jadwal dari kelas asal ke kelas tujuan. <b class="text-red-600">Nama Guru akan dikosongkan</b> agar tidak terjadi bentrok.</p>
-                <div>
-                    <label class="block font-bold text-gray-700 mb-1">Salin DARI Kelas:</label>
-                    <select id="salinDariKelas" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-gray-50">
-                        <option value="">-- Pilih Kelas Asal --</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-bold text-gray-700 mb-1">Salin KE Kelas (Tujuan):</label>
-                    <select id="salinKeKelas" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-gray-50">
-                        <option value="">-- Pilih Kelas Tujuan --</option>
-                    </select>
-                </div>
-            </div>
-            <div class="bg-gray-50 p-4 border-t flex justify-end gap-3">
-                <button onclick="tutupModalSalinKelas()" class="px-4 py-2 text-gray-600 bg-gray-200 hover:bg-gray-300 rounded-lg font-bold transition">Batal</button>
-                <button id="btnProsesSalin" onclick="prosesSalinKelas()" class="px-4 py-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg font-bold flex items-center gap-2 transition shadow">
-                    <span>📋</span> Proses Salin
-                </button>
+            <!-- Tabel -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-200 text-sm">
+                    <thead class="bg-gray-100 text-gray-700 border-b-2 border-gray-300">
+                        <tr>
+                            <th class="py-2 px-3 border-r text-left w-10">No</th>
+                            <th class="py-2 px-3 border-r text-left">Hari</th>
+                            <th class="py-2 px-3 border-r text-left">Waktu</th>
+                            <th class="py-2 px-3 border-r text-left">Kelas</th>
+                            <th class="py-2 px-3 border-r text-left">Mata Pelajaran</th>
+                            <th class="py-2 px-3 border-r text-left">Guru</th>
+                            <th class="py-2 px-3 text-center w-24">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelJadwal" class="text-gray-600">
+                        <tr><td colspan="7" class="text-center py-4">Memuat data...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- MODAL TERAPKAN GURU -->
-    <div id="modalTerapkanGuru" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
-            <div class="bg-amber-500 p-4 flex justify-between items-center text-white">
-                <h3 class="font-bold text-lg flex items-center gap-2"><span>👨‍🏫</span> Terapkan Guru Massal</h3>
-                <button onclick="tutupModalTerapkanGuru()" class="text-white hover:text-gray-100 font-bold text-xl">&times;</button>
-            </div>
-            <div class="p-6 space-y-4 text-sm">
-                <p class="text-gray-600 text-xs mb-4">Fitur ini akan menerapkan guru yang dipilih ke <b>SELURUH</b> mata pelajaran pada kelas tersebut. (Sangat cocok untuk Guru Kelas/Wali Kelas SD).</p>
+    <!-- MODAL: Salin Kelas -->
+    <div id="modalSalin" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+            <h3 class="text-lg font-bold mb-4 border-b pb-2 text-indigo-700">📋 Salin Jadwal Antar Kelas</h3>
+            <div class="space-y-4">
                 <div>
-                    <label class="block font-bold text-gray-700 mb-1">Pilih Kelas:</label>
-                    <select id="terapkanKelas" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50">
-                        <option value="">-- Pilih Kelas --</option>
-                    </select>
+                    <label class="block text-sm font-bold text-gray-700">Salin DARI Kelas:</label>
+                    <input type="text" id="salinDariKelas" class="w-full p-2 border rounded" placeholder="Contoh: X-A">
                 </div>
                 <div>
-                    <label class="block font-bold text-gray-700 mb-1">Terapkan Guru:</label>
-                    <select id="terapkanGuru" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50">
-                        <option value="">-- Pilih Guru --</option>
-                    </select>
+                    <label class="block text-sm font-bold text-gray-700">Salin KE Kelas:</label>
+                    <input type="text" id="salinKeKelas" class="w-full p-2 border rounded" placeholder="Contoh: X-B">
                 </div>
             </div>
-            <div class="bg-gray-50 p-4 border-t flex justify-end gap-3">
-                <button onclick="tutupModalTerapkanGuru()" class="px-4 py-2 text-gray-600 bg-gray-200 hover:bg-gray-300 rounded-lg font-bold">Batal</button>
-                <button onclick="prosesTerapkanGuru()" id="btnProsesTerapkan" class="px-4 py-2 text-white bg-amber-500 hover:bg-amber-600 rounded-lg font-bold flex items-center gap-2">
-                    <span>✅</span> Terapkan
-                </button>
+            <div class="mt-6 flex justify-end gap-2">
+                <button onclick="tutupModalSalinKelas()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded">Batal</button>
+                <button id="btnProsesSalin" onclick="prosesSalinKelas()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded">Proses Salin</button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL: Terapkan Guru -->
+    <div id="modalTerapkanGuru" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+            <h3 class="text-lg font-bold mb-4 border-b pb-2 text-teal-700">👨‍🏫 Terapkan Guru ke Kelas</h3>
+            <p class="text-xs text-gray-500 mb-4">Isi semua jam pelajaran di kelas tertentu dengan satu guru yang sama.</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700">Pilih Kelas:</label>
+                    <input type="text" id="terapkanKelas" class="w-full p-2 border rounded" placeholder="Contoh: X-A">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700">Nama Guru:</label>
+                    <input type="text" id="terapkanGuru" class="w-full p-2 border rounded" placeholder="Nama Guru">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-2">
+                <button onclick="tutupModalTerapkanGuru()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded">Batal</button>
+                <button id="btnProsesTerapkan" onclick="prosesTerapkanGuru()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded">Terapkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Download Excel -->
+    <div id="modalExcel" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
+            <h3 class="text-lg font-bold mb-4 border-b pb-2 text-green-700">📊 Ekspor Jadwal ke Excel</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700">Kop Surat Baris 1</label>
+                    <input type="text" id="exKop1" class="w-full p-2 border rounded text-sm" value="PEMERINTAH PROVINSI DAERAH">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700">Kop Surat Baris 2 (Nama Sekolah)</label>
+                    <input type="text" id="exKop2" class="w-full p-2 border rounded text-sm" value="SMA NEGERI 1 CONTOH">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">Nama Kepala Sekolah</label>
+                        <input type="text" id="exKepsek" class="w-full p-2 border rounded text-sm" placeholder="Nama Kepsek">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">NIP Kepala Sekolah</label>
+                        <input type="text" id="exNipKepsek" class="w-full p-2 border rounded text-sm" placeholder="NIP Kepsek">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">Nama Wali Kelas/Wakakur</label>
+                        <input type="text" id="exWali" class="w-full p-2 border rounded text-sm" placeholder="Nama Wali">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700">NIP Wali Kelas</label>
+                        <input type="text" id="exNipWali" class="w-full p-2 border rounded text-sm" placeholder="NIP Wali">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700">Tempat & Tanggal TTD</label>
+                    <input type="text" id="exTanggal" class="w-full p-2 border rounded text-sm" value="Jakarta, 17 Juli 2023">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-2">
+                <button onclick="tutupModalExcel()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded">Batal</button>
+                <button onclick="prosesDownloadExcel()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">Download .xls</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        let firebaseConfig = null;
-        try {
-            const module = await import("./firebase-config.js");
-            if (module && module.firebaseConfig) { firebaseConfig = module.firebaseConfig; }
-        } catch (error) { console.warn("Lokal mode: gagal memuat konfigurasi"); }
+        // Global Variables
+        window.semuaJadwal = [];
+        window.db = null;
+        window.urutanHari = { "Senin": 1, "Selasa": 2, "Rabu": 3, "Kamis": 4, "Jumat": 5, "Sabtu": 6, "Minggu": 7 };
+        
+        let currentUser = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'jadwal-app-demo';
 
-        let app, db;
-        if (firebaseConfig && firebaseConfig.projectId) {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-        } else {
-            console.warn("Mode Offline/Demo: Konfigurasi Firebase tidak lengkap atau 'projectId' tidak ditemukan.");
+        // Initialize Firebase
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            // Mock config for environments outside Canvas
+            projectId: "demo-project"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        window.db = getFirestore(app);
+
+        // Authentication & Data Fetching Flow
+        async function initApp() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                currentUser = auth.currentUser;
+                document.getElementById('authStatus').innerHTML = "✅ Online";
+                document.getElementById('authStatus').classList.replace('bg-blue-800', 'bg-green-600');
+
+                // Load Data
+                const collRef = collection(window.db, 'artifacts', appId, 'users', currentUser.uid, 'jadwal_pelajaran');
+                
+                onSnapshot(collRef, (snapshot) => {
+                    window.semuaJadwal = [];
+                    let listKelas = new Set();
+
+                    snapshot.forEach((doc) => {
+                        let data = doc.data();
+                        data.id = doc.id;
+                        window.semuaJadwal.push(data);
+                        if(data.kelas) listKelas.add(data.kelas);
+                    });
+
+                    updateDropdownKelas(Array.from(listKelas));
+                    window.renderTable();
+                }, (error) => {
+                    console.error("Error mengambil data:", error);
+                    alert("Gagal memuat data jadwal.");
+                });
+
+            } catch (error) {
+                console.error("Auth Error:", error);
+                document.getElementById('authStatus').innerHTML = "❌ Offline";
+                document.getElementById('authStatus').classList.replace('bg-blue-800', 'bg-red-600');
+            }
         }
 
-        let semuaJadwal = [];
+        // Jalankan Inisialisasi
+        initApp();
 
-        // Inisialisasi Select2
+        // DOM Ready Initializations
         $(document).ready(function() {
-            $('.searchable').select2();
-            $('#filterKelasTable').on('change', function() { window.renderTabel(); });
+            $('.select2').select2();
+            $('.select2-tags').select2({ tags: true });
+
+            // Form Submit Handler
+            $('#formJadwal').on('submit', async function(e) {
+                e.preventDefault();
+                if (!currentUser) return alert("Belum terhubung ke database!");
+
+                const id = $('#editId').val();
+                const hari = $('#inputHari').val();
+                const waktu = $('#inputWaktu').val();
+                const kelas = $('#inputKelas').val();
+                const mapel = $('#inputMapel').val();
+                const guru = $('#inputGuru').val();
+
+                const btn = document.getElementById('btnSimpan');
+                btn.disabled = true;
+                btn.innerHTML = "⏳ Menyimpan...";
+
+                const jadwalData = { hari, waktu, kelas, mapel, guru };
+                const collRef = collection(window.db, 'artifacts', appId, 'users', currentUser.uid, 'jadwal_pelajaran');
+
+                try {
+                    if (id) {
+                        await updateDoc(doc(window.db, 'artifacts', appId, 'users', currentUser.uid, 'jadwal_pelajaran', id), jadwalData);
+                    } else {
+                        await addDoc(collRef, jadwalData);
+                    }
+                    window.resetForm();
+                } catch (error) {
+                    console.error("Gagal simpan:", error);
+                    alert("Gagal menyimpan jadwal.");
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = "💾 Simpan Jadwal";
+                }
+            });
         });
 
-        // --- MENGAMBIL DATA MASTER DARI KELOLA DATA ---
-        function muatDataMaster() {
-            if (!db) return;
-            
-            // MASTER KELAS
-            onSnapshot(collection(db, "master_kelas"), (snapshot) => {
-                const selKelas = document.getElementById('inputKelas');
-                const filterKelas = document.getElementById('filterKelasTable');
-                const salinDari = document.getElementById('salinDariKelas');
-                const salinKe = document.getElementById('salinKeKelas');
-                const terapkanKls = document.getElementById('terapkanKelas');
+        // FUNGSI UNTUK MERENDER TABEL
+        window.renderTable = function() {
+            const filterKelas = document.getElementById('filterKelasTable').value;
+            const tbody = document.getElementById('tabelJadwal');
+            tbody.innerHTML = '';
 
-                selKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-                filterKelas.innerHTML = '<option value="Semua">Semua Kelas</option>';
-                if(salinDari) salinDari.innerHTML = '<option value="">-- Pilih Kelas Asal --</option>';
-                if(salinKe) salinKe.innerHTML = '<option value="">-- Pilih Kelas Tujuan --</option>';
-                if(terapkanKls) terapkanKls.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+            let dataTampil = filterKelas === "Semua" ? window.semuaJadwal : window.semuaJadwal.filter(j => j.kelas === filterKelas);
 
-                let arr = []; snapshot.forEach(d => arr.push(d.data().nama));
-                arr.sort((a,b)=>a.localeCompare(b)).forEach(nama => {
-                    selKelas.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
-                    filterKelas.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
-                    if(salinDari) salinDari.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
-                    if(salinKe) salinKe.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
-                    if(terapkanKls) terapkanKls.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
-                });
-                $('#inputKelas').trigger('change'); $('#filterKelasTable').trigger('change');
-            });
-
-            // MASTER WAKTU (Dari Halaman Kelola Data)
-            onSnapshot(collection(db, "master_waktu"), (snapshot) => {
-                const sel = document.getElementById('inputWaktu');
-                sel.innerHTML = '<option value="">-- Pilih Waktu --</option>';
-                let arr = []; 
-                snapshot.forEach(d => arr.push(d.data().waktu || d.data().nama));
-                
-                // Sorting Waktu
-                arr.sort((a, b) => {
-                    let m1 = (a||"").match(/\d+/g); let m2 = (b||"").match(/\d+/g);
-                    let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
-                    let val2 = m2 ? parseInt(m2[0])*60 + (m2[1] ? parseInt(m2[1]) : 0) : 9999;
-                    if(val1 !== val2) return val1 - val2;
-                    return a.localeCompare(b);
-                });
-
-                arr.forEach(w => sel.insertAdjacentHTML('beforeend', `<option value="${w}">${w}</option>`));
-                $('#inputWaktu').trigger('change');
-            });
-
-            // MASTER MAPEL & GURU
-            onSnapshot(collection(db, "master_mapel"), (snapshot) => {
-                const sel = document.getElementById('inputMapel');
-                sel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
-
-                let arr = []; snapshot.forEach(d => arr.push(d.data().nama));
-                arr.sort().forEach(nama => {
-                    sel.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
-                });
-                $('#inputMapel').trigger('change');
-            });
-            onSnapshot(collection(db, "master_guru"), (snapshot) => {
-                const sel = document.getElementById('inputGuru');
-                const terapkanGr = document.getElementById('terapkanGuru');
-                sel.innerHTML = '<option value="">-- Pilih Guru --</option>';
-                if(terapkanGr) terapkanGr.innerHTML = '<option value="">-- Pilih Guru --</option>';
-
-                let arr = []; snapshot.forEach(d => arr.push(d.data().nama));
-                arr.sort().forEach(nama => {
-                    sel.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
-                    if(terapkanGr) terapkanGr.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
-                });
-                $('#inputGuru').trigger('change');
-            });
-        }
-        muatDataMaster();
-
-        // --- MENGAMBIL & RENDER JADWAL ---
-        function muatJadwal() {
-            if (!db) {
-                document.getElementById('tabelJadwal').innerHTML = `<tr><td colspan="5" class="text-center py-6 text-red-500 font-bold">⚠️ Gagal terhubung ke Database. Periksa file firebase-config.js Anda.</td></tr>`;
-                return;
-            }
-            onSnapshot(collection(db, "jadwal_pelajaran"), (snapshot) => {
-                semuaJadwal = [];
-                snapshot.forEach(docSnap => {
-                    semuaJadwal.push({ id: docSnap.id, ...docSnap.data() });
-                });
-                renderTabel();
-            });
-        }
-        muatJadwal();
-
-        const urutanHari = { "Senin":1, "Selasa":2, "Rabu":3, "Kamis":4, "Jumat":5, "Sabtu":6, "Minggu":7 };
-
-        window.renderTabel = function() {
-            const tabel = document.getElementById('tabelJadwal');
-            const filter = document.getElementById('filterKelasTable').value;
-            tabel.innerHTML = '';
-
-            let data = filter === "Semua" ? semuaJadwal : semuaJadwal.filter(j => j.kelas === filter);
-            
-            data.sort((a, b) => {
-                if (urutanHari[a.hari] !== urutanHari[b.hari]) return urutanHari[a.hari] - urutanHari[b.hari];
-                
-                // Sort Waktu berdasarkan angka jam
+            // Pengurutan (Berdasarkan Hari lalu Waktu)
+            dataTampil.sort((a, b) => {
+                if (window.urutanHari[a.hari] !== window.urutanHari[b.hari]) {
+                    return window.urutanHari[a.hari] - window.urutanHari[b.hari];
+                }
                 let m1 = (a.waktu||"").match(/\d+/g); let m2 = (b.waktu||"").match(/\d+/g);
                 let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
                 let val2 = m2 ? parseInt(m2[0])*60 + (m2[1] ? parseInt(m2[1]) : 0) : 9999;
-                if(val1 !== val2) return val1 - val2;
-                return (a.waktu || "").localeCompare(b.waktu || "");
+                return val1 - val2;
             });
 
-            if (data.length === 0) {
-                tabel.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-500">Belum ada data jadwal.</td></tr>`;
+            if (dataTampil.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-gray-500 italic">Belum ada jadwal untuk filter ini.</td></tr>`;
                 return;
             }
 
-            data.forEach(j => {
-                let bgHari = "bg-gray-100";
-                if(j.hari === "Senin") bgHari = "bg-red-100 text-red-700";
-                else if(j.hari === "Selasa") bgHari = "bg-orange-100 text-orange-700";
-                else if(j.hari === "Rabu") bgHari = "bg-yellow-100 text-yellow-700";
-                else if(j.hari === "Kamis") bgHari = "bg-green-100 text-green-700";
-                else if(j.hari === "Jumat") bgHari = "bg-blue-100 text-blue-700";
-                else if(j.hari === "Sabtu") bgHari = "bg-purple-100 text-purple-700";
-
-                tabel.insertAdjacentHTML('beforeend', `
-                    <tr class="hover:bg-blue-50 transition border-b border-gray-50">
-                        <td class="py-3 px-4"><span class="px-2 py-1 rounded text-xs font-bold ${bgHari}">${j.hari}</span></td>
-                        <td class="py-3 px-4 font-medium text-gray-700">${j.waktu}</td>
-                        <td class="py-3 px-4 font-bold text-blue-600">${j.kelas}</td>
-                        <td class="py-3 px-4">
-                            <div class="font-bold text-gray-800">${j.mapel}</div>
-                            <div class="text-xs ${j.guru ? 'text-gray-500' : 'text-red-500 font-bold italic'}">👨‍🏫 ${j.guru || "Belum ada guru"}</div>
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <button onclick="duplikatJadwal('${j.id}')" class="p-1.5 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded-lg transition" title="Salin / Duplikat Baris Ini">📄</button>
-                                <button onclick="editJadwal('${j.id}')" class="p-1.5 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 rounded-lg transition" title="Edit">✏️</button>
-                                <button onclick="hapusJadwal('${j.id}')" class="p-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg transition" title="Hapus">🗑️</button>
-                            </div>
-                        </td>
-                    </tr>
-                `);
+            dataTampil.forEach((j, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-200 hover:bg-gray-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-2 px-3 border-r text-center">${index + 1}</td>
+                    <td class="py-2 px-3 border-r font-semibold text-blue-800">${j.hari}</td>
+                    <td class="py-2 px-3 border-r">${j.waktu}</td>
+                    <td class="py-2 px-3 border-r font-bold text-gray-700">${j.kelas}</td>
+                    <td class="py-2 px-3 border-r">${j.mapel}</td>
+                    <td class="py-2 px-3 border-r">${j.guru || '-'}</td>
+                    <td class="py-2 px-3 text-center">
+                        <div class="flex justify-center gap-1">
+                            <button onclick="editJadwal('${j.id}')" class="bg-yellow-500 hover:bg-yellow-600 text-white p-1 rounded text-xs" title="Edit">✏️</button>
+                            <button onclick="hapusJadwal('${j.id}')" class="bg-red-500 hover:bg-red-600 text-white p-1 rounded text-xs" title="Hapus">🗑️</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             });
         };
 
-        // --- ANTI-BENTROK & SIMPAN ---
-        window.simpanJadwal = async function(e) {
-            e.preventDefault();
-            if (!db) return alert("❌ Koneksi database tidak tersedia. Periksa firebase-config.js Anda.");
+        // FUNGSI UPDATE FILTER KELAS
+        function updateDropdownKelas(listKelas) {
+            const select = document.getElementById('filterKelasTable');
+            const valSaatIni = select.value;
             
-            const btnSimpan = document.getElementById('btnSimpan');
-            btnSimpan.innerHTML = "⏳ Memproses..."; btnSimpan.disabled = true;
-
-            const idEdit = document.getElementById('editId').value;
-            const dataBaru = {
-                hari: document.getElementById('inputHari').value,
-                waktu: document.getElementById('inputWaktu').value,
-                kelas: document.getElementById('inputKelas').value,
-                mapel: document.getElementById('inputMapel').value,
-                guru: document.getElementById('inputGuru').value
-            };
-
-            // Validasi Bentrok Kelas
-            const cekBentrokKelas = semuaJadwal.find(j => j.hari === dataBaru.hari && j.waktu === dataBaru.waktu && j.kelas === dataBaru.kelas && j.id !== idEdit);
-            if (cekBentrokKelas) {
-                alert(`❌ BENTROK KELAS!\n\nKelas ${dataBaru.kelas} sudah ada pelajaran [${cekBentrokKelas.mapel}] di Hari ${dataBaru.hari} Jam ${dataBaru.waktu}.`);
-                btnSimpan.innerHTML = "💾 Simpan Jadwal"; btnSimpan.disabled = false; return;
-            }
-
-            // Validasi Bentrok Guru (Hanya diperiksa jika nama guru diisi)
-            if (dataBaru.guru) {
-                const cekBentrokGuru = semuaJadwal.find(j => j.hari === dataBaru.hari && j.waktu === dataBaru.waktu && j.guru === dataBaru.guru && j.id !== idEdit);
-                if (cekBentrokGuru) {
-                    alert(`❌ BENTROK GURU!\n\nGuru ${dataBaru.guru} sudah mengajar di Kelas ${cekBentrokGuru.kelas} pada waktu tersebut.`);
-                    btnSimpan.innerHTML = "💾 Simpan Jadwal"; btnSimpan.disabled = false; return;
-                }
-            }
-
-            try {
-                if (idEdit) await updateDoc(doc(db, "jadwal_pelajaran", idEdit), dataBaru);
-                else await addDoc(collection(db, "jadwal_pelajaran"), dataBaru);
-                resetForm();
-            } catch (error) { alert("❌ Gagal menyimpan."); }
+            // Pertahankan opsi "Semua"
+            let html = `<option value="Semua">Semua Kelas</option>`;
             
-            btnSimpan.innerHTML = "💾 Simpan Jadwal"; btnSimpan.disabled = false;
-        };
-
-        // Helper function agar Select2 tetap mengisi data ke form meskipun data tidak cocok 100% dengan data Master
-        function setSelectValue(selector, value) {
-            if (!value) {
-                $(selector).val('').trigger('change');
-                return;
-            }
-            if ($(selector).find("option[value='" + value.replace(/'/g, "\\'") + "']").length) {
-                $(selector).val(value).trigger('change');
+            listKelas.sort().forEach(k => {
+                html += `<option value="${k}">${k}</option>`;
+            });
+            
+            select.innerHTML = html;
+            
+            // Kembalikan nilai sebelumnya jika masih ada
+            if(listKelas.includes(valSaatIni) || valSaatIni === "Semua") {
+                select.value = valSaatIni;
             } else {
-                $(selector).append(new Option(value, value, true, true)).trigger('change');
+                select.value = "Semua";
             }
         }
 
-        // --- FITUR SALIN BARIS (DUPLIKAT) ---
-        window.duplikatJadwal = function(id) {
-            const data = semuaJadwal.find(j => j.id === id);
-            if(data) {
-                // Isi form tapi JANGAN isi editId (agar tersimpan sebagai data baru)
-                document.getElementById('editId').value = "";
-                setSelectValue('#inputHari', data.hari);
-                setSelectValue('#inputWaktu', data.waktu);
-                setSelectValue('#inputKelas', data.kelas);
-                setSelectValue('#inputMapel', data.mapel);
-                setSelectValue('#inputGuru', data.guru);
-                
-                document.getElementById('judulForm').innerHTML = "📄 Duplikat Jadwal (Simpan sbg Baru)";
-                document.getElementById('btnSimpan').innerHTML = "💾 Simpan Salinan";
-                document.getElementById('btnBatal').classList.remove('hidden');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        };
-
+        // FUNGSI EDIT JADWAL
         window.editJadwal = function(id) {
-            const data = semuaJadwal.find(j => j.id === id);
-            if(data) {
-                document.getElementById('editId').value = data.id;
-                setSelectValue('#inputHari', data.hari);
-                setSelectValue('#inputWaktu', data.waktu);
-                setSelectValue('#inputKelas', data.kelas);
-                setSelectValue('#inputMapel', data.mapel);
-                setSelectValue('#inputGuru', data.guru);
-                
-                document.getElementById('judulForm').innerHTML = "<span class='text-yellow-500'>✏️</span> Edit Jadwal Kelas " + data.kelas;
-                
-                const btnSimpan = document.getElementById('btnSimpan');
-                btnSimpan.innerHTML = "💾 Update Jadwal";
-                btnSimpan.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                btnSimpan.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
-                
-                document.getElementById('btnBatal').classList.remove('hidden');
-                
-                // Efek visual menyorot form agar pengguna tahu sedang berada di mode edit
-                const formContainer = document.getElementById('formJadwal').parentElement;
-                formContainer.classList.add('ring-4', 'ring-yellow-400', 'transition-all', 'duration-500');
-                setTimeout(() => formContainer.classList.remove('ring-4', 'ring-yellow-400'), 1500);
+            const jadwal = window.semuaJadwal.find(j => j.id === id);
+            if(!jadwal) return;
 
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('editId').value = jadwal.id;
+            
+            // Update Select2 values
+            $('#inputHari').val(jadwal.hari).trigger('change');
+            
+            // Untuk Select2 dengan Tags, buat option jika belum ada
+            if ($('#inputWaktu').find("option[value='" + jadwal.waktu + "']").length) {
+                $('#inputWaktu').val(jadwal.waktu).trigger('change');
+            } else { 
+                var newWaktu = new Option(jadwal.waktu, jadwal.waktu, true, true);
+                $('#inputWaktu').append(newWaktu).trigger('change');
             }
+
+            if ($('#inputKelas').find("option[value='" + jadwal.kelas + "']").length) {
+                $('#inputKelas').val(jadwal.kelas).trigger('change');
+            } else { 
+                var newKelas = new Option(jadwal.kelas, jadwal.kelas, true, true);
+                $('#inputKelas').append(newKelas).trigger('change');
+            }
+
+            if ($('#inputMapel').find("option[value='" + jadwal.mapel + "']").length) {
+                $('#inputMapel').val(jadwal.mapel).trigger('change');
+            } else { 
+                var newMapel = new Option(jadwal.mapel, jadwal.mapel, true, true);
+                $('#inputMapel').append(newMapel).trigger('change');
+            }
+
+            if ($('#inputGuru').find("option[value='" + jadwal.guru + "']").length) {
+                $('#inputGuru').val(jadwal.guru).trigger('change');
+            } else { 
+                var newGuru = new Option(jadwal.guru, jadwal.guru, true, true);
+                $('#inputGuru').append(newGuru).trigger('change');
+            }
+
+            document.getElementById('judulForm').innerHTML = "<span>✏️</span> Edit Jadwal";
+            
+            const btnSimpan = document.getElementById('btnSimpan');
+            btnSimpan.innerHTML = "💾 Update Jadwal";
+            btnSimpan.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            btnSimpan.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+            
+            document.getElementById('btnBatal').classList.remove('hidden');
+            
+            // Scroll ke atas
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
+
+
+        // =========================================================================
+        // ================= KODE DARI PENGGUNA (DIBAWAH INI) ======================
+        // =========================================================================
 
         window.hapusJadwal = async function(id) {
-            if (!db) return alert("❌ Koneksi database tidak tersedia.");
-            if(confirm("⚠️ Yakin hapus baris jadwal ini?")) await deleteDoc(doc(db, "jadwal_pelajaran", id));
+            if (!window.db) return alert("❌ Koneksi database tidak tersedia.");
+            // Penyesuaian Path Firestore
+            if(confirm("⚠️ Yakin hapus baris jadwal ini?")) await deleteDoc(doc(window.db, 'artifacts', appId, 'users', currentUser.uid, 'jadwal_pelajaran', id));
         };
 
         window.hapusJadwalPerKelas = async function() {
@@ -561,7 +503,8 @@
             let terhapus = 0;
             for(const j of dataHapus) {
                 try {
-                    await deleteDoc(doc(db, "jadwal_pelajaran", j.id));
+                    // Penyesuaian Path Firestore
+                    await deleteDoc(doc(window.db, 'artifacts', appId, 'users', currentUser.uid, 'jadwal_pelajaran', j.id));
                     terhapus++;
                 } catch(e) { console.error("Gagal hapus", e); }
             }
@@ -576,7 +519,8 @@
             let terhapus = 0;
             for(const j of semuaJadwal) {
                 try {
-                    await deleteDoc(doc(db, "jadwal_pelajaran", j.id));
+                    // Penyesuaian Path Firestore
+                    await deleteDoc(doc(window.db, 'artifacts', appId, 'users', currentUser.uid, 'jadwal_pelajaran', j.id));
                     terhapus++;
                 } catch(e) { console.error("Gagal hapus", e); }
             }
@@ -629,6 +573,8 @@
 
             let berhasil = 0;
             let bentrok = 0;
+            
+            const collRef = collection(window.db, 'artifacts', appId, 'users', currentUser.uid, 'jadwal_pelajaran');
 
             for (const j of jadwalAsal) {
                 // Cek apakah di kelas tujuan sudah ada jadwal di hari dan jam yang sama agar tidak menumpuk/bentrok
@@ -639,7 +585,8 @@
                 }
 
                 try {
-                    await addDoc(collection(db, "jadwal_pelajaran"), {
+                    // Penyesuaian Path Firestore
+                    await addDoc(collRef, {
                         hari: j.hari,
                         waktu: j.waktu,
                         kelas: keKelas,
@@ -652,7 +599,7 @@
 
             tutupModalSalinKelas();
             alert(`✅ Proses salin jadwal selesai!\n\nBerhasil disalin: ${berhasil} mata pelajaran\nDilewati (jam bentrok): ${bentrok} jadwal`);
-            btn.innerHTML = "<span>📋</span> Proses Salin"; btn.disabled = false;
+            btn.innerHTML = "Proses Salin"; btn.disabled = false;
         };
 
         // --- FITUR TERAPKAN GURU MASSAL ---
@@ -697,7 +644,8 @@
                     }
                     
                     if(j.id) {
-                        await updateDoc(doc(db, "jadwal_pelajaran", j.id), { guru: gr });
+                        // Penyesuaian Path Firestore
+                        await updateDoc(doc(window.db, 'artifacts', appId, 'users', currentUser.uid, 'jadwal_pelajaran', j.id), { guru: gr });
                         berhasil++;
                     }
                 } catch(e) { console.error("Gagal terapkan guru", e); }
@@ -705,7 +653,7 @@
 
             tutupModalTerapkanGuru();
             alert(`✅ PROSES SELESAI!\n\n👨‍🏫 Guru: ${gr}\n🏫 Kelas: ${kls}\n\nBerhasil dimasukkan: ${berhasil} mapel\nDilewati (karena guru bentrok jam): ${dilewati} mapel`);
-            btn.innerHTML = "<span>✅</span> Terapkan"; btn.disabled = false;
+            btn.innerHTML = "Terapkan"; btn.disabled = false;
         };
 
         // --- FITUR DOWNLOAD EXCEL DENGAN MODAL (BERWARNA) ---
@@ -843,7 +791,6 @@
             
             tutupModalExcel();
         };
-
     </script>
 </body>
 </html>
