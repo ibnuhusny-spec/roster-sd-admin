@@ -521,7 +521,7 @@
             }
         };
 
-        // --- FITUR 2: EXPORT EXCELJS (DENGAN NAMA SEKOLAH DINAMIS) ---
+        // --- FITUR 2: EXPORT EXCELJS (DENGAN WARNA KONTRAS TINGGI) ---
         window.bukaModalExport = function() {
             if (semuaJadwal.length === 0) {
                 return alert("⚠️ Tidak ada data jadwal yang bisa di-export.");
@@ -620,11 +620,24 @@
 
                 startRow++;
 
-                // PALET WARNA PASTEL UNTUK GURU
-                const warnaPastel = [
-                    'FFE6F0FF', 'FFFFEBE6', 'FFF0F5E6', 'FFFFF0E6', 'FFE6E6FA',
-                    'FFFFE6F0', 'FFE6FAFF', 'FFFFFAEB', 'FFEBF0FA', 'FFFAF0E6',
-                    'FFE6FFE6', 'FFFFE6E6', 'FFE6E6E6', 'FFFFF5E6', 'FFE6F5FF'
+                // PALET WARNA CERAH & KONTRAS UNTUK GURU
+                // Sangat ramah untuk membedakan kategori (termasuk color blind friendly yang butuh kontras kuat)
+                const warnaKontras = [
+                    'FFFFFF99', // Kuning Terang
+                    'FF99FF99', // Hijau Muda
+                    'FF99FFFF', // Cyan
+                    'FF99CCFF', // Biru Langit
+                    'FFCC99FF', // Ungu Muda
+                    'FFFF99CC', // Pink
+                    'FFFF9999', // Merah Muda
+                    'FFFFCC99', // Oranye
+                    'FFCCFF99', // Lime
+                    'FF66FFCC', // Teal
+                    'FFFF66FF', // Magenta
+                    'FFFFD700', // Emas
+                    'FFB3B3CC', // Abu-abu kebiruan
+                    'FFFFB366', // Peach
+                    'FF99FFCC'  // Mint
                 ];
                 let warnaGuruMap = {};
                 let indeksWarna = 0;
@@ -650,7 +663,7 @@
                     // Terapkan Warna Baris Berdasarkan Guru
                     if (j.guru) {
                         if (!warnaGuruMap[j.guru]) {
-                            warnaGuruMap[j.guru] = warnaPastel[indeksWarna % warnaPastel.length];
+                            warnaGuruMap[j.guru] = warnaKontras[indeksWarna % warnaKontras.length];
                             indeksWarna++;
                         }
                         const warnaBaris = warnaGuruMap[j.guru];
