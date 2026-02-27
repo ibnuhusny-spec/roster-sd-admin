@@ -776,7 +776,15 @@
             `;
 
             let no = 1;
+            let hariSaatIni = ""; // Menyimpan status hari yang sedang diproses
+
             data.forEach(j => {
+                // Reset nomor urut ke 1 jika hari pada baris ini berbeda dengan hari sebelumnya
+                if (j.hari !== hariSaatIni) {
+                    no = 1;
+                    hariSaatIni = j.hari;
+                }
+
                 // Memberikan warna background berdasarkan nama guru, biarkan putih jika belum ada guru
                 let bgWarna = j.guru ? mapWarnaGuru[j.guru] : "#ffffff";
 
