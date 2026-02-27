@@ -116,8 +116,8 @@
                     
                     <!-- TOMBOL FITUR EKSKLUSIF -->
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="salinJadwalTeks()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
-                            <span>📋</span> Salin Teks (WA)
+                        <button onclick="bukaModalSalinKelas()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
+                            <span>📑</span> Salin Jadwal Kelas
                         </button>
                         <button onclick="bukaModalExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-2">
                             <span>📊</span> Unduh Excel
@@ -197,6 +197,37 @@
         </div>
     </div>
 
+    <!-- MODAL SALIN JADWAL KELAS -->
+    <div id="modalSalin" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
+            <div class="bg-indigo-600 p-4 flex justify-between items-center text-white">
+                <h3 class="font-bold text-lg flex items-center gap-2"><span>📑</span> Salin Jadwal Antar Kelas</h3>
+                <button onclick="tutupModalSalinKelas()" class="text-white hover:text-gray-200 font-bold text-xl">&times;</button>
+            </div>
+            <div class="p-6 space-y-4 text-sm">
+                <p class="text-gray-600 text-xs mb-4">Fitur ini akan menyalin seluruh jadwal dari kelas asal ke kelas tujuan. <b class="text-red-600">Nama Guru akan dikosongkan</b> agar tidak terjadi bentrok.</p>
+                <div>
+                    <label class="block font-bold text-gray-700 mb-1">Salin DARI Kelas:</label>
+                    <select id="salinDariKelas" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-gray-50">
+                        <option value="">-- Pilih Kelas Asal --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-700 mb-1">Salin KE Kelas (Tujuan):</label>
+                    <select id="salinKeKelas" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-gray-50">
+                        <option value="">-- Pilih Kelas Tujuan --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 border-t flex justify-end gap-3">
+                <button onclick="tutupModalSalinKelas()" class="px-4 py-2 text-gray-600 bg-gray-200 hover:bg-gray-300 rounded-lg font-bold transition">Batal</button>
+                <button id="btnProsesSalin" onclick="prosesSalinKelas()" class="px-4 py-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg font-bold flex items-center gap-2 transition shadow">
+                    <span>📋</span> Proses Salin
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -231,12 +262,20 @@
             onSnapshot(collection(db, "master_kelas"), (snapshot) => {
                 const selKelas = document.getElementById('inputKelas');
                 const filterKelas = document.getElementById('filterKelasTable');
+                const salinDari = document.getElementById('salinDariKelas');
+                const salinKe = document.getElementById('salinKeKelas');
+
                 selKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
                 filterKelas.innerHTML = '<option value="Semua">Semua Kelas</option>';
+                if(salinDari) salinDari.innerHTML = '<option value="">-- Pilih Kelas Asal --</option>';
+                if(salinKe) salinKe.innerHTML = '<option value="">-- Pilih Kelas Tujuan --</option>';
+
                 let arr = []; snapshot.forEach(d => arr.push(d.data().nama));
                 arr.sort((a,b)=>a.localeCompare(b)).forEach(nama => {
                     selKelas.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                     filterKelas.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
+                    if(salinDari) salinDari.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
+                    if(salinKe) salinKe.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                 });
                 $('#inputKelas').trigger('change'); $('#filterKelasTable').trigger('change');
             });
@@ -336,7 +375,7 @@
                         <td class="py-3 px-4 font-bold text-blue-600">${j.kelas}</td>
                         <td class="py-3 px-4">
                             <div class="font-bold text-gray-800">${j.mapel}</div>
-                            <div class="text-xs text-gray-500">👨‍🏫 ${j.guru}</div>
+                            <div class="text-xs ${j.guru ? 'text-gray-500' : 'text-red-500 font-bold italic'}">👨‍🏫 ${j.guru || "Belum ada guru"}</div>
                         </td>
                         <td class="py-3 px-4 text-center">
                             <div class="flex items-center justify-center gap-2">
@@ -442,31 +481,60 @@
             document.getElementById('btnBatal').classList.add('hidden');
         };
 
-        // --- FITUR SALIN TEKS UNTUK WHATSAPP ---
-        window.salinJadwalTeks = function() {
-            const filter = document.getElementById('filterKelasTable').value;
-            let data = filter === "Semua" ? semuaJadwal : semuaJadwal.filter(j => j.kelas === filter);
-            if(data.length === 0) return alert("Tidak ada jadwal untuk disalin.");
+        // --- FITUR SALIN JADWAL ANTAR KELAS ---
+        window.bukaModalSalinKelas = function() { 
+            document.getElementById('modalSalin').classList.remove('hidden'); 
+            
+            // Otomatis pilih kelas asal berdasarkan filter tabel jika tidak sedang di posisi "Semua"
+            const filterSaatIni = document.getElementById('filterKelasTable').value;
+            if(filterSaatIni !== "Semua") {
+                document.getElementById('salinDariKelas').value = filterSaatIni;
+            } else {
+                document.getElementById('salinDariKelas').value = "";
+            }
+            document.getElementById('salinKeKelas').value = "";
+        };
+        window.tutupModalSalinKelas = function() { document.getElementById('modalSalin').classList.add('hidden'); };
 
-            data.sort((a,b) => {
-                if (urutanHari[a.hari] !== urutanHari[b.hari]) return urutanHari[a.hari] - urutanHari[b.hari];
-                let m1 = (a.waktu||"").match(/\d+/g); let m2 = (b.waktu||"").match(/\d+/g);
-                let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
-                let val2 = m2 ? parseInt(m2[0])*60 + (m2[1] ? parseInt(m2[1]) : 0) : 9999;
-                return val1 - val2;
-            });
+        window.prosesSalinKelas = async function() {
+            const dariKelas = document.getElementById('salinDariKelas').value;
+            const keKelas = document.getElementById('salinKeKelas').value;
 
-            let teks = `*JADWAL PELAJARAN ${filter === 'Semua' ? 'SEKOLAH' : 'KELAS ' + filter}*\n\n`;
-            let hariAktif = "";
-            data.forEach(j => {
-                if(hariAktif !== j.hari) {
-                    teks += `\n*${j.hari.toUpperCase()}*\n`;
-                    hariAktif = j.hari;
+            if(!dariKelas || !keKelas) return alert("❌ Silakan pilih kelas asal dan kelas tujuan!");
+            if(dariKelas === keKelas) return alert("❌ Kelas asal dan tujuan tidak boleh sama!");
+
+            const jadwalAsal = semuaJadwal.filter(j => j.kelas === dariKelas);
+            if(jadwalAsal.length === 0) return alert(`❌ Kelas ${dariKelas} tidak memiliki jadwal untuk disalin.`);
+
+            const btn = document.getElementById('btnProsesSalin');
+            btn.innerHTML = "⏳ Memproses..."; btn.disabled = true;
+
+            let berhasil = 0;
+            let bentrok = 0;
+
+            for (const j of jadwalAsal) {
+                // Cek apakah di kelas tujuan sudah ada jadwal di hari dan jam yang sama agar tidak menumpuk/bentrok
+                const cekBentrok = semuaJadwal.find(tj => tj.kelas === keKelas && tj.hari === j.hari && tj.waktu === j.waktu);
+                if (cekBentrok) {
+                    bentrok++;
+                    continue; // Lewati jadwal yang hari/jam-nya sudah terisi di kelas tujuan
                 }
-                teks += `• ${j.waktu} | ${j.mapel} (${j.guru}) ${filter==='Semua'?'['+j.kelas+']':''}\n`;
-            });
 
-            navigator.clipboard.writeText(teks).then(() => alert("✅ Jadwal berhasil disalin! Silakan Paste (Tempel) di WhatsApp."));
+                try {
+                    await addDoc(collection(db, "jadwal_pelajaran"), {
+                        hari: j.hari,
+                        waktu: j.waktu,
+                        kelas: keKelas,
+                        mapel: j.mapel,
+                        guru: "" // Nama guru sengaja dikosongkan
+                    });
+                    berhasil++;
+                } catch(e) { console.error("Gagal menyalin", e); }
+            }
+
+            tutupModalSalinKelas();
+            alert(`✅ Proses salin jadwal selesai!\n\nBerhasil disalin: ${berhasil} mata pelajaran\nDilewati (jam bentrok): ${bentrok} jadwal`);
+            btn.innerHTML = "<span>📋</span> Proses Salin"; btn.disabled = false;
         };
 
         // --- FITUR DOWNLOAD EXCEL DENGAN MODAL (BERWARNA) ---
