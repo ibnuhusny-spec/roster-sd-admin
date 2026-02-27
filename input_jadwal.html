@@ -246,17 +246,11 @@
                 <button onclick="tutupModalTerapkanGuru()" class="text-white hover:text-gray-100 font-bold text-xl">&times;</button>
             </div>
             <div class="p-6 space-y-4 text-sm">
-                <p class="text-gray-600 text-xs mb-4">Fitur ini akan mengisi atau mengganti nama guru pada kelas dan mata pelajaran tertentu sekaligus (sangat berguna setelah proses Salin Kelas).</p>
+                <p class="text-gray-600 text-xs mb-4">Fitur ini akan menerapkan guru yang dipilih ke <b>SELURUH</b> mata pelajaran pada kelas tersebut. (Sangat cocok untuk Guru Kelas/Wali Kelas SD).</p>
                 <div>
                     <label class="block font-bold text-gray-700 mb-1">Pilih Kelas:</label>
                     <select id="terapkanKelas" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50">
                         <option value="">-- Pilih Kelas --</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-bold text-gray-700 mb-1">Mata Pelajaran:</label>
-                    <select id="terapkanMapel" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50">
-                        <option value="">-- Pilih Mapel --</option>
                     </select>
                 </div>
                 <div>
@@ -353,14 +347,11 @@
             // MASTER MAPEL & GURU
             onSnapshot(collection(db, "master_mapel"), (snapshot) => {
                 const sel = document.getElementById('inputMapel');
-                const terapkanMpl = document.getElementById('terapkanMapel');
                 sel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
-                if(terapkanMpl) terapkanMpl.innerHTML = '<option value="">-- Pilih Mapel --</option>';
 
                 let arr = []; snapshot.forEach(d => arr.push(d.data().nama));
                 arr.sort().forEach(nama => {
                     sel.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
-                    if(terapkanMpl) terapkanMpl.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                 });
                 $('#inputMapel').trigger('change');
             });
@@ -648,13 +639,12 @@
 
         window.prosesTerapkanGuru = async function() {
             const kls = document.getElementById('terapkanKelas').value;
-            const mpl = document.getElementById('terapkanMapel').value;
             const gr = document.getElementById('terapkanGuru').value;
 
-            if(!kls || !mpl || !gr) return alert("❌ Harap pilih Kelas, Mata Pelajaran, dan Guru!");
+            if(!kls || !gr) return alert("❌ Harap pilih Kelas dan Guru!");
 
-            const jadwalTarget = semuaJadwal.filter(j => j.kelas === kls && j.mapel === mpl);
-            if(jadwalTarget.length === 0) return alert(`❌ Tidak ada jadwal mata pelajaran ${mpl} di kelas ${kls}.`);
+            const jadwalTarget = semuaJadwal.filter(j => j.kelas === kls);
+            if(jadwalTarget.length === 0) return alert(`❌ Tidak ada jadwal di kelas ${kls}.`);
 
             const btn = document.getElementById('btnProsesTerapkan');
             btn.innerHTML = "⏳ Memproses..."; btn.disabled = true;
@@ -723,6 +713,9 @@
                 }
             });
 
+            // Mencegah kata "Kelas" dicetak ganda (Mengecek apakah nama kelas sudah mengandung kata "kelas")
+            let judulKelas = filterKelas === 'Semua' ? 'SEKOLAH' : (filterKelas.toLowerCase().includes('kelas') ? filterKelas.toUpperCase() : 'KELAS ' + filterKelas.toUpperCase());
+
             // Membuat tabel HTML untuk dikonversi ke Excel dengan pengaturan warna (Inline CSS)
             let tabelHTML = `
             <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
@@ -731,7 +724,7 @@
                 <table style="width: 100%; font-family: Arial, sans-serif; border-collapse: collapse;">
                     <tr><td colspan="6" style="text-align: center; font-size: 14pt; font-weight: bold;">${kop1}</td></tr>
                     <tr><td colspan="6" style="text-align: center; font-size: 16pt; font-weight: bold;">${kop2}</td></tr>
-                    <tr><td colspan="6" style="text-align: center; font-size: 12pt; font-weight: bold; padding-bottom: 20px;">JADWAL PELAJARAN ${filterKelas === 'Semua' ? 'SEKOLAH' : 'KELAS ' + filterKelas}</td></tr>
+                    <tr><td colspan="6" style="text-align: center; font-size: 12pt; font-weight: bold; padding-bottom: 20px;">JADWAL PELAJARAN ${judulKelas}</td></tr>
                     <tr><td colspan="6"></td></tr>
                     
                     <tr>
