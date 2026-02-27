@@ -466,11 +466,13 @@
                 btnSimpan.innerHTML = "💾 Simpan Jadwal"; btnSimpan.disabled = false; return;
             }
 
-            // Validasi Bentrok Guru
-            const cekBentrokGuru = semuaJadwal.find(j => j.hari === dataBaru.hari && j.waktu === dataBaru.waktu && j.guru === dataBaru.guru && j.id !== idEdit);
-            if (cekBentrokGuru) {
-                alert(`❌ BENTROK GURU!\n\nGuru ${dataBaru.guru} sudah mengajar di Kelas ${cekBentrokGuru.kelas} pada waktu tersebut.`);
-                btnSimpan.innerHTML = "💾 Simpan Jadwal"; btnSimpan.disabled = false; return;
+            // Validasi Bentrok Guru (Hanya diperiksa jika nama guru diisi)
+            if (dataBaru.guru) {
+                const cekBentrokGuru = semuaJadwal.find(j => j.hari === dataBaru.hari && j.waktu === dataBaru.waktu && j.guru === dataBaru.guru && j.id !== idEdit);
+                if (cekBentrokGuru) {
+                    alert(`❌ BENTROK GURU!\n\nGuru ${dataBaru.guru} sudah mengajar di Kelas ${cekBentrokGuru.kelas} pada waktu tersebut.`);
+                    btnSimpan.innerHTML = "💾 Simpan Jadwal"; btnSimpan.disabled = false; return;
+                }
             }
 
             try {
@@ -482,17 +484,30 @@
             btnSimpan.innerHTML = "💾 Simpan Jadwal"; btnSimpan.disabled = false;
         };
 
+        // Helper function agar Select2 tetap mengisi data ke form meskipun data tidak cocok 100% dengan data Master
+        function setSelectValue(selector, value) {
+            if (!value) {
+                $(selector).val('').trigger('change');
+                return;
+            }
+            if ($(selector).find("option[value='" + value.replace(/'/g, "\\'") + "']").length) {
+                $(selector).val(value).trigger('change');
+            } else {
+                $(selector).append(new Option(value, value, true, true)).trigger('change');
+            }
+        }
+
         // --- FITUR SALIN BARIS (DUPLIKAT) ---
         window.duplikatJadwal = function(id) {
             const data = semuaJadwal.find(j => j.id === id);
             if(data) {
                 // Isi form tapi JANGAN isi editId (agar tersimpan sebagai data baru)
                 document.getElementById('editId').value = "";
-                $('#inputHari').val(data.hari).trigger('change');
-                $('#inputWaktu').val(data.waktu).trigger('change');
-                $('#inputKelas').val(data.kelas).trigger('change');
-                $('#inputMapel').val(data.mapel).trigger('change');
-                $('#inputGuru').val(data.guru).trigger('change');
+                setSelectValue('#inputHari', data.hari);
+                setSelectValue('#inputWaktu', data.waktu);
+                setSelectValue('#inputKelas', data.kelas);
+                setSelectValue('#inputMapel', data.mapel);
+                setSelectValue('#inputGuru', data.guru);
                 
                 document.getElementById('judulForm').innerHTML = "📄 Duplikat Jadwal (Simpan sbg Baru)";
                 document.getElementById('btnSimpan').innerHTML = "💾 Simpan Salinan";
@@ -505,15 +520,26 @@
             const data = semuaJadwal.find(j => j.id === id);
             if(data) {
                 document.getElementById('editId').value = data.id;
-                $('#inputHari').val(data.hari).trigger('change');
-                $('#inputWaktu').val(data.waktu).trigger('change');
-                $('#inputKelas').val(data.kelas).trigger('change');
-                $('#inputMapel').val(data.mapel).trigger('change');
-                $('#inputGuru').val(data.guru).trigger('change');
+                setSelectValue('#inputHari', data.hari);
+                setSelectValue('#inputWaktu', data.waktu);
+                setSelectValue('#inputKelas', data.kelas);
+                setSelectValue('#inputMapel', data.mapel);
+                setSelectValue('#inputGuru', data.guru);
                 
-                document.getElementById('judulForm').innerHTML = "✏️ Edit Jadwal";
-                document.getElementById('btnSimpan').innerHTML = "💾 Update Jadwal";
+                document.getElementById('judulForm').innerHTML = "<span class='text-yellow-500'>✏️</span> Edit Jadwal Kelas " + data.kelas;
+                
+                const btnSimpan = document.getElementById('btnSimpan');
+                btnSimpan.innerHTML = "💾 Update Jadwal";
+                btnSimpan.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                btnSimpan.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+                
                 document.getElementById('btnBatal').classList.remove('hidden');
+                
+                // Efek visual menyorot form agar pengguna tahu sedang berada di mode edit
+                const formContainer = document.getElementById('formJadwal').parentElement;
+                formContainer.classList.add('ring-4', 'ring-yellow-400', 'transition-all', 'duration-500');
+                setTimeout(() => formContainer.classList.remove('ring-4', 'ring-yellow-400'), 1500);
+
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         };
@@ -564,7 +590,12 @@
             $('#inputKelas').val('').trigger('change'); $('#inputMapel').val('').trigger('change'); $('#inputGuru').val('').trigger('change');
             
             document.getElementById('judulForm').innerHTML = "<span>➕</span> Tambah Jadwal Baru";
-            document.getElementById('btnSimpan').innerHTML = "💾 Simpan Jadwal";
+            
+            const btnSimpan = document.getElementById('btnSimpan');
+            btnSimpan.innerHTML = "💾 Simpan Jadwal";
+            btnSimpan.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+            btnSimpan.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            
             document.getElementById('btnBatal').classList.add('hidden');
         };
 
@@ -644,7 +675,11 @@
             if(!kls || !gr) return alert("❌ Harap pilih Kelas dan Guru!");
 
             const jadwalTarget = semuaJadwal.filter(j => j.kelas === kls);
-            if(jadwalTarget.length === 0) return alert(`❌ Tidak ada jadwal di kelas ${kls}.`);
+            
+            // CEGAH ERROR: Beritahu pengguna jika jadwal di kelas tersebut belum dibuat
+            if(jadwalTarget.length === 0) {
+                return alert(`❌ KELAS MASIH KOSONG!\n\nBelum ada jadwal satupun di Kelas ${kls}.\n\n💡 Info: Fitur ini berfungsi untuk memasukkan nama guru ke baris jadwal yang "sudah dibuat". Silakan buat dulu jadwalnya di form sebelah kiri, atau gunakan fitur "Salin Kelas" terlebih dahulu.`);
+            }
 
             const btn = document.getElementById('btnProsesTerapkan');
             btn.innerHTML = "⏳ Memproses..."; btn.disabled = true;
@@ -654,19 +689,22 @@
 
             for(const j of jadwalTarget) {
                 try {
-                    // Pengecekan agar guru tidak bentrok mengajar di kelas lain pada hari & jam yang sama
-                    const cekBentrok = semuaJadwal.find(tj => tj.hari === j.hari && tj.waktu === j.waktu && tj.guru === gr && tj.id !== j.id);
+                    // Pengecekan agar guru tidak bentrok (menggunakan trim agar spasi pada teks jam tidak menimbulkan error)
+                    const cekBentrok = semuaJadwal.find(tj => tj.hari === j.hari && (tj.waktu||"").trim() === (j.waktu||"").trim() && tj.guru === gr && tj.id !== j.id);
                     if(cekBentrok) {
                         dilewati++;
                         continue; // Jika guru sudah mengajar di kelas lain di jam yang sama, maka abaikan jadwal ini
                     }
-                    await updateDoc(doc(db, "jadwal_pelajaran", j.id), { guru: gr });
-                    berhasil++;
+                    
+                    if(j.id) {
+                        await updateDoc(doc(db, "jadwal_pelajaran", j.id), { guru: gr });
+                        berhasil++;
+                    }
                 } catch(e) { console.error("Gagal terapkan guru", e); }
             }
 
             tutupModalTerapkanGuru();
-            alert(`✅ Selesai!\n\nBerhasil diterapkan: ${berhasil} jadwal\nDilewati (karena bentrok jam dengan kelas lain): ${dilewati} jadwal`);
+            alert(`✅ PROSES SELESAI!\n\n👨‍🏫 Guru: ${gr}\n🏫 Kelas: ${kls}\n\nBerhasil dimasukkan: ${berhasil} mapel\nDilewati (karena guru bentrok jam): ${dilewati} mapel`);
             btn.innerHTML = "<span>✅</span> Terapkan"; btn.disabled = false;
         };
 
