@@ -5,6 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Input Jadwal - ROSTERKU</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tambahan jQuery dan Select2 untuk fitur Pencarian Dropdown -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        /* Menyesuaikan gaya Select2 agar serasi dengan desain Tailwind */
+        .select2-container .select2-selection--single {
+            height: 46px !important;
+            border-radius: 0.75rem !important;
+            border: 1px solid #d1d5db !important;
+            background-color: #f9fafb !important;
+            display: flex !important;
+            align-items: center !important;
+            padding-left: 0.25rem;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 44px !important;
+            right: 10px !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #374151 !important;
+            font-weight: 600 !important;
+        }
+    </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-gray-800">
 
@@ -43,7 +68,7 @@
                     
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Hari</label>
-                        <select id="inputHari" class="w-full p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500" required>
+                        <select id="inputHari" class="w-full p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 searchable" required>
                             <option value="">-- Pilih Hari --</option>
                             <option value="Senin">Senin</option>
                             <option value="Selasa">Selasa</option>
@@ -57,12 +82,23 @@
 
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Waktu / Jam Ke-</label>
-                        <input type="text" id="inputWaktu" placeholder="Contoh: 07:15 - 08:35" class="w-full p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500" required>
+                        <select id="inputWaktu" class="w-full p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 searchable-tags" required>
+                            <option value="">-- Ketik atau Pilih Waktu --</option>
+                            <option value="Jam Ke-1">Jam Ke-1</option>
+                            <option value="Jam Ke-2">Jam Ke-2</option>
+                            <option value="Jam Ke-3">Jam Ke-3</option>
+                            <option value="Jam Ke-4">Jam Ke-4</option>
+                            <option value="Jam Ke-5">Jam Ke-5</option>
+                            <option value="Jam Ke-6">Jam Ke-6</option>
+                            <option value="Jam Ke-7">Jam Ke-7</option>
+                            <option value="Jam Ke-8">Jam Ke-8</option>
+                            <option value="Istirahat">Istirahat</option>
+                        </select>
                     </div>
 
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Kelas</label>
-                        <select id="inputKelas" class="w-full p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500" required>
+                        <select id="inputKelas" class="w-full p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 searchable" required>
                             <option value="">-- Pilih Kelas --</option>
                             <!-- Diisi via JS -->
                         </select>
@@ -70,7 +106,7 @@
 
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Mata Pelajaran</label>
-                        <select id="inputMapel" class="w-full p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500" required>
+                        <select id="inputMapel" class="w-full p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 searchable" required>
                             <option value="">-- Pilih Mapel --</option>
                             <!-- Diisi via JS -->
                         </select>
@@ -78,7 +114,7 @@
 
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Guru Pengajar</label>
-                        <select id="inputGuru" class="w-full p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500" required>
+                        <select id="inputGuru" class="w-full p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 searchable" required>
                             <option value="">-- Pilih Guru --</option>
                             <!-- Diisi via JS -->
                         </select>
@@ -100,8 +136,8 @@
                         <h2 class="text-xl font-extrabold text-gray-800 mb-1">Daftar Jadwal</h2>
                         <p class="text-sm text-gray-500">Kelola jadwal yang sudah diinput.</p>
                     </div>
-                    <div>
-                        <select id="filterKelasTable" onchange="renderTabel()" class="p-2 border border-gray-300 rounded-lg bg-gray-50 text-sm font-semibold text-blue-700">
+                    <div class="w-48">
+                        <select id="filterKelasTable" onchange="renderTabel()" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-sm font-semibold text-blue-700 searchable">
                             <option value="Semua">Semua Kelas</option>
                         </select>
                     </div>
@@ -153,6 +189,22 @@
 
         let semuaJadwal = [];
 
+        // Inisialisasi Fitur Pencarian Select2
+        $(document).ready(function() {
+            $('.searchable').select2();
+            $('.searchable-tags').select2({
+                tags: true, // Memungkinkan user mengetik kustom selain di dropdown (khusus untuk waktu)
+                createTag: function (params) {
+                    return { id: params.term, text: params.term, newOption: true }
+                }
+            });
+            
+            // Perbaiki event onchange agar sinkron dengan HTML biasa
+            $('#filterKelasTable').on('change', function() {
+                window.renderTabel();
+            });
+        });
+
         // --- MENGAMBIL DATA MASTER UNTUK DROPDOWN ---
         function muatDataMaster() {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
@@ -170,6 +222,8 @@
                     selKelas.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                     filterKelas.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                 });
+                $('#inputKelas').trigger('change');
+                $('#filterKelasTable').trigger('change');
             });
 
             // Mapel
@@ -179,6 +233,7 @@
                 let arr = [];
                 snapshot.forEach(d => arr.push(d.data().nama));
                 arr.sort().forEach(nama => sel.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`));
+                $('#inputMapel').trigger('change');
             });
 
             // Guru
@@ -188,6 +243,7 @@
                 let arr = [];
                 snapshot.forEach(d => arr.push(d.data().nama));
                 arr.sort().forEach(nama => sel.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`));
+                $('#inputGuru').trigger('change');
             });
         }
         muatDataMaster();
@@ -325,11 +381,24 @@
             if(data) {
                 document.getElementById('editId').value = data.id;
                 document.getElementById('inputHari').value = data.hari;
-                document.getElementById('inputWaktu').value = data.waktu;
                 document.getElementById('inputKelas').value = data.kelas;
                 document.getElementById('inputMapel').value = data.mapel;
                 document.getElementById('inputGuru').value = data.guru;
                 
+                // Update tampilan visual Select2
+                $('#inputHari').val(data.hari).trigger('change.select2');
+                $('#inputKelas').val(data.kelas).trigger('change.select2');
+                $('#inputMapel').val(data.mapel).trigger('change.select2');
+                $('#inputGuru').val(data.guru).trigger('change.select2');
+                
+                // Khusus dropdown waktu yang bisa kustom (tags)
+                if ($('#inputWaktu').find("option[value='" + data.waktu + "']").length) {
+                    $('#inputWaktu').val(data.waktu).trigger('change.select2');
+                } else { 
+                    var newOption = new Option(data.waktu, data.waktu, true, true);
+                    $('#inputWaktu').append(newOption).trigger('change.select2');
+                }
+
                 document.getElementById('judulForm').innerHTML = "✏️ Edit Jadwal";
                 document.getElementById('btnSimpan').innerHTML = "💾 Update Jadwal";
                 document.getElementById('btnSimpan').classList.replace('bg-blue-600', 'bg-yellow-600');
@@ -349,6 +418,14 @@
         window.resetForm = function() {
             document.getElementById('formJadwal').reset();
             document.getElementById('editId').value = "";
+            
+            // Reset tampilan visual Select2
+            $('#inputHari').val('').trigger('change.select2');
+            $('#inputWaktu').val('').trigger('change.select2');
+            $('#inputKelas').val('').trigger('change.select2');
+            $('#inputMapel').val('').trigger('change.select2');
+            $('#inputGuru').val('').trigger('change.select2');
+
             document.getElementById('judulForm').innerHTML = "<span>➕</span> Tambah Jadwal Baru";
             document.getElementById('btnSimpan').innerHTML = "💾 Simpan Jadwal";
             document.getElementById('btnSimpan').classList.replace('bg-yellow-600', 'bg-blue-600');
