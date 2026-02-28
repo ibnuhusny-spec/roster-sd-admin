@@ -5,12 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lihat Jadwal Pelajaran</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Library ExcelJS untuk Export Excel dengan Styling Warna & Border -->
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.default.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
+    <style>
+        .ts-control {
+            border-radius: 0.75rem !important; /* rounded-xl */
+            padding: 0.625rem 0.75rem !important; /* p-2.5 */
+            border-color: #d1d5db !important; /* border-gray-300 */
+            background-color: #f9fafb !important; /* bg-gray-50 */
+            font-weight: 600 !important; /* font-semibold */
+            color: #1d4ed8 !important; /* text-blue-700 */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important; /* shadow-sm */
+        }
+        .ts-dropdown {
+            border-radius: 0.75rem !important;
+            font-weight: 600;
+            color: #374151;
+            overflow: hidden;
+        }
+        .ts-dropdown .active { background-color: #eff6ff !important; color: #1d4ed8 !important; }
+    </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans text-gray-800">
 
-    <!-- Navbar Sederhana -->
     <nav class="bg-blue-700 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -36,9 +57,9 @@
             </div>
             
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                <div class="flex-grow md:flex-grow-0">
+                <div class="flex-grow md:flex-grow-0" style="min-width: 140px;">
                     <label class="block text-sm font-bold text-gray-600 mb-1">Hari:</label>
-                    <select id="filterHari" onchange="tampilkanJadwal()" class="w-full md:w-36 p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 font-semibold text-blue-700 shadow-sm cursor-pointer">
+                    <select id="filterHari" onchange="tampilkanJadwal()" class="w-full">
                         <option value="Semua">Semua Hari</option>
                         <option value="Senin">Senin</option>
                         <option value="Selasa">Selasa</option>
@@ -50,16 +71,16 @@
                     </select>
                 </div>
 
-                <div class="flex-grow md:flex-grow-0">
+                <div class="flex-grow md:flex-grow-0" style="min-width: 140px;">
                     <label class="block text-sm font-bold text-gray-600 mb-1">Kelas:</label>
-                    <select id="filterKelas" onchange="tampilkanJadwal()" class="w-full md:w-36 p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 font-semibold text-blue-700 shadow-sm cursor-pointer">
+                    <select id="filterKelas" onchange="tampilkanJadwal()" class="w-full">
                         <option value="Semua">Semua Kelas</option>
                     </select>
                 </div>
 
-                <div class="flex-grow md:flex-grow-0">
+                <div class="flex-grow md:flex-grow-0" style="min-width: 200px;">
                     <label class="block text-sm font-bold text-gray-600 mb-1">Guru:</label>
-                    <select id="filterGuru" onchange="tampilkanJadwal()" class="w-full md:w-48 p-2.5 border border-gray-300 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 font-semibold text-blue-700 shadow-sm cursor-pointer">
+                    <select id="filterGuru" onchange="tampilkanJadwal()" class="w-full">
                         <option value="Semua">Semua Guru</option>
                     </select>
                 </div>
@@ -70,7 +91,6 @@
             </div>
         </div>
 
-        <!-- Info Jam Mengajar (Muncul Otomatis saat Guru Dipilih) -->
         <div id="infoJamMengajar" class="hidden mb-6 transition-all duration-300 transform origin-top scale-95 opacity-0">
             <div class="inline-flex items-center p-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg border border-blue-400 w-full md:w-auto">
                 <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm mr-4 text-white shadow-inner">
@@ -86,7 +106,6 @@
             </div>
         </div>
 
-        <!-- Tabel Jadwal Publik -->
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm text-left border-collapse">
@@ -107,7 +126,6 @@
         </div>
     </div>
 
-    <!-- MODAL EXPORT EXCEL -->
     <div id="modalExportExcel" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity overflow-y-auto">
         <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-2xl transform scale-100 transition-transform my-8">
             <div class="mb-6 border-b pb-4">
@@ -117,13 +135,11 @@
             
             <form id="formExport" onsubmit="prosesExportExcel(event)" class="space-y-4">
                 
-                <!-- NAMA SEKOLAH -->
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Nama Sekolah</label>
                     <input type="text" id="exNamaSekolah" placeholder="Contoh: SD Negeri 1 Jakarta" class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 text-blue-800 font-semibold uppercase" required>
                 </div>
 
-                <!-- Tahun & Tempat -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Tahun Pelajaran</label>
@@ -135,7 +151,6 @@
                     </div>
                 </div>
 
-                <!-- Kepala Sekolah -->
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-2">
                     <h4 class="font-bold text-blue-800 mb-3 text-sm flex items-center gap-2">👨‍💼 Data Kepala Sekolah</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -150,7 +165,6 @@
                     </div>
                 </div>
 
-                <!-- Wali Kelas / Guru -->
                 <div class="bg-green-50 p-4 rounded-xl border border-green-100 mt-2">
                     <h4 class="font-bold text-green-800 mb-3 text-sm flex items-center gap-2">👩‍🏫 Data Wali Kelas / Guru <span id="labelWaliKelas" class="font-normal text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded"></span></h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -199,6 +213,11 @@
         let semuaJadwal = [];
         let namaSekolahSistem = "NAMA SEKOLAH BELUM DISETTING";
 
+        // Variabel untuk menyimpan instance pencarian dropdown
+        let tomKelas = null;
+        let tomGuru = null;
+        let tomHari = new TomSelect("#filterHari", { create: false, placeholder: "Semua Hari" });
+
         // --- MENGAMBIL INFO SEKOLAH ---
         async function ambilInfoSekolah() {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
@@ -216,6 +235,9 @@
         function muatFilterKelas() {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
             onSnapshot(collection(db, "master_kelas"), (snapshot) => {
+                // Hancurkan fitur pencarian sementara sebelum isi data baru
+                if (tomKelas !== null) { tomKelas.destroy(); }
+                
                 const selectEl = document.getElementById('filterKelas');
                 selectEl.innerHTML = '<option value="Semua">Semua Kelas</option>';
                 
@@ -226,6 +248,9 @@
                 kelasArr.forEach(nama => {
                     selectEl.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                 });
+
+                // Pasang kembali fitur pencariannya
+                tomKelas = new TomSelect("#filterKelas", { create: false, placeholder: "Semua Kelas" });
             });
         }
         muatFilterKelas();
@@ -234,6 +259,9 @@
         function muatFilterGuru() {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
             onSnapshot(collection(db, "master_guru"), (snapshot) => {
+                // Hancurkan fitur pencarian sementara sebelum isi data baru
+                if (tomGuru !== null) { tomGuru.destroy(); }
+                
                 const selectEl = document.getElementById('filterGuru');
                 selectEl.innerHTML = '<option value="Semua">Semua Guru</option>';
                 
@@ -244,6 +272,9 @@
                 guruArr.forEach(nama => {
                     selectEl.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                 });
+
+                // Pasang kembali fitur pencariannya
+                tomGuru = new TomSelect("#filterGuru", { create: false, placeholder: "Semua Guru" });
             });
         }
         muatFilterGuru();
