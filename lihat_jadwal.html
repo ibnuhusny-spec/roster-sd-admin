@@ -59,28 +59,21 @@
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
                 <div class="flex-grow md:flex-grow-0" style="min-width: 140px;">
                     <label class="block text-sm font-bold text-gray-600 mb-1">Hari:</label>
-                    <select id="filterHari" onchange="tampilkanJadwal()" class="w-full">
+                    <select id="filterHari" onchange="tampilkanJadwal('hari')" class="w-full">
                         <option value="Semua">Semua Hari</option>
-                        <option value="Senin">Senin</option>
-                        <option value="Selasa">Selasa</option>
-                        <option value="Rabu">Rabu</option>
-                        <option value="Kamis">Kamis</option>
-                        <option value="Jumat">Jumat</option>
-                        <option value="Sabtu">Sabtu</option>
-                        <option value="Minggu">Minggu</option>
                     </select>
                 </div>
 
                 <div class="flex-grow md:flex-grow-0" style="min-width: 140px;">
                     <label class="block text-sm font-bold text-gray-600 mb-1">Kelas:</label>
-                    <select id="filterKelas" onchange="tampilkanJadwal()" class="w-full">
+                    <select id="filterKelas" onchange="tampilkanJadwal('kelas')" class="w-full">
                         <option value="Semua">Semua Kelas</option>
                     </select>
                 </div>
 
                 <div class="flex-grow md:flex-grow-0" style="min-width: 200px;">
                     <label class="block text-sm font-bold text-gray-600 mb-1">Guru:</label>
-                    <select id="filterGuru" onchange="tampilkanJadwal()" class="w-full">
+                    <select id="filterGuru" onchange="tampilkanJadwal('guru')" class="w-full">
                         <option value="Semua">Semua Guru</option>
                     </select>
                 </div>
@@ -213,10 +206,10 @@
         let semuaJadwal = [];
         let namaSekolahSistem = "NAMA SEKOLAH BELUM DISETTING";
 
-        // Variabel untuk menyimpan instance pencarian dropdown
-        let tomKelas = null;
-        let tomGuru = null;
+        // Inisialisasi awal Tom Select (Daftar opsi akan otomatis diisi dari Data Jadwal)
         let tomHari = new TomSelect("#filterHari", { create: false, placeholder: "Semua Hari" });
+        let tomKelas = new TomSelect("#filterKelas", { create: false, placeholder: "Semua Kelas" });
+        let tomGuru = new TomSelect("#filterGuru", { create: false, placeholder: "Semua Guru" });
 
         // --- MENGAMBIL INFO SEKOLAH ---
         async function ambilInfoSekolah() {
@@ -231,54 +224,6 @@
         }
         ambilInfoSekolah();
 
-        // --- MEMUAT FILTER KELAS ---
-        function muatFilterKelas() {
-            if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
-            onSnapshot(collection(db, "master_kelas"), (snapshot) => {
-                // Hancurkan fitur pencarian sementara sebelum isi data baru
-                if (tomKelas !== null) { tomKelas.destroy(); }
-                
-                const selectEl = document.getElementById('filterKelas');
-                selectEl.innerHTML = '<option value="Semua">Semua Kelas</option>';
-                
-                let kelasArr = [];
-                snapshot.forEach(docSnap => kelasArr.push(docSnap.data().nama));
-                kelasArr.sort((a,b) => a.localeCompare(b));
-                
-                kelasArr.forEach(nama => {
-                    selectEl.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
-                });
-
-                // Pasang kembali fitur pencariannya
-                tomKelas = new TomSelect("#filterKelas", { create: false, placeholder: "Semua Kelas" });
-            });
-        }
-        muatFilterKelas();
-
-        // --- MEMUAT FILTER GURU ---
-        function muatFilterGuru() {
-            if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
-            onSnapshot(collection(db, "master_guru"), (snapshot) => {
-                // Hancurkan fitur pencarian sementara sebelum isi data baru
-                if (tomGuru !== null) { tomGuru.destroy(); }
-                
-                const selectEl = document.getElementById('filterGuru');
-                selectEl.innerHTML = '<option value="Semua">Semua Guru</option>';
-                
-                let guruArr = [];
-                snapshot.forEach(docSnap => guruArr.push(docSnap.data().nama));
-                guruArr.sort((a,b) => a.localeCompare(b));
-                
-                guruArr.forEach(nama => {
-                    selectEl.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
-                });
-
-                // Pasang kembali fitur pencariannya
-                tomGuru = new TomSelect("#filterGuru", { create: false, placeholder: "Semua Guru" });
-            });
-        }
-        muatFilterGuru();
-
         // --- URUTAN HARI ---
         const urutanHari = { "Senin":1, "Selasa":2, "Rabu":3, "Kamis":4, "Jumat":5, "Sabtu":6, "Minggu":7 };
 
@@ -290,17 +235,74 @@
                 snapshot.forEach(docSnap => {
                     semuaJadwal.push({ id: docSnap.id, ...docSnap.data() });
                 });
-                tampilkanJadwal();
+                
+                // Memicu tampilan pertama kali ('init' agar semua dropdown terisi penuh di awal)
+                tampilkanJadwal('init');
             });
         }
         muatDataJadwal();
 
-        // --- MENAMPILKAN JADWAL DI TABEL & JUMLAH JAM ---
-        window.tampilkanJadwal = function() {
+        // --- MENAMPILKAN JADWAL & MENGUPDATE FILTER DINAMIS ---
+        window.tampilkanJadwal = function(sumberTrigger = null) {
+            const selectKelas = document.getElementById('filterKelas');
+            const selectHari = document.getElementById('filterHari');
+            const selectGuru = document.getElementById('filterGuru');
+
+            const kelasDipilih = selectKelas.value;
+            const hariDipilih = selectHari.value;
+            const guruDipilih = selectGuru.value;
+
+            // ==========================================
+            // 1. LOGIKA DROPDOWN DINAMIS (CASCADING)
+            // ==========================================
+            let opsiKelas = new Set();
+            let opsiHari = new Set();
+            let opsiGuru = new Set();
+
+            semuaJadwal.forEach(j => {
+                let matchKelas = (kelasDipilih === "Semua" || j.kelas === kelasDipilih);
+                let matchHari = (hariDipilih === "Semua" || j.hari === hariDipilih);
+                let matchGuru = (guruDipilih === "Semua" || j.guru === guruDipilih);
+
+                // Kumpulkan opsi yang tersedia berdasarkan kombinasi 2 filter lainnya
+                if (matchHari && matchGuru && j.kelas) opsiKelas.add(j.kelas);
+                if (matchKelas && matchGuru && j.hari) opsiHari.add(j.hari);
+                if (matchKelas && matchHari && j.guru) opsiGuru.add(j.guru);
+            });
+
+            // Fungsi internal untuk memperbarui Tom Select secara senyap
+            const updateDropdown = (tom, setOpsi, tipe, triggerAktif) => {
+                // Jika dropdown ini yang sedang diklik user, jangan ubah opsinya (biar tidak tertutup paksa)
+                if (!tom || sumberTrigger === triggerAktif) return; 
+                
+                const valSaatIni = tom.getValue();
+                tom.clearOptions();
+                tom.addOption({value: "Semua", text: "Semua " + tipe});
+                
+                let arr = Array.from(setOpsi);
+                if (tipe === "Hari") arr.sort((a,b) => urutanHari[a] - urutanHari[b]);
+                else arr.sort((a,b) => a.localeCompare(b));
+
+                arr.forEach(item => tom.addOption({value: item, text: item}));
+                
+                // Kembalikan ke pilihan sebelumnya jika masih valid, kalau tidak reset ke "Semua"
+                if (setOpsi.has(valSaatIni) || valSaatIni === "Semua") {
+                    tom.setValue(valSaatIni, true); // Parameter true artinya tidak memicu onchange berulang
+                } else {
+                    tom.setValue("Semua", true);
+                }
+            };
+
+            // Jalankan update untuk ketiga dropdown
+            updateDropdown(tomKelas, opsiKelas, "Kelas", 'kelas');
+            updateDropdown(tomHari, opsiHari, "Hari", 'hari');
+            updateDropdown(tomGuru, opsiGuru, "Guru", 'guru');
+
+
+            // ==========================================
+            // 2. RENDER TABEL JADWAL
+            // ==========================================
             const tabel = document.getElementById('tabelJadwal');
-            const kelasDipilih = document.getElementById('filterKelas').value;
-            const hariDipilih = document.getElementById('filterHari').value;
-            const guruDipilih = document.getElementById('filterGuru').value;
             tabel.innerHTML = '';
 
             let jadwalTerfilter = semuaJadwal.filter(j => {
@@ -316,29 +318,22 @@
             const namaGuruSpan = document.getElementById('namaGuruInfo');
 
             if (guruDipilih !== "Semua") {
-                // Tampilkan card dengan animasi
                 infoJamDiv.classList.remove('hidden');
                 setTimeout(() => {
                     infoJamDiv.classList.remove('scale-95', 'opacity-0');
                     infoJamDiv.classList.add('scale-100', 'opacity-100');
-                }, 10); // sedikit jeda agar animasi berjalan
-
+                }, 10);
                 angkaJamSpan.innerText = jadwalTerfilter.length;
                 namaGuruSpan.innerText = `(${guruDipilih})`;
             } else {
-                // Sembunyikan card dengan animasi
                 infoJamDiv.classList.remove('scale-100', 'opacity-100');
                 infoJamDiv.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => {
-                    infoJamDiv.classList.add('hidden');
-                }, 300); // jeda sesuai dengan duration-300 di class CSS
+                setTimeout(() => { infoJamDiv.classList.add('hidden'); }, 300);
             }
 
-            // Urutkan berdasarkan Hari lalu Waktu
+            // Urutkan jadwal (Hari -> Waktu)
             jadwalTerfilter.sort((a, b) => {
-                if (urutanHari[a.hari] !== urutanHari[b.hari]) {
-                    return urutanHari[a.hari] - urutanHari[b.hari];
-                }
+                if (urutanHari[a.hari] !== urutanHari[b.hari]) return urutanHari[a.hari] - urutanHari[b.hari];
                 return (a.waktu || "").localeCompare(b.waktu || "");
             });
 
@@ -382,24 +377,17 @@
         // ==========================================
         // FITUR EXPORT EXCELJS (KOP SURAT & TTD)
         // ==========================================
-        
-        window.tutupModal = function(idModal) {
-            document.getElementById(idModal).classList.add('hidden');
-        };
+        window.tutupModal = function(idModal) { document.getElementById(idModal).classList.add('hidden'); };
 
         window.bukaModalExport = function() {
-            if (semuaJadwal.length === 0) {
-                return alert("⚠️ Tidak ada data jadwal yang bisa di-export saat ini.");
-            }
+            if (semuaJadwal.length === 0) return alert("⚠️ Tidak ada data jadwal yang bisa di-export saat ini.");
             const kelasAktif = document.getElementById('filterKelas').value;
             const guruAktif = document.getElementById('filterGuru').value;
             
-            // Ambil data dari LocalStorage
             const dataTersimpan = JSON.parse(localStorage.getItem('savedDataExportExcelPublic') || '{}');
 
             document.getElementById('exNamaSekolah').value = (namaSekolahSistem !== "NAMA SEKOLAH BELUM DISETTING") 
-                ? namaSekolahSistem 
-                : (dataTersimpan.sekolah || "");
+                ? namaSekolahSistem : (dataTersimpan.sekolah || "");
             
             const bulanIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
             const tglSekarang = new Date();
@@ -427,13 +415,11 @@
                 document.getElementById('exNamaWali').value = ""; 
                 document.getElementById('exNipWali').value = "";
             }
-
             document.getElementById('modalExportExcel').classList.remove('hidden');
         };
 
         window.prosesExportExcel = async function(e) {
             e.preventDefault();
-
             const btnExport = document.getElementById('btnProsesExport');
             const teksAwalBtn = btnExport.innerHTML;
             btnExport.innerHTML = "⏳ Sedang Menyiapkan Excel..."; btnExport.disabled = true;
@@ -452,11 +438,8 @@
                 const guruAktif = document.getElementById('filterGuru').value;
 
                 localStorage.setItem('savedDataExportExcelPublic', JSON.stringify({
-                    sekolah: namaSekolahExport,
-                    tahun: document.getElementById('exTahun').value,
-                    tempat: tempatTgl,
-                    kepsek: kepsek,
-                    nipKepsek: nipKepsek
+                    sekolah: namaSekolahExport, tahun: document.getElementById('exTahun').value,
+                    tempat: tempatTgl, kepsek: kepsek, nipKepsek: nipKepsek
                 }));
                 
                 let dataExport = semuaJadwal.filter(j => {
@@ -479,169 +462,69 @@
                 sheetName = sheetName.substring(0, 31); 
                 
                 const ws = wb.addWorksheet(sheetName);
-
                 const centerAlign = { vertical: 'middle', horizontal: 'center' };
-                const borderAll = {
-                    top: {style:'thin'}, left: {style:'thin'},
-                    bottom: {style:'thin'}, right: {style:'thin'}
-                };
+                const borderAll = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
 
-                ws.mergeCells('A1:E1');
-                ws.getCell('A1').value = "ROSTER MATA PELAJARAN";
-                ws.getCell('A1').font = { bold: true, size: 14 };
-                ws.getCell('A1').alignment = centerAlign;
-
-                ws.mergeCells('A2:E2');
-                ws.getCell('A2').value = namaSekolahExport; 
-                ws.getCell('A2').font = { bold: true, size: 12 };
-                ws.getCell('A2').alignment = centerAlign;
-
-                ws.mergeCells('A3:E3');
-                ws.getCell('A3').value = "TAHUN PELAJARAN " + tahun;
-                ws.getCell('A3').font = { bold: true, size: 11 };
-                ws.getCell('A3').alignment = centerAlign;
+                ws.mergeCells('A1:E1'); ws.getCell('A1').value = "ROSTER MATA PELAJARAN"; ws.getCell('A1').font = { bold: true, size: 14 }; ws.getCell('A1').alignment = centerAlign;
+                ws.mergeCells('A2:E2'); ws.getCell('A2').value = namaSekolahExport; ws.getCell('A2').font = { bold: true, size: 12 }; ws.getCell('A2').alignment = centerAlign;
+                ws.mergeCells('A3:E3'); ws.getCell('A3').value = "TAHUN PELAJARAN " + tahun; ws.getCell('A3').font = { bold: true, size: 11 }; ws.getCell('A3').alignment = centerAlign;
 
                 let startRow = 4;
-                
                 if (kelasAktif !== "Semua") {
-                    ws.mergeCells(`A${startRow}:E${startRow}`);
-                    ws.getCell(`A${startRow}`).value = "KELAS: " + kelasAktif;
-                    ws.getCell(`A${startRow}`).font = { bold: true, size: 11 };
-                    ws.getCell(`A${startRow}`).alignment = centerAlign;
-                    startRow++;
+                    ws.mergeCells(`A${startRow}:E${startRow}`); ws.getCell(`A${startRow}`).value = "KELAS: " + kelasAktif; ws.getCell(`A${startRow}`).font = { bold: true, size: 11 }; ws.getCell(`A${startRow}`).alignment = centerAlign; startRow++;
                 }
                 if (guruAktif !== "Semua") {
-                    ws.mergeCells(`A${startRow}:E${startRow}`);
-                    ws.getCell(`A${startRow}`).value = "GURU: " + guruAktif;
-                    ws.getCell(`A${startRow}`).font = { bold: true, size: 11 };
-                    ws.getCell(`A${startRow}`).alignment = centerAlign;
-                    startRow++;
+                    ws.mergeCells(`A${startRow}:E${startRow}`); ws.getCell(`A${startRow}`).value = "GURU: " + guruAktif; ws.getCell(`A${startRow}`).font = { bold: true, size: 11 }; ws.getCell(`A${startRow}`).alignment = centerAlign; startRow++;
                 }
-                
-                if (kelasAktif === "Semua" && guruAktif === "Semua") {
-                     startRow++; 
-                }
+                if (kelasAktif === "Semua" && guruAktif === "Semua") startRow++; 
 
                 const headers = ["Hari", "Waktu", "Kelas", "Mata Pelajaran", "Guru Pengajar"];
                 const headerRow = ws.getRow(startRow);
                 headers.forEach((h, i) => {
-                    const cell = headerRow.getCell(i + 1);
-                    cell.value = h;
-                    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
-                    cell.alignment = centerAlign;
-                    cell.border = borderAll;
+                    const cell = headerRow.getCell(i + 1); cell.value = h; cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } }; cell.alignment = centerAlign; cell.border = borderAll;
                 });
-
                 startRow++;
 
-                const warnaKontras = [
-                    'FFFFFF99', 'FF99FF99', 'FF99FFFF', 'FF99CCFF', 'FFCC99FF', 
-                    'FFFF99CC', 'FFFF9999', 'FFFFCC99', 'FFCCFF99', 'FF66FFCC', 
-                    'FFFF66FF', 'FFFFD700', 'FFB3B3CC', 'FFFFB366', 'FF99FFCC'
-                ];
-                let warnaGuruMap = {};
-                let indeksWarna = 0;
+                const warnaKontras = [ 'FFFFFF99', 'FF99FF99', 'FF99FFFF', 'FF99CCFF', 'FFCC99FF', 'FFFF99CC', 'FFFF9999', 'FFFFCC99', 'FFCCFF99', 'FF66FFCC', 'FFFF66FF', 'FFFFD700', 'FFB3B3CC', 'FFFFB366', 'FF99FFCC' ];
+                let warnaGuruMap = {}; let indeksWarna = 0;
 
                 dataExport.forEach((j) => {
                     const row = ws.getRow(startRow);
-                    row.getCell(1).value = j.hari;
-                    row.getCell(2).value = j.waktu;
-                    row.getCell(3).value = j.kelas;
-                    row.getCell(4).value = j.mapel;
-                    row.getCell(5).value = j.guru || "";
-
-                    for(let i=1; i<=5; i++) {
-                        const cell = row.getCell(i);
-                        cell.border = borderAll;
-                        cell.alignment = { vertical: 'middle', horizontal: 'left' };
-                        if (i <= 3) cell.alignment = centerAlign;
-                    }
+                    row.getCell(1).value = j.hari; row.getCell(2).value = j.waktu; row.getCell(3).value = j.kelas; row.getCell(4).value = j.mapel; row.getCell(5).value = j.guru || "";
+                    for(let i=1; i<=5; i++) { const cell = row.getCell(i); cell.border = borderAll; cell.alignment = { vertical: 'middle', horizontal: 'left' }; if (i <= 3) cell.alignment = centerAlign; }
 
                     if (j.guru) {
-                        if (!warnaGuruMap[j.guru]) {
-                            warnaGuruMap[j.guru] = warnaKontras[indeksWarna % warnaKontras.length];
-                            indeksWarna++;
-                        }
+                        if (!warnaGuruMap[j.guru]) { warnaGuruMap[j.guru] = warnaKontras[indeksWarna % warnaKontras.length]; indeksWarna++; }
                         const warnaBaris = warnaGuruMap[j.guru];
-                        for(let i=1; i<=5; i++) {
-                             row.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: warnaBaris } };
-                        }
+                        for(let i=1; i<=5; i++) row.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: warnaBaris } };
                     } else {
-                         row.getCell(5).font = { color: { argb: 'FFFF0000' }, italic: true };
-                         row.getCell(5).value = "Belum ditentukan";
+                         row.getCell(5).font = { color: { argb: 'FFFF0000' }, italic: true }; row.getCell(5).value = "Belum ditentukan";
                     }
-
                     startRow++;
                 });
 
-                ws.getColumn(1).width = 15;
-                ws.getColumn(2).width = 20;
-                ws.getColumn(3).width = 12;
-                ws.getColumn(4).width = 35;
-                ws.getColumn(5).width = 35;
-
+                ws.getColumn(1).width = 15; ws.getColumn(2).width = 20; ws.getColumn(3).width = 12; ws.getColumn(4).width = 35; ws.getColumn(5).width = 35;
                 let footerRow = startRow + 2;
 
-                ws.mergeCells(`D${footerRow}:E${footerRow}`);
-                ws.getCell(`D${footerRow}`).value = tempatTgl;
-                ws.getCell(`D${footerRow}`).alignment = centerAlign;
-
-                footerRow++;
-                ws.mergeCells(`A${footerRow}:B${footerRow}`);
-                ws.getCell(`A${footerRow}`).value = "Mengetahui,";
-                ws.getCell(`A${footerRow}`).alignment = centerAlign;
-
-                ws.mergeCells(`D${footerRow}:E${footerRow}`);
-                ws.getCell(`D${footerRow}`).value = (guruAktif !== "Semua") ? "Guru Pengajar," : "Wali Kelas,";
-                ws.getCell(`D${footerRow}`).alignment = centerAlign;
-
-                footerRow++;
-                ws.mergeCells(`A${footerRow}:B${footerRow}`);
-                ws.getCell(`A${footerRow}`).value = "Kepala Sekolah,";
-                ws.getCell(`A${footerRow}`).alignment = centerAlign;
-
-                footerRow += 4; 
-
-                ws.mergeCells(`A${footerRow}:B${footerRow}`);
-                ws.getCell(`A${footerRow}`).value = kepsek;
-                ws.getCell(`A${footerRow}`).font = { bold: true, underline: true };
-                ws.getCell(`A${footerRow}`).alignment = centerAlign;
-
-                ws.mergeCells(`D${footerRow}:E${footerRow}`);
-                ws.getCell(`D${footerRow}`).value = wali;
-                ws.getCell(`D${footerRow}`).font = { bold: true, underline: true };
-                ws.getCell(`D${footerRow}`).alignment = centerAlign;
-
-                footerRow++;
-                ws.mergeCells(`A${footerRow}:B${footerRow}`);
-                ws.getCell(`A${footerRow}`).value = "NIP. " + nipKepsek;
-                ws.getCell(`A${footerRow}`).alignment = centerAlign;
-
-                ws.mergeCells(`D${footerRow}:E${footerRow}`);
-                ws.getCell(`D${footerRow}`).value = "NIP. " + nipWali;
-                ws.getCell(`D${footerRow}`).alignment = centerAlign;
+                ws.mergeCells(`D${footerRow}:E${footerRow}`); ws.getCell(`D${footerRow}`).value = tempatTgl; ws.getCell(`D${footerRow}`).alignment = centerAlign; footerRow++;
+                ws.mergeCells(`A${footerRow}:B${footerRow}`); ws.getCell(`A${footerRow}`).value = "Mengetahui,"; ws.getCell(`A${footerRow}`).alignment = centerAlign;
+                ws.mergeCells(`D${footerRow}:E${footerRow}`); ws.getCell(`D${footerRow}`).value = (guruAktif !== "Semua") ? "Guru Pengajar," : "Wali Kelas,"; ws.getCell(`D${footerRow}`).alignment = centerAlign; footerRow++;
+                ws.mergeCells(`A${footerRow}:B${footerRow}`); ws.getCell(`A${footerRow}`).value = "Kepala Sekolah,"; ws.getCell(`A${footerRow}`).alignment = centerAlign; footerRow += 4; 
+                ws.mergeCells(`A${footerRow}:B${footerRow}`); ws.getCell(`A${footerRow}`).value = kepsek; ws.getCell(`A${footerRow}`).font = { bold: true, underline: true }; ws.getCell(`A${footerRow}`).alignment = centerAlign;
+                ws.mergeCells(`D${footerRow}:E${footerRow}`); ws.getCell(`D${footerRow}`).value = wali; ws.getCell(`D${footerRow}`).font = { bold: true, underline: true }; ws.getCell(`D${footerRow}`).alignment = centerAlign; footerRow++;
+                ws.mergeCells(`A${footerRow}:B${footerRow}`); ws.getCell(`A${footerRow}`).value = "NIP. " + nipKepsek; ws.getCell(`A${footerRow}`).alignment = centerAlign;
+                ws.mergeCells(`D${footerRow}:E${footerRow}`); ws.getCell(`D${footerRow}`).value = "NIP. " + nipWali; ws.getCell(`D${footerRow}`).alignment = centerAlign;
 
                 const buffer = await wb.xlsx.writeBuffer();
                 const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
-                a.href = url;
-                const fileName = `Jadwal_${sheetName}_${tahun.replace('/', '-')}.xlsx`;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-                
+                a.href = url; a.download = `Jadwal_${sheetName}_${tahun.replace('/', '-')}.xlsx`;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(url);
                 tutupModal('modalExportExcel');
-
             } catch (error) {
-                console.error("Gagal export excel:", error);
-                alert("❌ Terjadi kesalahan saat membuat file Excel.");
+                console.error("Gagal export excel:", error); alert("❌ Terjadi kesalahan saat membuat file Excel.");
             }
-
             btnExport.innerHTML = teksAwalBtn; btnExport.disabled = false;
         };
     </script>
