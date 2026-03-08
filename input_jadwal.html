@@ -811,27 +811,31 @@
         import { app } from "./firebase-config.js"; 
 
         const auth = getAuth(app);
+        let sedangLogout = false; // Tanda agar satpam diam saat proses logout
 
         // Satpam memeriksa login
         onAuthStateChanged(auth, (user) => {
-            if (!user) {
+            if (!user && !sedangLogout) { 
+                // Hanya tendang jika tidak login DAN tidak sedang proses logout
                 alert("Akses Ditolak! Anda harus login sebagai Admin.");
                 window.location.replace("index.html");
-            } else {
+            } else if (user) {
                 console.log("Admin terverifikasi:", user.email);
-                document.body.style.display = "block"; // Munculkan layar jika admin
+                document.body.style.display = "block"; 
             }
         });
 
-        // Proses tombol keluar di Navbar
+        // Proses tombol keluar
         const btnKeluar = document.getElementById("btnKeluar");
         if (btnKeluar) {
             btnKeluar.addEventListener("click", () => {
                 const konfirmasi = confirm("Apakah Anda yakin ingin keluar dari halaman Admin?");
                 if (konfirmasi) {
+                    sedangLogout = true; // Kasih tahu satpam: "Saya mau keluar sah, jangan dilarang!"
                     signOut(auth).then(() => {
                         window.location.replace("index.html");
                     }).catch((error) => {
+                        sedangLogout = false;
                         console.error("Gagal logout:", error);
                     });
                 }
