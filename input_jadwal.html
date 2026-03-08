@@ -10,6 +10,8 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
         .select2-container .select2-selection--single {
             height: 46px !important; border-radius: 0.75rem !important; border: 1px solid #d1d5db !important;
@@ -119,7 +121,7 @@
                         <span>📑</span> Salin Kelas
                     </button>
                     <button onclick="bukaModalExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1">
-                        <span>📊</span> Excel
+                        <span>🖨️</span> Cetak / Unduh
                     </button>
                     <div class="h-6 w-px bg-gray-300 hidden md:block mx-1"></div>
                     <button onclick="hapusJadwalPerKelas()" class="bg-red-400 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1" title="Hapus seluruh jadwal dari kelas yang sedang difilter">
@@ -152,9 +154,9 @@
     </div>
 
     <div id="modalExcel" class="fixed inset-0 bg-black bg-opacity-50 hidden flex justify-center items-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up">
-            <div class="bg-emerald-600 p-4 flex justify-between items-center text-white">
-                <h3 class="font-bold text-lg flex items-center gap-2"><span>📊</span> Pengaturan Cetak Excel</h3>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-y-auto max-h-[90vh] animate-fade-in-up">
+            <div class="bg-emerald-600 p-4 flex justify-between items-center text-white sticky top-0">
+                <h3 class="font-bold text-lg flex items-center gap-2"><span>🖨️</span> Pengaturan Cetak & Unduh</h3>
                 <button onclick="tutupModalExcel()" class="text-white hover:text-gray-200 font-bold text-xl">&times;</button>
             </div>
             <div class="p-6 space-y-4 text-sm">
@@ -191,10 +193,13 @@
                     <input type="text" id="exTanggal" placeholder="Contoh: Makassar, 27 Februari 2026" class="w-full p-2 border rounded-lg">
                 </div>
             </div>
-            <div class="bg-gray-50 p-4 border-t flex justify-end gap-3">
-                <button onclick="tutupModalExcel()" class="px-4 py-2 text-gray-600 bg-gray-200 hover:bg-gray-300 rounded-lg font-bold">Batal</button>
-                <button onclick="prosesDownloadExcel()" class="px-4 py-2 text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg font-bold flex items-center gap-2">
-                    <span>⬇️</span> Download File .xls
+            <div class="bg-gray-50 p-4 border-t flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0">
+                <button onclick="tutupModalExcel()" class="px-4 py-2 text-gray-600 bg-gray-200 hover:bg-gray-300 rounded-lg font-bold w-full sm:w-auto">Batal</button>
+                <button onclick="prosesDownloadPDF()" class="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg font-bold flex items-center justify-center gap-2 w-full sm:w-auto shadow">
+                    <span>📄</span> PDF
+                </button>
+                <button onclick="prosesDownloadExcel()" class="px-4 py-2 text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg font-bold flex items-center justify-center gap-2 w-full sm:w-auto shadow">
+                    <span>📊</span> Excel
                 </button>
             </div>
         </div>
@@ -280,17 +285,14 @@
 
         let semuaJadwal = [];
 
-        // Inisialisasi Select2
         $(document).ready(function() {
             $('.searchable').select2();
             $('#filterKelasTable').on('change', function() { window.renderTabel(); });
         });
 
-        // --- MENGAMBIL DATA MASTER DARI KELOLA DATA ---
         function muatDataMaster() {
             if (!db) return;
             
-            // MASTER KELAS
             onSnapshot(collection(db, "master_kelas"), (snapshot) => {
                 const selKelas = document.getElementById('inputKelas');
                 const filterKelas = document.getElementById('filterKelasTable');
@@ -315,14 +317,12 @@
                 $('#inputKelas').trigger('change'); $('#filterKelasTable').trigger('change');
             });
 
-            // MASTER WAKTU
             onSnapshot(collection(db, "master_waktu"), (snapshot) => {
                 const sel = document.getElementById('inputWaktu');
                 sel.innerHTML = '<option value="">-- Pilih Waktu --</option>';
                 let arr = []; 
                 snapshot.forEach(d => arr.push(d.data().waktu || d.data().nama));
                 
-                // Sorting Waktu
                 arr.sort((a, b) => {
                     let m1 = (a||"").match(/\d+/g); let m2 = (b||"").match(/\d+/g);
                     let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
@@ -335,7 +335,6 @@
                 $('#inputWaktu').trigger('change');
             });
 
-            // MASTER MAPEL & GURU
             onSnapshot(collection(db, "master_mapel"), (snapshot) => {
                 const sel = document.getElementById('inputMapel');
                 sel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
@@ -362,7 +361,6 @@
         }
         muatDataMaster();
 
-        // --- MENGAMBIL & RENDER JADWAL ---
         function muatJadwal() {
             if (!db) {
                 document.getElementById('tabelJadwal').innerHTML = `<tr><td colspan="5" class="text-center py-6 text-red-500 font-bold">⚠️ Gagal terhubung ke Database. Periksa file firebase-config.js Anda.</td></tr>`;
@@ -390,7 +388,6 @@
             data.sort((a, b) => {
                 if (urutanHari[a.hari] !== urutanHari[b.hari]) return urutanHari[a.hari] - urutanHari[b.hari];
                 
-                // Sort Waktu berdasarkan angka jam
                 let m1 = (a.waktu||"").match(/\d+/g); let m2 = (b.waktu||"").match(/\d+/g);
                 let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
                 let val2 = m2 ? parseInt(m2[0])*60 + (m2[1] ? parseInt(m2[1]) : 0) : 9999;
@@ -433,7 +430,6 @@
             });
         };
 
-        // --- ANTI-BENTROK & SIMPAN ---
         window.simpanJadwal = async function(e) {
             e.preventDefault();
             if (!db) return alert("❌ Koneksi database tidak tersedia. Periksa firebase-config.js Anda.");
@@ -450,14 +446,12 @@
                 guru: document.getElementById('inputGuru').value
             };
 
-            // Validasi Bentrok Kelas
             const cekBentrokKelas = semuaJadwal.find(j => j.hari === dataBaru.hari && j.waktu === dataBaru.waktu && j.kelas === dataBaru.kelas && j.id !== idEdit);
             if (cekBentrokKelas) {
                 alert(`❌ BENTROK KELAS!\n\nKelas ${dataBaru.kelas} sudah ada pelajaran [${cekBentrokKelas.mapel}] di Hari ${dataBaru.hari} Jam ${dataBaru.waktu}.`);
                 btnSimpan.innerHTML = "💾 Simpan Jadwal"; btnSimpan.disabled = false; return;
             }
 
-            // Validasi Bentrok Guru (Hanya diperiksa jika nama guru diisi)
             if (dataBaru.guru) {
                 const cekBentrokGuru = semuaJadwal.find(j => j.hari === dataBaru.hari && j.waktu === dataBaru.waktu && j.guru === dataBaru.guru && j.id !== idEdit);
                 if (cekBentrokGuru) {
@@ -683,10 +677,10 @@
         window.bukaModalExcel = function() { document.getElementById('modalExcel').classList.remove('hidden'); }
         window.tutupModalExcel = function() { document.getElementById('modalExcel').classList.add('hidden'); }
         
-        window.prosesDownloadExcel = function() {
-            const filterKelas = document.getElementById('filterKelasTable').value;
+        // --- FUNGSI PEMBUAT TABEL HTML (Dipakai oleh Excel & PDF) ---
+        function buatTabelCetak(filterKelas) {
             let data = filterKelas === "Semua" ? semuaJadwal : semuaJadwal.filter(j => j.kelas === filterKelas);
-            if(data.length === 0) return alert("Data kosong, tidak ada yang bisa diunduh.");
+            if(data.length === 0) return null;
 
             const kop1 = document.getElementById('exKop1').value;
             const kop2 = document.getElementById('exKop2').value;
@@ -793,16 +787,53 @@
             </body>
             </html>
             `;
+            return tabelHTML;
+        }
 
-            let blob = new Blob([tabelHTML], { type: 'application/vnd.ms-excel' });
+        // --- FUNGSI EXCEL (Mendukung HP) ---
+        window.prosesDownloadExcel = function() {
+            const filterKelas = document.getElementById('filterKelasTable').value;
+            const html = buatTabelCetak(filterKelas);
+            if(!html) return alert("Data kosong, tidak ada yang bisa diunduh.");
+
+            const dataUri = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent(html);
             let link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `Jadwal_Pelajaran_${filterKelas}.xls`;
-            document.body.appendChild(link);
+            link.href = dataUri;
+            link.download = `Jadwal_${filterKelas}.xls`;
+            document.body.appendChild(link); // Penting untuk HP
             link.click();
-            document.body.removeChild(link);
+            setTimeout(() => document.body.removeChild(link), 100);
             
             tutupModalExcel();
+        };
+
+        // --- FUNGSI PDF (BARU) ---
+        window.prosesDownloadPDF = function() {
+            const filterKelas = document.getElementById('filterKelasTable').value;
+            const html = buatTabelCetak(filterKelas);
+            if(!html) return alert("Data kosong, tidak ada yang bisa diunduh.");
+
+            // Ekstrak hanya isi tag <table> untuk html2pdf agar formatnya rapi
+            const tableContent = html.substring(html.indexOf('<table'), html.indexOf('</table>') + 8);
+            
+            // Bungkus dalam div dengan style khusus PDF
+            const pdfContainer = document.createElement('div');
+            pdfContainer.innerHTML = tableContent;
+            pdfContainer.style.padding = '20px';
+            pdfContainer.style.backgroundColor = 'white';
+            
+            const opsi = {
+                margin:       0.3,
+                filename:     `Jadwal_${filterKelas}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+            };
+
+            // Menggunakan library html2pdf
+            html2pdf().set(opsi).from(pdfContainer).save().then(() => {
+                tutupModalExcel();
+            });
         };
     </script>
 
@@ -811,12 +842,10 @@
         import { app } from "./firebase-config.js"; 
 
         const auth = getAuth(app);
-        let sedangLogout = false; // Tanda agar satpam diam saat proses logout
+        let sedangLogout = false; 
 
-        // Satpam memeriksa login
         onAuthStateChanged(auth, (user) => {
             if (!user && !sedangLogout) { 
-                // Hanya tendang jika tidak login DAN tidak sedang proses logout
                 alert("Akses Ditolak! Anda harus login sebagai Admin.");
                 window.location.replace("index.html");
             } else if (user) {
@@ -825,13 +854,12 @@
             }
         });
 
-        // Proses tombol keluar
         const btnKeluar = document.getElementById("btnKeluar");
         if (btnKeluar) {
             btnKeluar.addEventListener("click", () => {
                 const konfirmasi = confirm("Apakah Anda yakin ingin keluar dari halaman Admin?");
                 if (konfirmasi) {
-                    sedangLogout = true; // Kasih tahu satpam: "Saya mau keluar sah, jangan dilarang!"
+                    sedangLogout = true; 
                     signOut(auth).then(() => {
                         window.location.replace("index.html");
                     }).catch((error) => {
