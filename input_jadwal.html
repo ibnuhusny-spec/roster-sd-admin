@@ -844,5 +844,23 @@
         };
 
     </script>
+<script type="module">
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { app } from "./firebase-config.js"; // Sesuaikan dengan path file config Anda
+
+  const auth = getAuth(app);
+
+  // Fungsi ini memantau status login
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // Jika tidak ada user yang login, tendang kembali ke halaman utama!
+      alert("Akses Ditolak! Anda harus login sebagai Admin.");
+      window.location.replace("index.html");
+    } else {
+      console.log("Admin terverifikasi:", user.email);
+      // Biarkan di halaman ini, admin boleh bekerja.
+    }
+  });
+</script>            
 </body>
 </html>
