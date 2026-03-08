@@ -6,18 +6,20 @@
     <title>Admin - Kelola Data Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 min-h-screen p-4 md:p-8 font-sans text-gray-800">
+<body style="display: none;" class="bg-slate-100 min-h-screen p-4 md:p-8 font-sans text-gray-800">
 
-    <!-- Tombol Kembali menggunakan fungsi JavaScript Murni -->
-    <div class="max-w-6xl mx-auto mb-6">
+    <div class="max-w-6xl mx-auto mb-6 flex justify-between items-center">
         <button onclick="kembaliKeJadwal()" class="inline-block bg-white text-indigo-700 hover:bg-indigo-50 font-bold py-2 px-5 rounded-lg transition duration-200 shadow shadow-indigo-200 cursor-pointer text-center flex items-center gap-2">
             <span>⬅️</span> Kembali ke Input Jadwal
+        </button>
+        
+        <button id="btnKeluar" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-5 rounded-lg transition duration-200 shadow shadow-red-200 cursor-pointer flex items-center gap-2">
+            🚪 Keluar
         </button>
     </div>
 
     <div class="max-w-6xl mx-auto space-y-8">
         
-        <!-- PENGATURAN SEKOLAH -->
         <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
             <h2 class="text-2xl font-bold text-indigo-700 mb-4 border-b pb-2">🏢 Pengaturan Sekolah</h2>
             <div class="flex flex-col sm:flex-row gap-4 items-end">
@@ -34,7 +36,6 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
-            <!-- KELOLA WAKTU -->
             <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
                 <h2 class="text-xl font-bold text-orange-700 mb-4 border-b pb-2">⏰ Master Waktu</h2>
                 <div class="flex flex-col gap-2 mb-4">
@@ -44,7 +45,6 @@
                 <ul id="listWaktu" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
             </div>
 
-            <!-- KELOLA KELAS -->
             <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
                 <h2 class="text-xl font-bold text-green-700 mb-4 border-b pb-2">🏫 Master Kelas</h2>
                 <div class="flex gap-2 mb-4">
@@ -54,7 +54,6 @@
                 <ul id="listKelas" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
             </div>
 
-            <!-- KELOLA GURU -->
             <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
                 <h2 class="text-xl font-bold text-blue-700 mb-4 border-b pb-2">👨‍🏫 Master Guru</h2>
                 <div class="flex gap-2 mb-4">
@@ -64,7 +63,6 @@
                 <ul id="listGuru" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
             </div>
 
-            <!-- KELOLA MAPEL -->
             <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
                 <h2 class="text-xl font-bold text-purple-700 mb-4 border-b pb-2">📚 Master Mapel</h2>
                 <div class="flex gap-2 mb-4">
@@ -77,7 +75,6 @@
         </div>
     </div>
 
-    <!-- Script Navigasi -->
     <script>
         function kembaliKeJadwal() {
             window.location.href = "input_jadwal.html";
@@ -88,9 +85,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        // ========================================================
         // KONFIGURASI FIREBASE
-        // ========================================================
         let firebaseConfig = { 
             apiKey: "API_KEY_ANDA",
             authDomain: "PROJECT_ID.firebaseapp.com",
@@ -146,10 +141,8 @@
                     dataArr.push({ id: docSnap.id, nama: docSnap.data().nama });
                 });
 
-                // PROSES PENGURUTAN ABJAD (A-Z)
                 dataArr.sort((a, b) => (a.nama || "").localeCompare(b.nama || ""));
 
-                // Tampilkan data yang sudah diurutkan
                 dataArr.forEach(data => {
                     ul.insertAdjacentHTML('beforeend', `
                         <li class="flex justify-between items-center bg-gray-50 p-2 border rounded shadow-sm text-sm hover:bg-gray-100 transition">
@@ -211,7 +204,6 @@
                     return 999999;
                 }
 
-                // Proses pengurutan jam
                 arr.sort((a, b) => {
                     const menitA = getMenit(a.waktu || a.nama);
                     const menitB = getMenit(b.waktu || b.nama);
@@ -246,23 +238,38 @@
             }
         };
     </script>
- <script type="module">
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { app } from "./firebase-config.js"; // Sesuaikan dengan path file config Anda
 
-  const auth = getAuth(app);
+    <script type="module">
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { app } from "./firebase-config.js"; 
 
-  // Fungsi ini memantau status login
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      // Jika tidak ada user yang login, tendang kembali ke halaman utama!
-      alert("Akses Ditolak! Anda harus login sebagai Admin.");
-      window.location.replace("index.html");
-    } else {
-      console.log("Admin terverifikasi:", user.email);
-      // Biarkan di halaman ini, admin boleh bekerja.
-    }
-  });
-</script>   
+        const auth = getAuth(app);
+
+        // Satpam memeriksa login
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                alert("Akses Ditolak! Anda harus login sebagai Admin.");
+                window.location.replace("index.html");
+            } else {
+                console.log("Admin terverifikasi:", user.email);
+                document.body.style.display = "block"; // Munculkan layar jika admin
+            }
+        });
+
+        // Proses tombol keluar
+        const btnKeluar = document.getElementById("btnKeluar");
+        if (btnKeluar) {
+            btnKeluar.addEventListener("click", () => {
+                const konfirmasi = confirm("Apakah Anda yakin ingin keluar dari halaman Admin?");
+                if (konfirmasi) {
+                    signOut(auth).then(() => {
+                        window.location.replace("index.html");
+                    }).catch((error) => {
+                        console.error("Gagal logout:", error);
+                    });
+                }
+            });
+        }
+    </script>    
 </body>
 </html>
