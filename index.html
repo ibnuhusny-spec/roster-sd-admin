@@ -18,7 +18,6 @@
 </head>
 <body class="bg-gray-50 min-h-screen font-sans">
 
-    <!-- Container Splash Screen -->
     <div class="flex flex-col items-center justify-center min-h-screen relative p-6 bg-gradient-to-b from-blue-50 to-blue-200">
         
         <h1 class="text-4xl md:text-5xl font-extrabold text-blue-900 mb-2 tracking-wide text-center drop-shadow-sm flex flex-col md:flex-row items-center justify-center gap-3">
@@ -30,7 +29,6 @@
             Memuat Data...
         </h2>
         
-        <!-- Logo tanpa lingkaran putih dan ditambahkan efek bernafas -->
         <div class="w-40 h-40 md:w-48 md:h-48 flex items-center justify-center mb-10 animate-breathe">
             <img id="imgLogo" src="logo1.png" alt="Logo Sekolah" class="max-w-full max-h-full object-contain drop-shadow-2xl">
         </div>
@@ -40,8 +38,8 @@
         </a>
 
         <a href="login.html" class="mt-8 text-sm text-blue-700 hover:text-blue-900 font-semibold hover:underline cursor-pointer">
-    🔒 Masuk sebagai Admin
-</a>
+            🔒 Masuk sebagai Admin
+        </a>
         
         <div class="absolute bottom-6 w-full text-center">
             <p class="text-xs text-gray-500 font-medium mb-1">Dikembangkan dengan ❤️ oleh:</p>
@@ -49,34 +47,10 @@
         </div>
     </div>
 
-    <!-- MODAL PASSWORD ADMIN -->
-    <div id="modalPassword" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-sm transform scale-100 transition-transform">
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 mb-4 text-2xl">🔒</div>
-                <h3 class="text-xl font-bold text-gray-800">Login Admin</h3>
-                <p class="text-sm text-gray-500 mt-1">Masukkan password untuk mengelola jadwal.</p>
-            </div>
-            
-            <div class="mb-4">
-                <input type="password" id="inputPassword" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-center tracking-widest text-lg" placeholder="••••••••">
-                <p id="errorPassword" class="text-red-500 text-sm mt-2 hidden text-center font-medium bg-red-50 py-1 rounded-lg">❌ Password salah! Coba lagi.</p>
-            </div>
-            
-            <div class="flex flex-col-reverse sm:flex-row gap-3 mt-6">
-                <button onclick="tutupModalAdmin()" class="w-full px-4 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors">Batal</button>
-                <button onclick="prosesLoginAdmin()" class="w-full px-4 py-2.5 text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 rounded-xl font-semibold transition-all">Masuk</button>
-            </div>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        // ========================================================
-        // KONFIGURASI FIREBASE DENGAN FALLBACK
-        // ========================================================
         let firebaseConfig = {
             apiKey: "API_KEY_ANDA",
             authDomain: "PROJECT_ID.firebaseapp.com",
@@ -115,37 +89,6 @@
         }
 
         muatSplashScreen();
-
-        // Logika Modal
-        const modal = document.getElementById('modalPassword');
-        const inputPass = document.getElementById('inputPassword');
-        const errorText = document.getElementById('errorPassword');
-
-        window.bukaModalAdmin = function(e) {
-            e.preventDefault();
-            modal.classList.remove('hidden');
-            inputPass.value = '';
-            errorText.classList.add('hidden');
-            setTimeout(() => inputPass.focus(), 100);
-        };
-
-        window.tutupModalAdmin = function() { modal.classList.add('hidden'); };
-
-        window.prosesLoginAdmin = function() {
-            if (inputPass.value === "QA-Roster77") {
-                window.location.href = "input_jadwal.html"; 
-            } else {
-                errorText.classList.remove('hidden');
-                inputPass.focus();
-            }
-        };
-
-        inputPass.addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                window.prosesLoginAdmin();
-            }
-        });
     </script>
 </body>
 </html>
