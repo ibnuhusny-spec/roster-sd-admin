@@ -401,19 +401,19 @@
         };
 
         // --- FUNGSI DOWNLOAD EXCEL MENGGUNAKAN EXCELJS (SANGAT COCOK UNTUK WARNA WARNI) ---
+        // ========================================================
+        // FUNGSI EXCEL (SUDAH DIPERBAIKI UNTUK HP)
+        // ========================================================
         window.prosesExportExcel = async function() {
             const form = document.getElementById('formExport');
-            // Cek jika ada isian wajib yang kosong
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
+            if (!form.checkValidity()) { form.reportValidity(); return; }
 
             const btnExport = document.getElementById('btnProsesExport');
             const teksAwalBtn = btnExport.innerHTML;
             btnExport.innerHTML = "⏳ Sedang Menyiapkan Excel..."; btnExport.disabled = true;
 
             try {
+                // ... (Mengambil data form seperti biasa) ...
                 const namaSekolahExport = document.getElementById('exNamaSekolah').value.toUpperCase();
                 const tahun = document.getElementById('exTahun').value.toUpperCase();
                 const tempatTgl = document.getElementById('exTempatTgl').value;
@@ -443,8 +443,7 @@
                     let m1 = (a.waktu||"").match(/\d+/g); let m2 = (b.waktu||"").match(/\d+/g);
                     let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
                     let val2 = m2 ? parseInt(m2[0])*60 + (m2[1] ? parseInt(m2[1]) : 0) : 9999;
-                    if(val1 !== val2) return val1 - val2;
-                    return (a.waktu || "").localeCompare(b.waktu || "");
+                    return val1 - val2;
                 });
 
                 const wb = new ExcelJS.Workbook();
@@ -463,19 +462,13 @@
                 ws.mergeCells('A3:E3'); ws.getCell('A3').value = "TAHUN PELAJARAN " + tahun; ws.getCell('A3').font = { bold: true, size: 11 }; ws.getCell('A3').alignment = centerAlign;
 
                 let startRow = 4;
-                if (kelasAktif !== "Semua") {
-                    ws.mergeCells(`A${startRow}:E${startRow}`); ws.getCell(`A${startRow}`).value = "KELAS: " + kelasAktif; ws.getCell(`A${startRow}`).font = { bold: true, size: 11 }; ws.getCell(`A${startRow}`).alignment = centerAlign; startRow++;
-                }
-                if (guruAktif !== "Semua") {
-                    ws.mergeCells(`A${startRow}:E${startRow}`); ws.getCell(`A${startRow}`).value = "GURU: " + guruAktif; ws.getCell(`A${startRow}`).font = { bold: true, size: 11 }; ws.getCell(`A${startRow}`).alignment = centerAlign; startRow++;
-                }
+                if (kelasAktif !== "Semua") { ws.mergeCells(`A${startRow}:E${startRow}`); ws.getCell(`A${startRow}`).value = "KELAS: " + kelasAktif; ws.getCell(`A${startRow}`).font = { bold: true, size: 11 }; ws.getCell(`A${startRow}`).alignment = centerAlign; startRow++; }
+                if (guruAktif !== "Semua") { ws.mergeCells(`A${startRow}:E${startRow}`); ws.getCell(`A${startRow}`).value = "GURU: " + guruAktif; ws.getCell(`A${startRow}`).font = { bold: true, size: 11 }; ws.getCell(`A${startRow}`).alignment = centerAlign; startRow++; }
                 if (kelasAktif === "Semua" && guruAktif === "Semua") startRow++; 
 
                 const headers = ["Hari", "Waktu", "Kelas", "Mata Pelajaran", "Guru Pengajar"];
                 const headerRow = ws.getRow(startRow);
-                headers.forEach((h, i) => {
-                    const cell = headerRow.getCell(i + 1); cell.value = h; cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } }; cell.alignment = centerAlign; cell.border = borderAll;
-                });
+                headers.forEach((h, i) => { const cell = headerRow.getCell(i + 1); cell.value = h; cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } }; cell.alignment = centerAlign; cell.border = borderAll; });
                 startRow++;
 
                 const warnaKontras = [ 'FFFFFF99', 'FF99FF99', 'FF99FFFF', 'FF99CCFF', 'FFCC99FF', 'FFFF99CC', 'FFFF9999', 'FFFFCC99', 'FFCCFF99', 'FF66FFCC', 'FFFF66FF', 'FFFFD700', 'FFB3B3CC', 'FFFFB366', 'FF99FFCC' ];
@@ -511,9 +504,20 @@
                 const buffer = await wb.xlsx.writeBuffer();
                 const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
                 const url = window.URL.createObjectURL(blob);
+                
+                // CARA BARU UNTUK HP: Beri delay pada penghapusan link
                 const a = document.createElement("a");
-                a.href = url; a.download = `Jadwal_${sheetName}_${tahun.replace('/', '-')}.xlsx`;
-                document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(url);
+                a.style.display = "none";
+                a.href = url; 
+                a.download = `Jadwal_${sheetName}_${tahun.replace('/', '-')}.xlsx`;
+                document.body.appendChild(a); 
+                a.click(); 
+                
+                setTimeout(() => {
+                    document.body.removeChild(a); 
+                    window.URL.revokeObjectURL(url);
+                }, 2000); // Tahan 2 detik untuk HP
+
                 tutupModal('modalExportExcel');
             } catch (error) {
                 console.error("Gagal export excel:", error); alert("❌ Terjadi kesalahan saat membuat file Excel.");
@@ -521,13 +525,12 @@
             btnExport.innerHTML = `<span>📊</span> Download Excel`; btnExport.disabled = false;
         };
 
-        // --- FUNGSI DOWNLOAD PDF (BARU) ---
+        // ========================================================
+        // FUNGSI PDF (SUDAH DIPERBAIKI UNTUK HP)
+        // ========================================================
         window.prosesDownloadPDF = function() {
             const form = document.getElementById('formExport');
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
+            if (!form.checkValidity()) { form.reportValidity(); return; }
 
             const kelasAktif = document.getElementById('filterKelas').value;
             const hariAktif = document.getElementById('filterHari').value;
@@ -547,8 +550,7 @@
                 let m1 = (a.waktu||"").match(/\d+/g); let m2 = (b.waktu||"").match(/\d+/g);
                 let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
                 let val2 = m2 ? parseInt(m2[0])*60 + (m2[1] ? parseInt(m2[1]) : 0) : 9999;
-                if(val1 !== val2) return val1 - val2;
-                return (a.waktu || "").localeCompare(b.waktu || "");
+                return val1 - val2;
             });
 
             const namaSekolahExport = document.getElementById('exNamaSekolah').value.toUpperCase();
@@ -559,25 +561,14 @@
             const wali = document.getElementById('exNamaWali').value || "....................................";
             const nipWali = document.getElementById('exNipWali').value || "..................";
 
-            // Simpan inputan untuk mempermudah ekspor berikutnya
-            localStorage.setItem('savedDataExportExcelPublic', JSON.stringify({
-                sekolah: namaSekolahExport, tahun: tahun,
-                tempat: tempatTgl, kepsek: kepsek, nipKepsek: nipKepsek
-            }));
-
-            // Warna Pastel untuk PDF
             const warnaCerah = [ "#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", "#BAE1FF", "#E8BAFF", "#FFB3E6", "#C4FAF8", "#E2F0CB", "#FFC4C4", "#FFDEAA" ];
             let mapWarnaGuru = {}; let indexWarna = 0;
-            
-            dataExport.forEach(j => {
-                if (j.guru && !mapWarnaGuru[j.guru]) { mapWarnaGuru[j.guru] = warnaCerah[indexWarna % warnaCerah.length]; indexWarna++; }
-            });
+            dataExport.forEach(j => { if (j.guru && !mapWarnaGuru[j.guru]) { mapWarnaGuru[j.guru] = warnaCerah[indexWarna % warnaCerah.length]; indexWarna++; } });
 
             let infoTambahan = "";
             if(kelasAktif !== "Semua") infoTambahan += `KELAS: ${kelasAktif}<br>`;
             if(guruAktif !== "Semua") infoTambahan += `GURU: ${guruAktif}<br>`;
 
-            // Desain HTML khusus untuk dikonversi menjadi PDF
             let tabelHTML = `
             <div style="padding: 20px; font-family: Arial, sans-serif; background-color: white; color: black;">
                 <div style="text-align: center; margin-bottom: 20px;">
@@ -586,7 +577,6 @@
                     <h3 style="margin: 0; font-size: 16px; font-weight: normal;">TAHUN PELAJARAN ${tahun}</h3>
                     <div style="margin-top: 10px; font-weight: bold; font-size: 14px;">${infoTambahan}</div>
                 </div>
-                
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 12px;">
                     <thead>
                         <tr>
@@ -601,8 +591,7 @@
                     <tbody>
             `;
 
-            let no = 1;
-            let hariSaatIni = ""; 
+            let no = 1; let hariSaatIni = ""; 
             dataExport.forEach(j => {
                 if (j.hari !== hariSaatIni) { no = 1; hariSaatIni = j.hari; }
                 let bgWarna = j.guru ? mapWarnaGuru[j.guru] : "#ffffff";
@@ -619,28 +608,18 @@
             });
 
             const labelTtdKanan = (guruAktif !== "Semua") ? "Guru Pengajar," : "Wali Kelas,";
-
             tabelHTML += `
                     </tbody>
                 </table>
                 <table style="width: 100%; font-size: 14px; margin-top: 30px; border: none;">
-                    <tr>
-                        <td style="text-align: center; width: 50%;">Mengetahui,</td>
-                        <td style="text-align: center; width: 50%;">${tempatTgl}</td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: center;">Kepala Sekolah</td>
-                        <td style="text-align: center;">${labelTtdKanan}</td>
-                    </tr>
+                    <tr><td style="text-align: center; width: 50%;">Mengetahui,</td><td style="text-align: center; width: 50%;">${tempatTgl}</td></tr>
+                    <tr><td style="text-align: center;">Kepala Sekolah</td><td style="text-align: center;">${labelTtdKanan}</td></tr>
                     <tr><td colspan="2" style="height: 70px;"></td></tr>
                     <tr>
                         <td style="text-align: center; font-weight: bold; text-decoration: underline;">${kepsek}</td>
                         <td style="text-align: center; font-weight: bold; text-decoration: underline;">${wali}</td>
                     </tr>
-                    <tr>
-                        <td style="text-align: center;">NIP. ${nipKepsek}</td>
-                        <td style="text-align: center;">NIP. ${nipWali}</td>
-                    </tr>
+                    <tr><td style="text-align: center;">NIP. ${nipKepsek}</td><td style="text-align: center;">NIP. ${nipWali}</td></tr>
                 </table>
             </div>
             `;
@@ -661,8 +640,21 @@
                 jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
             };
 
-            // Menggunakan library html2pdf
-            html2pdf().set(opsi).from(element).save().then(() => {
+            // CARA BARU UNTUK HP: Ambil alih proses Download Blob
+            html2pdf().set(opsi).from(element).output('blob').then(function(pdfBlob) {
+                const url = window.URL.createObjectURL(pdfBlob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = namaFilePDF;
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 2000); // Tahan 2 detik untuk HP
+
                 tutupModal('modalExportExcel');
             });
         };
