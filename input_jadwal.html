@@ -707,92 +707,86 @@
         window.tutupModalExcel = function() { document.getElementById('modalExcel').classList.add('hidden'); }
 
 // --- FUNGSI IMPORT EXCEL ---
-window.prosesImportExcel = function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+        window.prosesImportExcel = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = async function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, {type: 'array'});
-        
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, {raw: false});
-        
-        if(jsonData.length === 0) {
-            alert("❌ File Excel kosong atau format tidak sesuai!");
-            return;
-        }
-
-        if(!confirm(`Ditemukan ${jsonData.length} baris jadwal. Mulai proses import ke database?`)) {
-            document.getElementById('fileImportExcel').value = "";
-            return;
-        }
-
-        let berhasil = 0;
-        let gagal = 0;
-
-        for(const baris of jsonData) {
-            try {
-                const dataBaru = {
-                    hari: baris.Hari || "",
-                    waktu: baris.Waktu || "",
-                    kelas: baris.Kelas || "",
-                    mapel: baris.Mapel || "",
-                    guru: baris.Guru || ""
-                };
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
                 
-                if(!dataBaru.hari || !dataBaru.waktu || !dataBaru.kelas) continue;
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, {raw: false});
+                
+                if(jsonData.length === 0) {
+                    alert("❌ File Excel kosong atau format tidak sesuai!");
+                    return;
+                }
 
-                await addDoc(collection(db, "jadwal_pelajaran"), dataBaru);
-                berhasil++;
-            } catch (error) {
-                console.error("Gagal import baris:", baris, error);
-                gagal++;
-            }
-        }
+                if(!confirm(`Ditemukan ${jsonData.length} baris jadwal. Mulai proses import ke database?`)) {
+                    document.getElementById('fileImportExcel').value = "";
+                    return;
+                }
 
-        alert(`✅ IMPORT SELESAI!\nBerhasil: ${berhasil} jadwal\nGagal/Dilewati: ${gagal} jadwal`);
-        document.getElementById('fileImportExcel').value = ""; 
-    };
-    reader.readAsArrayBuffer(file);
-};
+                let berhasil = 0;
+                let gagal = 0;
+
+                for(const baris of jsonData) {
+                    try {
+                        const dataBaru = {
+                            hari: baris.Hari || "",
+                            waktu: baris.Waktu || "",
+                            kelas: baris.Kelas || "",
+                            mapel: baris.Mapel || "",
+                            guru: baris.Guru || ""
+                        };
+                        
+                        if(!dataBaru.hari || !dataBaru.waktu || !dataBaru.kelas) continue;
+
+                        await addDoc(collection(db, "jadwal_pelajaran"), dataBaru);
+                        berhasil++;
+                    } catch (error) {
+                        console.error("Gagal import baris:", baris, error);
+                        gagal++;
+                    }
+                }
+
+                alert(`✅ IMPORT SELESAI!\nBerhasil: ${berhasil} jadwal\nGagal/Dilewati: ${gagal} jadwal`);
+                document.getElementById('fileImportExcel').value = ""; 
+            };
+            reader.readAsArrayBuffer(file);
+        };
+        // --- BATAS AKHIR FUNGSI IMPORT EXCEL ---
+
 
         // --- FUNGSI DOWNLOAD TEMPLATE EXCEL AUTOMATIS ---
-window.downloadTemplateExcel = function() {
-    // Membuat susunan header kolom (Harus pas besar kecil hurufnya)
-    const header = [["Hari", "Waktu", "Kelas", "Mapel", "Guru"]];
-    
-    // Memberikan 2 baris contoh data agar admin sekolah paham format pengisiannya
-    const contohData = [
-        ["Senin", "07:30 - 08:15", "Kelas 1", "Bahasa Arab", "Abu Atiqah"],
-        ["Senin", "08:15 - 09:00", "Kelas 1", "Fiqih", "Ibnu Husny"]
-    ];
-    
-    // Menggabungkan header dan contoh data menjadi satu kesatuan
-    const susunanData = header.concat(contohData);
-    
-    // Proses pembuatan file Excel menggunakan SheetJS
-    const workbook = XLSX.book_new();
-    const worksheet = XLSX.utils.aoa_to_sheet(susunanData);
-    
-    // Mengatur lebar kolom otomatis agar rapi saat dibuka
-    worksheet['!cols'] = [
-        { wch: 12 }, // Kolom Hari
-        { wch: 18 }, // Kolom Waktu
-        { wch: 12 }, // Kolom Kelas
-        { wch: 25 }, // Kolom Mapel
-        { wch: 30 }  // Kolom Guru
-    ];
-    
-    // Masukkan worksheet ke dalam file excel dan beri nama sheet-nya
-    XLSX.book_append_sheet(workbook, worksheet, "Template Jadwal");
-    
-    // Tembak langsung download ke browser pengguna
-    XLSX.writeFile(workbook, "Template_Import_Jadwal.xlsx");
-};
+        window.downloadTemplateExcel = function() {
+            try {
+                const header = [["Hari", "Waktu", "Kelas", "Mapel", "Guru"]];
+                const contohData = [
+                    ["Senin", "07:30 - 08:15", "Kelas 1", "Bahasa Arab", "Abu Atiqah"],
+                    ["Senin", "08:15 - 09:00", "Kelas 1", "Fiqih", "Ibnu Husny"]
+                ];
+                const susunanData = header.concat(contohData);
+                
+                const workbook = XLSX.book_new();
+                const worksheet = XLSX.utils.aoa_to_sheet(susunanData);
+                
+                worksheet['!cols'] = [
+                    { wch: 12 }, { wch: 18 }, { wch: 12 }, { wch: 25 }, { wch: 30 }
+                ];
+                
+                XLSX.book_append_sheet(workbook, worksheet, "Template Jadwal");
+                XLSX.writeFile(workbook, "Template_Import_Jadwal.xlsx");
+            } catch (error) {
+                alert("❌ Gagal membuat template! Pastikan link library SheetJS sudah dipasang di bagian atas (<head>).");
+                console.error("Error Template Excel:", error);
+            }
+        };
+        // --- BATAS AKHIR FUNGSI DOWNLOAD TEMPLATE ---
         
         // --- FUNGSI PEMBUAT TABEL HTML (Dipakai oleh Excel & PDF) ---
         function buatTabelCetak(filterKelas) {
