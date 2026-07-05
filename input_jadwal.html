@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         .select2-container .select2-selection--single {
             height: 46px !important; border-radius: 0.75rem !important; border: 1px solid #d1d5db !important;
@@ -123,6 +123,10 @@
                     <button onclick="bukaModalExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1">
                         <span>🖨️</span> Cetak / Unduh
                     </button>
+                    <button onclick="document.getElementById('fileImportExcel').click()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1">
+    <span>📥</span> Import Excel
+</button>
+<input type="file" id="fileImportExcel" accept=".xlsx, .xls" class="hidden" onchange="prosesImportExcel(event)">
                     <div class="h-6 w-px bg-gray-300 hidden md:block mx-1"></div>
                     <button onclick="hapusJadwalPerKelas()" class="bg-red-400 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1" title="Hapus seluruh jadwal dari kelas yang sedang difilter">
                         <span>🧹</span> Hapus Kelas
@@ -698,6 +702,60 @@
 
         window.bukaModalExcel = function() { document.getElementById('modalExcel').classList.remove('hidden'); }
         window.tutupModalExcel = function() { document.getElementById('modalExcel').classList.add('hidden'); }
+
+// --- FUNGSI IMPORT EXCEL ---
+window.prosesImportExcel = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type: 'array'});
+        
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, {raw: false});
+        
+        if(jsonData.length === 0) {
+            alert("❌ File Excel kosong atau format tidak sesuai!");
+            return;
+        }
+
+        if(!confirm(`Ditemukan ${jsonData.length} baris jadwal. Mulai proses import ke database?`)) {
+            document.getElementById('fileImportExcel').value = "";
+            return;
+        }
+
+        let berhasil = 0;
+        let gagal = 0;
+
+        for(const baris of jsonData) {
+            try {
+                const dataBaru = {
+                    hari: baris.Hari || "",
+                    waktu: baris.Waktu || "",
+                    kelas: baris.Kelas || "",
+                    mapel: baris.Mapel || "",
+                    guru: baris.Guru || ""
+                };
+                
+                if(!dataBaru.hari || !dataBaru.waktu || !dataBaru.kelas) continue;
+
+                await addDoc(collection(db, "jadwal_pelajaran"), dataBaru);
+                berhasil++;
+            } catch (error) {
+                console.error("Gagal import baris:", baris, error);
+                gagal++;
+            }
+        }
+
+        alert(`✅ IMPORT SELESAI!\nBerhasil: ${berhasil} jadwal\nGagal/Dilewati: ${gagal} jadwal`);
+        document.getElementById('fileImportExcel').value = ""; 
+    };
+    reader.readAsArrayBuffer(file);
+};
         
         // --- FUNGSI PEMBUAT TABEL HTML (Dipakai oleh Excel & PDF) ---
         function buatTabelCetak(filterKelas) {
