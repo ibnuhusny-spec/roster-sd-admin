@@ -127,6 +127,9 @@
     <span>📥</span> Import Excel
 </button>
 <input type="file" id="fileImportExcel" accept=".xlsx, .xls" class="hidden" onchange="prosesImportExcel(event)">
+                    <button onclick="downloadTemplateExcel()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1" title="Download format Excel untuk import data">
+    <span>📄</span> Download Template Excel
+</button>
                     <div class="h-6 w-px bg-gray-300 hidden md:block mx-1"></div>
                     <button onclick="hapusJadwalPerKelas()" class="bg-red-400 hover:bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-bold shadow transition flex items-center gap-1" title="Hapus seluruh jadwal dari kelas yang sedang difilter">
                         <span>🧹</span> Hapus Kelas
@@ -755,6 +758,40 @@ window.prosesImportExcel = function(event) {
         document.getElementById('fileImportExcel').value = ""; 
     };
     reader.readAsArrayBuffer(file);
+};
+
+        // --- FUNGSI DOWNLOAD TEMPLATE EXCEL AUTOMATIS ---
+window.downloadTemplateExcel = function() {
+    // Membuat susunan header kolom (Harus pas besar kecil hurufnya)
+    const header = [["Hari", "Waktu", "Kelas", "Mapel", "Guru"]];
+    
+    // Memberikan 2 baris contoh data agar admin sekolah paham format pengisiannya
+    const contohData = [
+        ["Senin", "07:30 - 08:15", "Kelas 1", "Bahasa Arab", "Abu Atiqah"],
+        ["Senin", "08:15 - 09:00", "Kelas 1", "Fiqih", "Ibnu Husny"]
+    ];
+    
+    // Menggabungkan header dan contoh data menjadi satu kesatuan
+    const susunanData = header.concat(contohData);
+    
+    // Proses pembuatan file Excel menggunakan SheetJS
+    const workbook = XLSX.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet(susunanData);
+    
+    // Mengatur lebar kolom otomatis agar rapi saat dibuka
+    worksheet['!cols'] = [
+        { wch: 12 }, // Kolom Hari
+        { wch: 18 }, // Kolom Waktu
+        { wch: 12 }, // Kolom Kelas
+        { wch: 25 }, // Kolom Mapel
+        { wch: 30 }  // Kolom Guru
+    ];
+    
+    // Masukkan worksheet ke dalam file excel dan beri nama sheet-nya
+    XLSX.book_append_sheet(workbook, worksheet, "Template Jadwal");
+    
+    // Tembak langsung download ke browser pengguna
+    XLSX.writeFile(workbook, "Template_Import_Jadwal.xlsx");
 };
         
         // --- FUNGSI PEMBUAT TABEL HTML (Dipakai oleh Excel & PDF) ---
