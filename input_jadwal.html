@@ -525,26 +525,48 @@
 
         window.hapusJadwal = async function(id) {
             if (!db) return alert("❌ Koneksi database tidak tersedia.");
-            if(confirm("⚠️ Yakin hapus baris jadwal ini?")) await deleteDoc(doc(db, "jadwal_pelajaran", id));
+            if(confirm("⚠️ Yakin hapus baris jadwal ini?")) {
+                try {
+                    await deleteDoc(doc(db, "jadwal_pelajaran", id));
+                    // Tidak perlu alert sukses karena tabel otomatis refresh
+                } catch(e) {
+                    alert("❌ GAGAL MENGHAPUS!\nKemungkinan diblokir oleh Rules Firebase.\n\nError: " + e.message);
+                }
+            }
         };
 
         window.hapusJadwalPerKelas = async function() {
             const kelas = document.getElementById('filterKelasTable').value;
-            if (kelas === "Semua") return alert("❌ Silakan filter tabel ke SATU KELAS terlebih dahulu (dropdown di atas tabel) untuk menghapus seluruh jadwal kelas tersebut.");
+            if (kelas === "Semua") return alert("❌ CARA PAKAI: Silakan filter tabel ke SATU KELAS spesifik terlebih dahulu sebelum menghapus.");
             
             if (!confirm(`⚠️ PERINGATAN!\n\nAnda yakin ingin menghapus SELURUH jadwal untuk KELAS ${kelas}?\nData yang dihapus tidak dapat dikembalikan.`)) return;
 
             const dataHapus = semuaJadwal.filter(j => j.kelas === kelas);
             if(dataHapus.length === 0) return alert(`Tidak ada jadwal di kelas ${kelas}.`);
 
+            const btn = event.currentTarget;
+            btn.innerHTML = "⏳ Menghapus..."; btn.disabled = true;
+
             let terhapus = 0;
+            let adaError = false;
+
             for(const j of dataHapus) {
                 try {
                     await deleteDoc(doc(db, "jadwal_pelajaran", j.id));
                     terhapus++;
-                } catch(e) { console.error("Gagal hapus", e); }
+                } catch(e) { 
+                    adaError = true;
+                    console.error("Gagal hapus", e); 
+                }
             }
-            alert(`✅ Berhasil menghapus ${terhapus} jadwal di Kelas ${kelas}.`);
+
+            btn.innerHTML = "<span>🧹</span> Hapus Kelas"; btn.disabled = false;
+
+            if (adaError) {
+                alert(`❌ GAGAL MENGHAPUS BEBERAPA/SEMUA DATA!\nBerhasil: ${terhapus}\nPastikan Aturan (Rules) Firebase Anda sudah mengizinkan aksi 'delete'.`);
+            } else {
+                alert(`✅ Berhasil menghapus ${terhapus} jadwal di Kelas ${kelas}.`);
+            }
         };
 
         window.hapusSemuaJadwal = async function() {
