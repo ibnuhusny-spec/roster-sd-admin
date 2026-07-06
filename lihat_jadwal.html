@@ -252,30 +252,34 @@
             const hariDipilih = selectHari.value;
             const guruDipilih = selectGuru.value;
 
-            let opsiKelas = new Set();
-            let opsiHari = new Set();
-            let opsiGuru = new Set();
+            // Kacamata Pintar: Menggunakan Map untuk menggabungkan huruf besar & kecil
+            let opsiKelas = new Map();
+            let opsiHari = new Map();
+            let opsiGuru = new Map();
 
             semuaJadwal.forEach(j => {
-                let matchKelas = (kelasDipilih === "Semua" || j.kelas === kelasDipilih);
-                let matchHari = (hariDipilih === "Semua" || j.hari === hariDipilih);
-                let matchGuru = (guruDipilih === "Semua" || j.guru === guruDipilih);
+                let kUpper = (j.kelas || "").trim().toUpperCase();
+                let hUpper = (j.hari || "").trim().toUpperCase();
+                let gUpper = (j.guru || "").trim().toUpperCase();
 
-                if (matchHari && matchGuru && j.kelas) opsiKelas.add(j.kelas);
-                if (matchKelas && matchGuru && j.hari) opsiHari.add(j.hari);
-                if (matchKelas && matchHari && j.guru) opsiGuru.add(j.guru);
+                let matchKelas = (kelasDipilih === "Semua" || kUpper === kelasDipilih.trim().toUpperCase());
+                let matchHari = (hariDipilih === "Semua" || hUpper === hariDipilih.trim().toUpperCase());
+                let matchGuru = (guruDipilih === "Semua" || gUpper === guruDipilih.trim().toUpperCase());
+
+                if (matchHari && matchGuru && j.kelas) opsiKelas.set(kUpper, j.kelas);
+                if (matchKelas && matchGuru && j.hari) opsiHari.set(hUpper, j.hari);
+                if (matchKelas && matchHari && j.guru) opsiGuru.set(gUpper, j.guru);
             });
 
-            const updateDropdown = (tom, setOpsi, tipe, triggerAktif) => {
+            const updateDropdown = (tom, mapOpsi, tipe, triggerAktif) => {
                 if (!tom || sumberTrigger === triggerAktif) return; 
                 
                 const valSaatIni = tom.getValue();
                 tom.clearOptions();
                 tom.addOption({value: "Semua", text: "Semua " + tipe});
                 
-                let arr = Array.from(setOpsi);
+                let arr = Array.from(mapOpsi.values());
                 
-                // FIX: Pengurutan Dropdown anti huruf besar/kecil
                 if (tipe === "Hari") {
                     const urut = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
                     arr.sort((a,b) => (urut[a.toLowerCase()] || 99) - (urut[b.toLowerCase()] || 99));
@@ -285,11 +289,16 @@
 
                 arr.forEach(item => tom.addOption({value: item, text: item}));
                 
-                if (setOpsi.has(valSaatIni) || valSaatIni === "Semua") {
-                    tom.setValue(valSaatIni, true); 
-                } else {
-                    tom.setValue("Semua", true);
+                // Mencegah pilihan reset karena beda huruf
+                let nilaiCocok = "Semua";
+                if (valSaatIni !== "Semua") {
+                    for (let val of mapOpsi.values()) {
+                        if (val.toUpperCase() === valSaatIni.toUpperCase()) {
+                            nilaiCocok = val; break;
+                        }
+                    }
                 }
+                tom.setValue(nilaiCocok, true); 
             };
 
             updateDropdown(tomKelas, opsiKelas, "Kelas", 'kelas');
@@ -299,10 +308,11 @@
             const tabel = document.getElementById('tabelJadwal');
             tabel.innerHTML = '';
 
+            // Filter yang sudah kebal huruf besar/kecil
             let jadwalTerfilter = semuaJadwal.filter(j => {
-                let matchKelas = (kelasDipilih === "Semua" || j.kelas === kelasDipilih);
-                let matchHari = (hariDipilih === "Semua" || j.hari === hariDipilih);
-                let matchGuru = (guruDipilih === "Semua" || j.guru === guruDipilih);
+                let matchKelas = (kelasDipilih === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasDipilih.trim().toUpperCase());
+                let matchHari = (hariDipilih === "Semua" || (j.hari || "").trim().toUpperCase() === hariDipilih.trim().toUpperCase());
+                let matchGuru = (guruDipilih === "Semua" || (j.guru || "").trim().toUpperCase() === guruDipilih.trim().toUpperCase());
                 return matchKelas && matchHari && matchGuru;
             });
 
@@ -324,7 +334,6 @@
                 setTimeout(() => { infoJamDiv.classList.add('hidden'); }, 300);
             }
 
-            // FIX: Mesin Pengurut (Sorting) Utama
             jadwalTerfilter.sort((a, b) => {
                 let hariA = (a.hari || "").trim().toLowerCase();
                 let hariB = (b.hari || "").trim().toLowerCase();
@@ -332,7 +341,6 @@
                 
                 let nilaiHariA = urutanHariKu[hariA] || 99; 
                 let nilaiHariB = urutanHariKu[hariB] || 99;
-                
                 if (nilaiHariA !== nilaiHariB) return nilaiHariA - nilaiHariB;
                 
                 let m1 = (a.waktu||"").match(/\d+/g); let m2 = (b.waktu||"").match(/\d+/g);
@@ -352,7 +360,6 @@
                 const isEven = index % 2 === 0;
                 const rowBgClass = isEven ? 'bg-white' : 'bg-slate-50';
 
-                // FIX: Penyesuaian Warna Background Label Hari
                 let hariWarna = (j.hari || "").trim().toLowerCase();
                 let bgHari = "bg-gray-100 text-gray-700 border border-gray-200";
                 
@@ -447,10 +454,11 @@
                     tempat: tempatTgl, kepsek: kepsek, nipKepsek: nipKepsek
                 }));
                 
+                // Ganti bagian filter dataExport ini saja di dalam prosesExportExcel
                 let dataExport = semuaJadwal.filter(j => {
-                    let matchKelas = (kelasAktif === "Semua" || j.kelas === kelasAktif);
-                    let matchHari = (hariAktif === "Semua" || j.hari === hariAktif);
-                    let matchGuru = (guruAktif === "Semua" || j.guru === guruAktif);
+                    let matchKelas = (kelasAktif === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasAktif.trim().toUpperCase());
+                    let matchHari = (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase());
+                    let matchGuru = (guruAktif === "Semua" || (j.guru || "").trim().toUpperCase() === guruAktif.trim().toUpperCase());
                     return matchKelas && matchHari && matchGuru;
                 });
 
@@ -545,10 +553,11 @@
             const hariAktif = document.getElementById('filterHari').value;
             const guruAktif = document.getElementById('filterGuru').value;
 
+            // Ganti bagian filter dataExport ini saja di dalam prosesDownloadPDF
             let dataExport = semuaJadwal.filter(j => {
-                let matchKelas = (kelasAktif === "Semua" || j.kelas === kelasAktif);
-                let matchHari = (hariAktif === "Semua" || j.hari === hariAktif);
-                let matchGuru = (guruAktif === "Semua" || j.guru === guruAktif);
+                let matchKelas = (kelasAktif === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasAktif.trim().toUpperCase());
+                let matchHari = (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase());
+                let matchGuru = (guruAktif === "Semua" || (j.guru || "").trim().toUpperCase() === guruAktif.trim().toUpperCase());
                 return matchKelas && matchHari && matchGuru;
             });
 
