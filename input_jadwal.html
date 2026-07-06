@@ -737,23 +737,24 @@
                 let gagal = 0;
 
                 for(const baris of jsonData) {
-                    try {
-                        const dataBaru = {
-                            hari: baris.Hari || "",
-                            waktu: baris.Waktu || "",
-                            kelas: baris.Kelas || "",
-                            mapel: baris.Mapel || "",
-                            guru: baris.Guru || ""
-                        };
-                        
-                        if(!dataBaru.hari || !dataBaru.waktu || !dataBaru.kelas) continue;
+                    // Di dalam for(const baris of jsonData) { ... }
+                try {
+                    const dataBaru = {
+                        hari: String(baris.Hari || "").trim(),
+                        waktu: String(baris.Waktu || "").trim(),
+                        kelas: String(baris.Kelas || "").trim(),
+                        mapel: String(baris.Mapel || "").trim(),
+                        guru: String(baris.Guru || "").trim()
+                    };
+                    
+                    if(!dataBaru.hari || !dataBaru.waktu || !dataBaru.kelas) continue;
 
-                        await addDoc(collection(db, "jadwal_pelajaran"), dataBaru);
-                        berhasil++;
-                    } catch (error) {
-                        console.error("Gagal import baris:", baris, error);
-                        gagal++;
-                    }
+                    await addDoc(collection(db, "jadwal_pelajaran"), dataBaru);
+                    berhasil++;
+                } catch (error) {
+                    console.error("Gagal import baris:", baris, error);
+                    gagal++;
+                }
                 }
 
                 alert(`✅ IMPORT SELESAI!\nBerhasil: ${berhasil} jadwal\nGagal/Dilewati: ${gagal} jadwal`);
