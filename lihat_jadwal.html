@@ -454,7 +454,6 @@
                     tempat: tempatTgl, kepsek: kepsek, nipKepsek: nipKepsek
                 }));
                 
-                // Ganti bagian filter dataExport ini saja di dalam prosesExportExcel
                 let dataExport = semuaJadwal.filter(j => {
                     let matchKelas = (kelasAktif === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasAktif.trim().toUpperCase());
                     let matchHari = (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase());
@@ -463,7 +462,11 @@
                 });
 
                 dataExport.sort((a, b) => {
-                    if (urutanHari[a.hari] !== urutanHari[b.hari]) return urutanHari[a.hari] - urutanHari[b.hari];
+                    let hariA = (a.hari || "").trim().toLowerCase();
+                    let hariB = (b.hari || "").trim().toLowerCase();
+                    const urut = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
+                    let nilaiHariA = urut[hariA] || 99; let nilaiHariB = urut[hariB] || 99;
+                    if (nilaiHariA !== nilaiHariB) return nilaiHariA - nilaiHariB;
                     let m1 = (a.waktu||"").match(/\d+/g); let m2 = (b.waktu||"").match(/\d+/g);
                     let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
                     let val2 = m2 ? parseInt(m2[0])*60 + (m2[1] ? parseInt(m2[1]) : 0) : 9999;
@@ -495,8 +498,12 @@
                 headers.forEach((h, i) => { const cell = headerRow.getCell(i + 1); cell.value = h; cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } }; cell.alignment = centerAlign; cell.border = borderAll; });
                 startRow++;
 
-                const warnaKontras = [ 'FFFFFF99', 'FF99FF99', 'FF99FFFF', 'FF99CCFF', 'FFCC99FF', 'FFFF99CC', 'FFFF9999', 'FFFFCC99', 'FFCCFF99', 'FF66FFCC', 'FFFF66FF', 'FFFFD700', 'FFB3B3CC', 'FFFFB366', 'FF99FFCC' ];
-                let warnaGuruMap = {}; let indeksWarna = 0;
+                // DATABASE WARNA GURU EXCEL
+                const warnaKhususGuru = {
+                    'RADIANT FADLI, S.PD.': '#FF0000', 'BAHTIAR, S.PD.I.': '#0000FF', 'AGUNG SETIABUDI, S.PD., GR.': '#FFFF00', 'FANDY AHMAD KLANA, S.S., GR.': '#008000', 'MUHAMMAD IHSAN': '#FFA500', 'TURMISI': '#800080', 'WAHYU SAPUTRA': '#FFC0CB', 'SYAMSIR, S.PD., GR.': '#A52A2A', 'AHMAD PRISATRIALDI, S.PD., GR.': '#808080', 'SYAHRUL RAMADHAN, S.H.': '#00FFFF', 'MUH. SOFYAN ASNUR, S.PD., GR.': '#800000', 'MUHAMMAD FIKRI HAEKAL': '#000080', 'MUNADIL AMRI': '#808000', 'DRA. MARDIA HABE': '#008080', 'HJ. NUR APNI, S.PD., GR.': '#FFD700', 'HJ. AMALIA AHSAN, S.PD., GR.': '#C0C0C0', 'DEWI SYAHARA NUR, S.PD., GR.': '#E6E6FA', 'INA MULYATI SALAM, S.T.': '#FA8072', 'HUMAERAH NAFISAH, S.PD., GR.': '#FF7F50', 'FITRIANI, S.PD.': '#00FF00', 'SATRIANI': '#87CEEB', 'NUR WAHIDAH': '#FFDAB9', "MUTI'AH S.": '#F0E68C', 'LIZA FANY ADELLA, S.PD., GR.': '#99CC00', 'DARMAWATI, S.PD., GR.': '#4682B4', 'ILMAH NURTAMI, S.PD., GR.': '#FF6347', 'A. NURDIYAWANTI, S.PD., M.PD., GR.': '#DA70D6', 'RAHMAWATI BASRI, S.PD., GR.': '#2E8B57', 'SRI WAHYUNI, S.PD., GR.': '#B22222', 'IHWANA, S.PD., GR.': '#4169E1', 'SURIANTI': '#A0522D', 'HAJRIANI': '#4B0082', 'NUR RIZKY': '#DAA520', 'NUR SULAIHA, S.H.': '#5F9EA0'
+                };
+                const warnaKontrasFB = [ 'FFFFFF99', 'FF99FF99', 'FF99FFFF', 'FF99CCFF' ];
+                let mapWarnaGuruFB = {}; let indeksWarna = 0;
 
                 dataExport.forEach((j) => {
                     const row = ws.getRow(startRow);
@@ -504,9 +511,26 @@
                     for(let i=1; i<=5; i++) { const cell = row.getCell(i); cell.border = borderAll; cell.alignment = { vertical: 'middle', horizontal: 'left' }; if (i <= 3) cell.alignment = centerAlign; }
 
                     if (j.guru) {
-                        if (!warnaGuruMap[j.guru]) { warnaGuruMap[j.guru] = warnaKontras[indeksWarna % warnaKontras.length]; indeksWarna++; }
-                        const warnaBaris = warnaGuruMap[j.guru];
-                        for(let i=1; i<=5; i++) row.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: warnaBaris } };
+                        let hexWarna = warnaKhususGuru[(j.guru || "").trim().toUpperCase()];
+                        let argbBaris = "";
+                        let kecerahanWarna = 'black'; // default tulisan hitam
+
+                        if (hexWarna) {
+                            argbBaris = 'FF' + hexWarna.replace('#', '');
+                            const r = parseInt(hexWarna.substr(1, 2), 16);
+                            const g = parseInt(hexWarna.substr(3, 2), 16);
+                            const b = parseInt(hexWarna.substr(5, 2), 16);
+                            const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+                            if(yiq < 128) kecerahanWarna = 'white';
+                        } else {
+                            if (!mapWarnaGuruFB[j.guru]) { mapWarnaGuruFB[j.guru] = warnaKontrasFB[indeksWarna % warnaKontrasFB.length]; indeksWarna++; }
+                            argbBaris = mapWarnaGuruFB[j.guru];
+                        }
+
+                        for(let i=1; i<=5; i++) {
+                            row.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: argbBaris } };
+                            if(kecerahanWarna === 'white') row.getCell(i).font = { color: { argb: 'FFFFFFFF' } };
+                        }
                     } else {
                          row.getCell(5).font = { color: { argb: 'FFFF0000' }, italic: true }; row.getCell(5).value = "Belum ditentukan";
                     }
@@ -518,8 +542,7 @@
 
                 ws.mergeCells(`D${footerRow}:E${footerRow}`); ws.getCell(`D${footerRow}`).value = tempatTgl; ws.getCell(`D${footerRow}`).alignment = centerAlign; footerRow++;
                 ws.mergeCells(`A${footerRow}:B${footerRow}`); ws.getCell(`A${footerRow}`).value = "Mengetahui,"; ws.getCell(`A${footerRow}`).alignment = centerAlign;
-                ws.mergeCells(`D${footerRow}:E${footerRow}`); ws.getCell(`D${footerRow}`).value = (guruAktif !== "Semua") ? "Guru Pengajar," : "Wali Kelas,"; ws.getCell(`D${footerRow}`).alignment = centerAlign; footerRow++;
-                ws.mergeCells(`A${footerRow}:B${footerRow}`); ws.getCell(`A${footerRow}`).value = "Kepala Sekolah,"; ws.getCell(`A${footerRow}`).alignment = centerAlign; footerRow += 4; 
+                ws.mergeCells(`D${footerRow}:E${footerRow}`); ws.getCell(`D${footerRow}`).value = (guruAktif !== "Semua") ? "Guru Pengajar," : "Wali Kelas,"; ws.getCell(`D${footerRow}`).alignment = centerAlign; footerRow += 4; 
                 ws.mergeCells(`A${footerRow}:B${footerRow}`); ws.getCell(`A${footerRow}`).value = kepsek; ws.getCell(`A${footerRow}`).font = { bold: true, underline: true }; ws.getCell(`A${footerRow}`).alignment = centerAlign;
                 ws.mergeCells(`D${footerRow}:E${footerRow}`); ws.getCell(`D${footerRow}`).value = wali; ws.getCell(`D${footerRow}`).font = { bold: true, underline: true }; ws.getCell(`D${footerRow}`).alignment = centerAlign; footerRow++;
                 ws.mergeCells(`A${footerRow}:B${footerRow}`); ws.getCell(`A${footerRow}`).value = "NIP. " + nipKepsek; ws.getCell(`A${footerRow}`).alignment = centerAlign;
@@ -553,7 +576,6 @@
             const hariAktif = document.getElementById('filterHari').value;
             const guruAktif = document.getElementById('filterGuru').value;
 
-            // Ganti bagian filter dataExport ini saja di dalam prosesDownloadPDF
             let dataExport = semuaJadwal.filter(j => {
                 let matchKelas = (kelasAktif === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasAktif.trim().toUpperCase());
                 let matchHari = (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase());
@@ -564,7 +586,12 @@
             if(dataExport.length === 0) return alert("⚠️ Data kosong, tidak ada yang bisa diunduh.");
 
             dataExport.sort((a, b) => {
-                if (urutanHari[a.hari] !== urutanHari[b.hari]) return urutanHari[a.hari] - urutanHari[b.hari];
+                let hariA = (a.hari || "").trim().toLowerCase();
+                let hariB = (b.hari || "").trim().toLowerCase();
+                const urut = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
+                let nilaiHariA = urut[hariA] || 99; let nilaiHariB = urut[hariB] || 99;
+                
+                if (nilaiHariA !== nilaiHariB) return nilaiHariA - nilaiHariB;
                 let m1 = (a.waktu||"").match(/\d+/g); let m2 = (b.waktu||"").match(/\d+/g);
                 let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
                 let val2 = m2 ? parseInt(m2[0])*60 + (m2[1] ? parseInt(m2[1]) : 0) : 9999;
@@ -579,15 +606,42 @@
             const wali = document.getElementById('exNamaWali').value || "....................................";
             const nipWali = document.getElementById('exNipWali').value || "..................";
 
-            const warnaCerah = [ "#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", "#BAE1FF", "#E8BAFF", "#FFB3E6", "#C4FAF8", "#E2F0CB", "#FFC4C4", "#FFDEAA" ];
-            let mapWarnaGuru = {}; let indexWarna = 0;
-            dataExport.forEach(j => { if (j.guru && !mapWarnaGuru[j.guru]) { mapWarnaGuru[j.guru] = warnaCerah[indexWarna % warnaCerah.length]; indexWarna++; } });
+            // DATABASE WARNA GURU DARI EXCEL (Sistem Kebal Huruf Besar/Kecil)
+            const warnaKhususGuru = {
+                'RADIANT FADLI, S.PD.': '#FF0000', 'BAHTIAR, S.PD.I.': '#0000FF', 'AGUNG SETIABUDI, S.PD., GR.': '#FFFF00', 'FANDY AHMAD KLANA, S.S., GR.': '#008000', 'MUHAMMAD IHSAN': '#FFA500', 'TURMISI': '#800080', 'WAHYU SAPUTRA': '#FFC0CB', 'SYAMSIR, S.PD., GR.': '#A52A2A', 'AHMAD PRISATRIALDI, S.PD., GR.': '#808080', 'SYAHRUL RAMADHAN, S.H.': '#00FFFF', 'MUH. SOFYAN ASNUR, S.PD., GR.': '#800000', 'MUHAMMAD FIKRI HAEKAL': '#000080', 'MUNADIL AMRI': '#808000', 'DRA. MARDIA HABE': '#008080', 'HJ. NUR APNI, S.PD., GR.': '#FFD700', 'HJ. AMALIA AHSAN, S.PD., GR.': '#C0C0C0', 'DEWI SYAHARA NUR, S.PD., GR.': '#E6E6FA', 'INA MULYATI SALAM, S.T.': '#FA8072', 'HUMAERAH NAFISAH, S.PD., GR.': '#FF7F50', 'FITRIANI, S.PD.': '#00FF00', 'SATRIANI': '#87CEEB', 'NUR WAHIDAH': '#FFDAB9', "MUTI'AH S.": '#F0E68C', 'LIZA FANY ADELLA, S.PD., GR.': '#99CC00', 'DARMAWATI, S.PD., GR.': '#4682B4', 'ILMAH NURTAMI, S.PD., GR.': '#FF6347', 'A. NURDIYAWANTI, S.PD., M.PD., GR.': '#DA70D6', 'RAHMAWATI BASRI, S.PD., GR.': '#2E8B57', 'SRI WAHYUNI, S.PD., GR.': '#B22222', 'IHWANA, S.PD., GR.': '#4169E1', 'SURIANTI': '#A0522D', 'HAJRIANI': '#4B0082', 'NUR RIZKY': '#DAA520', 'NUR SULAIHA, S.H.': '#5F9EA0'
+            };
+
+            const warnaCerahFB = [ "#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", "#BAE1FF" ];
+            let mapWarnaGuruFB = {}; let indexWarna = 0;
+
+            function getWarnaPDF(namaGuru) {
+                if (!namaGuru) return "#ffffff";
+                const hex = warnaKhususGuru[namaGuru.trim().toUpperCase()];
+                if (hex) return hex;
+                // Fallback jika guru belum didaftarkan di Excel
+                if (!mapWarnaGuruFB[namaGuru]) { mapWarnaGuruFB[namaGuru] = warnaCerahFB[indexWarna % warnaCerahFB.length]; indexWarna++; }
+                return mapWarnaGuruFB[namaGuru];
+            }
+
+            function getWarnaTulisan(hexWarna) {
+                if (!hexWarna || hexWarna === '#ffffff') return 'black';
+                const r = parseInt(hexWarna.substr(1, 2), 16);
+                const g = parseInt(hexWarna.substr(3, 2), 16);
+                const b = parseInt(hexWarna.substr(5, 2), 16);
+                const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+                return (yiq >= 128) ? 'black' : 'white';
+            }
 
             let infoTambahan = "";
             if(kelasAktif !== "Semua") infoTambahan += `KELAS: ${kelasAktif}<br>`;
             if(guruAktif !== "Semua") infoTambahan += `GURU: ${guruAktif}<br>`;
 
             let tabelHTML = `
+            <style>
+                /* MENCEGAH POTONGAN TENGAH BARIS DI PDF */
+                tr { page-break-inside: avoid !important; }
+                thead { display: table-header-group; }
+            </style>
             <div style="padding: 20px; font-family: Arial, sans-serif; background-color: white; color: black;">
                 <div style="text-align: center; margin-bottom: 20px;">
                     <h2 style="margin: 0; font-size: 18px;">ROSTER MATA PELAJARAN</h2>
@@ -612,9 +666,10 @@
             let no = 1; let hariSaatIni = ""; 
             dataExport.forEach(j => {
                 if (j.hari !== hariSaatIni) { no = 1; hariSaatIni = j.hari; }
-                let bgWarna = j.guru ? mapWarnaGuru[j.guru] : "#ffffff";
+                let bgWarna = getWarnaPDF(j.guru);
+                let teksWarna = getWarnaTulisan(bgWarna);
                 tabelHTML += `
-                    <tr style="background-color: ${bgWarna};">
+                    <tr style="background-color: ${bgWarna}; color: ${teksWarna};">
                         <td style="border: 1px solid black; text-align: center; padding: 6px;">${no++}</td>
                         <td style="border: 1px solid black; text-align: center; font-weight: bold; padding: 6px;">${j.hari}</td>
                         <td style="border: 1px solid black; text-align: center; padding: 6px;">${j.waktu || j.jam_ke}</td>
@@ -629,7 +684,7 @@
             tabelHTML += `
                     </tbody>
                 </table>
-                <table style="width: 100%; font-size: 14px; margin-top: 30px; border: none;">
+                <table style="width: 100%; font-size: 14px; margin-top: 30px; border: none; color: black; page-break-inside: avoid;">
                     <tr><td style="text-align: center; width: 50%;">Mengetahui,</td><td style="text-align: center; width: 50%;">${tempatTgl}</td></tr>
                     <tr><td style="text-align: center;">Kepala Sekolah</td><td style="text-align: center;">${labelTtdKanan}</td></tr>
                     <tr><td colspan="2" style="height: 70px;"></td></tr>
@@ -653,6 +708,7 @@
             const opsi = {
                 margin:       0.4,
                 filename:     namaFilePDF,
+                pagebreak:    { avoid: 'tr' }, // PENCEGAH BARIS TERPOTONG
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },
                 jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
