@@ -274,8 +274,14 @@
                 tom.addOption({value: "Semua", text: "Semua " + tipe});
                 
                 let arr = Array.from(setOpsi);
-                if (tipe === "Hari") arr.sort((a,b) => urutanHari[a] - urutanHari[b]);
-                else arr.sort((a,b) => a.localeCompare(b));
+                
+                // FIX: Pengurutan Dropdown anti huruf besar/kecil
+                if (tipe === "Hari") {
+                    const urut = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
+                    arr.sort((a,b) => (urut[a.toLowerCase()] || 99) - (urut[b.toLowerCase()] || 99));
+                } else {
+                    arr.sort((a,b) => a.localeCompare(b));
+                }
 
                 arr.forEach(item => tom.addOption({value: item, text: item}));
                 
@@ -318,13 +324,22 @@
                 setTimeout(() => { infoJamDiv.classList.add('hidden'); }, 300);
             }
 
+            // FIX: Mesin Pengurut (Sorting) Utama
             jadwalTerfilter.sort((a, b) => {
-                if (urutanHari[a.hari] !== urutanHari[b.hari]) return urutanHari[a.hari] - urutanHari[b.hari];
+                let hariA = (a.hari || "").trim().toLowerCase();
+                let hariB = (b.hari || "").trim().toLowerCase();
+                const urutanHariKu = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
+                
+                let nilaiHariA = urutanHariKu[hariA] || 99; 
+                let nilaiHariB = urutanHariKu[hariB] || 99;
+                
+                if (nilaiHariA !== nilaiHariB) return nilaiHariA - nilaiHariB;
                 
                 let m1 = (a.waktu||"").match(/\d+/g); let m2 = (b.waktu||"").match(/\d+/g);
                 let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
                 let val2 = m2 ? parseInt(m2[0])*60 + (m2[1] ? parseInt(m2[1]) : 0) : 9999;
                 if(val1 !== val2) return val1 - val2;
+                
                 return (a.waktu || "").localeCompare(b.waktu || "");
             });
 
@@ -337,13 +352,18 @@
                 const isEven = index % 2 === 0;
                 const rowBgClass = isEven ? 'bg-white' : 'bg-slate-50';
 
+                // FIX: Penyesuaian Warna Background Label Hari
+                let hariWarna = (j.hari || "").trim().toLowerCase();
                 let bgHari = "bg-gray-100 text-gray-700 border border-gray-200";
-                if(j.hari === "Senin") bgHari = "bg-red-50 text-red-700 border border-red-200";
-                if(j.hari === "Selasa") bgHari = "bg-orange-50 text-orange-700 border border-orange-200";
-                if(j.hari === "Rabu") bgHari = "bg-amber-50 text-amber-700 border border-amber-200";
-                if(j.hari === "Kamis") bgHari = "bg-emerald-50 text-emerald-700 border border-emerald-200";
-                if(j.hari === "Jumat") bgHari = "bg-sky-50 text-sky-700 border border-sky-200";
-                if(j.hari === "Sabtu") bgHari = "bg-indigo-50 text-indigo-700 border border-indigo-200";
+                
+                if(hariWarna === "senin") bgHari = "bg-red-50 text-red-700 border border-red-200";
+                else if(hariWarna === "selasa") bgHari = "bg-orange-50 text-orange-700 border border-orange-200";
+                else if(hariWarna === "rabu") bgHari = "bg-amber-50 text-amber-700 border border-amber-200";
+                else if(hariWarna === "kamis") bgHari = "bg-emerald-50 text-emerald-700 border border-emerald-200";
+                else if(hariWarna === "jumat") bgHari = "bg-sky-50 text-sky-700 border border-sky-200";
+                else if(hariWarna === "sabtu") bgHari = "bg-indigo-50 text-indigo-700 border border-indigo-200";
+
+                let teksHariTampil = hariWarna.charAt(0).toUpperCase() + hariWarna.slice(1);
 
                 const guruCell = j.guru 
                     ? `<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span><span class="font-medium text-gray-700">${j.guru}</span></div>` 
@@ -351,7 +371,7 @@
 
                 tabel.insertAdjacentHTML('beforeend', `
                     <tr class="hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 ${rowBgClass}">
-                        <td class="py-4 px-5 align-middle"><span class="inline-block px-3 py-1 rounded-md font-bold text-xs shadow-sm ${bgHari}">${j.hari}</span></td>
+                        <td class="py-4 px-5 align-middle"><span class="inline-block px-3 py-1 rounded-md font-bold text-xs shadow-sm ${bgHari}">${teksHariTampil}</span></td>
                         <td class="py-4 px-5 align-middle font-semibold text-gray-600 whitespace-nowrap">${j.waktu || j.jam_ke}</td>
                         <td class="py-4 px-5 align-middle"><span class="bg-indigo-100 text-indigo-800 text-sm font-bold px-2.5 py-1 rounded border border-indigo-200">${j.kelas}</span></td>
                         <td class="py-4 px-5 align-middle font-medium text-gray-800">${j.mapel}</td>
@@ -704,11 +724,13 @@
             const waktuSekarangStr = `${jam}:${menit}`;
 
             const hariIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-            const hariIni = hariIndo[sekarang.getDay()];
+            const hariIni = hariIndo[sekarang.getDay()].toLowerCase();
 
             semuaJadwal.forEach(j => {
-                if (j.hari === hariIni && j.guru === guruAktif) {
-                    // Deteksi waktu dengan atau tanpa strip (-)
+                // FIX: Penyelamat Alarm dari huruf kapital Excel
+                let hariJadwal = (j.hari || "").trim().toLowerCase();
+                
+                if (hariJadwal === hariIni && j.guru === guruAktif) {
                     let jamMulai = "";
                     if(j.waktu && j.waktu.includes('-')) {
                         jamMulai = j.waktu.split('-')[0].trim();
