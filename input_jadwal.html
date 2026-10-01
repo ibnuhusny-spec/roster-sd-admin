@@ -282,7 +282,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         let firebaseConfig = null;
         try {
@@ -604,17 +604,52 @@
 
         window.hapusSemuaJadwal = async function() {
             if (!confirm(`🚨 AWAS! TINDAKAN BERBAHAYA!\n\nAnda akan menghapus SEMUA JADWAL DARI SELURUH KELAS! Apakah Anda 100% yakin?`)) return;
-            const ketik = prompt("Untuk melanjutkan, ketik kata 'HAPUS' di bawah ini (huruf besar semua):");
-            if (ketik !== "HAPUS") return alert("❌ Aksi dibatalkan. Kata kunci tidak cocok.");
-
-            let terhapus = 0;
-            for(const j of semuaJadwal) {
-                try {
-                    await deleteDoc(doc(db, "jadwal_pelajaran", j.id));
-                    terhapus++;
-                } catch(e) { console.error("Gagal hapus", e); }
+            const ketik = prompt("Untuk melanjutkan, ketik kata 'HAPUS' di bawah ini:");
+            if (!ketik || ketik.trim().toUpperCase() !== "HAPUS") {
+                return alert("❌ Aksi dibatalkan. Kata kunci tidak cocok (ketik 'HAPUS').");
             }
-            alert(`✅ SELURUH JADWAL BERHASIL DIKOSONGKAN. Total ${terhapus} baris data dihapus.`);
+
+            const modalLoading = document.getElementById('modalLoadingImport');
+            const teksStatus = document.getElementById('teksStatusImport');
+            if (modalLoading) {
+                if (teksStatus) teksStatus.innerText = "Mengambil data seluruh jadwal...";
+                modalLoading.classList.remove('hidden');
+            }
+
+            try {
+                const snapshot = await getDocs(collection(db, "jadwal_pelajaran"));
+                if (snapshot.empty) {
+                    if (modalLoading) modalLoading.classList.add('hidden');
+                    return alert("Database jadwal memang sudah kosong.");
+                }
+
+                if (teksStatus) teksStatus.innerText = `Menghapus ${snapshot.size} baris jadwal...`;
+
+                let batch = writeBatch(db);
+                let count = 0;
+                let terhapus = 0;
+
+                for (const docSnap of snapshot.docs) {
+                    batch.delete(docSnap.ref);
+                    count++;
+                    terhapus++;
+                    if (count === 400) {
+                        await batch.commit();
+                        batch = writeBatch(db);
+                        count = 0;
+                    }
+                }
+                if (count > 0) {
+                    await batch.commit();
+                }
+
+                if (modalLoading) modalLoading.classList.add('hidden');
+                alert(`✅ SELURUH JADWAL BERHASIL DIKOSONGKAN!\nTotal ${terhapus} baris data jadwal telah dibersihkan.`);
+            } catch (err) {
+                console.error("Gagal mengosongkan jadwal:", err);
+                if (modalLoading) modalLoading.classList.add('hidden');
+                alert("❌ Terjadi kendala saat menghapus jadwal: " + err.message);
+            }
         };
 
         window.resetForm = function() {
