@@ -896,7 +896,25 @@
             return false;
         }
 
-        // --- FUNGSI IMPORT EXCEL CERDAS ---
+        // --- HELPER MEMBACA KOLOM FLEKSIBEL (CASE-INSENSITIVE & VARIASI HEADER) ---
+        function getNilaiKolom(row, ...variasiNama) {
+            for (const nama of variasiNama) {
+                if (row[nama] !== undefined && row[nama] !== null && String(row[nama]).trim() !== "") {
+                    return String(row[nama]).trim();
+                }
+            }
+            const keys = Object.keys(row);
+            for (const nama of variasiNama) {
+                const target = nama.toLowerCase().replace(/[\s_\/-]/g, '');
+                const foundKey = keys.find(k => k.toLowerCase().replace(/[\s_\/-]/g, '') === target);
+                if (foundKey && row[foundKey] !== undefined && row[foundKey] !== null && String(row[foundKey]).trim() !== "") {
+                    return String(row[foundKey]).trim();
+                }
+            }
+            return "";
+        }
+
+        // --- FUNGSI IMPORT EXCEL KILAT & CERDAS (BATCH WRITE) ---
         window.prosesImportExcel = function(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -913,29 +931,50 @@
                     return;
                 }
                 
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, {raw: false});
+                // 1. Kumpulkan seluruh data dari semua sheet yang memuat jadwal
+                let daftarBaris = [];
+                for (const sheetName of workbook.SheetNames) {
+                    const ws = workbook.Sheets[sheetName];
+                    if (!ws || !ws['!ref']) continue;
+                    const sheetRows = XLSX.utils.sheet_to_json(ws, {raw: false, defval: ""});
+                    if (sheetRows && sheetRows.length > 0) {
+                        const sample = sheetRows[0];
+                        const sampleKeys = Object.keys(sample).map(k => k.toLowerCase());
+                        const isSchedule = sampleKeys.some(k => 
+                            k.includes('hari') || k.includes('waktu') || k.includes('jam') || 
+                            k.includes('mapel') || k.includes('kelas') || k.includes('guru') || k.includes('pelajaran')
+                        );
+                        if (isSchedule) {
+                            daftarBaris = daftarBaris.concat(sheetRows);
+                        }
+                    }
+                }
+
+                // Fallback jika hanya 1 sheet biasa
+                if (daftarBaris.length === 0 && workbook.SheetNames.length > 0) {
+                    daftarBaris = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {raw: false, defval: ""});
+                }
                 
-                if(jsonData.length === 0) {
-                    alert("❌ File Excel kosong atau tidak memiliki data!");
+                if (daftarBaris.length === 0) {
+                    alert("❌ File Excel kosong atau tidak ditemukan data jadwal!");
                     document.getElementById('fileImportExcel').value = "";
                     return;
                 }
 
-                if(!confirm(`Ditemukan ${jsonData.length} baris data pada Excel.\n\nSistem akan:\n1. Melewati jadwal Apel / Istirahat / Kosong secara otomatis\n2. Menyeragamkan format huruf (Title Case)\n3. Mendaftarkan Guru, Mapel, Kelas & Jam baru ke Data Master\n\nMulai proses import ke database?`)) {
+                if (!confirm(`Ditemukan ${daftarBaris.length} baris data pada Excel.\n\nSistem Kilat akan:\n1. Memproses seluruh hari & sheet dengan super cepat (Batch Write)\n2. Menangani sel gabungan (merged cells) otomatis\n3. Melewati jadwal Apel / Istirahat secara otomatis\n4. Menyeragamkan format huruf (Title Case)\n5. Mengisi Data Master & Jadwal secara serempak\n\nMulai proses import ke database?`)) {
                     document.getElementById('fileImportExcel').value = "";
                     return;
                 }
 
                 const modalLoading = document.getElementById('modalLoadingImport');
                 const teksStatus = document.getElementById('teksStatusImport');
-                if (modalLoading) modalLoading.classList.remove('hidden');
+                if (modalLoading) {
+                    if (teksStatus) teksStatus.innerText = "Membaca data master yang ada...";
+                    modalLoading.classList.remove('hidden');
+                }
 
                 try {
-                    // Ambil referensi Data Master yang sudah ada untuk pencocokan anti-duplikat
-                    if (teksStatus) teksStatus.innerText = "Membaca Data Master yang sudah ada...";
-                    
+                    // 2. Ambil referensi Data Master yang sudah ada untuk pencocokan anti-duplikat
                     const mapKelas = new Map();
                     const mapGuru = new Map();
                     const mapMapel = new Map();
@@ -965,77 +1004,77 @@
                         if (w) mapWaktu.set(formatWaktu(w).toLowerCase(), formatWaktu(w));
                     });
 
-                    let berhasil = 0;
+                    // 3. Olah data di memori secara kilat dengan pewarisan sel gabungan (merged cells)
+                    const masterWaktuBaru = new Set();
+                    const masterKelasBaru = new Map();
+                    const masterMapelBaru = new Map();
+                    const masterGuruBaru = new Map();
+                    const daftarJadwalFinal = [];
+
                     let dilewati = 0;
-                    let masterBaruGuru = 0;
-                    let masterBaruMapel = 0;
-                    let masterBaruKelas = 0;
-                    let masterBaruWaktu = 0;
+                    let lastHari = "";
+                    let lastKelas = "";
 
-                    let indeks = 0;
-                    for (const baris of jsonData) {
-                        indeks++;
-                        if (teksStatus && indeks % 10 === 0) {
-                            teksStatus.innerText = `Memproses ${indeks} dari ${jsonData.length} baris...`;
+                    for (const baris of daftarBaris) {
+                        let rawHari = getNilaiKolom(baris, "Hari", "HARI", "Hari/Tanggal", "Hari / Tanggal", "Hari_Tanggal");
+                        if (rawHari) {
+                            lastHari = formatHari(rawHari);
                         }
+                        const finalHari = rawHari ? formatHari(rawHari) : lastHari;
 
-                        const rawHari = String(baris.Hari || "").trim();
-                        const rawWaktu = String(baris.Waktu || "").trim();
-                        const rawKelas = String(baris.Kelas || "").trim();
-                        const rawMapel = String(baris.Mapel || "").trim();
-                        const rawGuru = String(baris.Guru || "").trim();
+                        let rawKelas = getNilaiKolom(baris, "Kelas", "KELAS", "Rombel", "Ruang", "Tingkat");
+                        if (rawKelas) {
+                            lastKelas = formatNamaKelas(rawKelas);
+                        }
+                        const finalKelasRaw = rawKelas ? formatNamaKelas(rawKelas) : lastKelas;
 
-                        // 1. Lewati jika data inti tidak ada
-                        if (!rawHari || !rawWaktu || !rawKelas || !rawMapel) {
+                        let rawWaktu = getNilaiKolom(baris, "Waktu", "WAKTU", "Jam", "JAM", "Pukul", "Waktu Belajar", "Jam Ke", "Jam_Ke");
+                        let rawMapel = getNilaiKolom(baris, "Mapel", "MAPEL", "Mata Pelajaran", "Mata_Pelajaran", "Pelajaran", "Bidang Studi");
+                        let rawGuru = getNilaiKolom(baris, "Guru", "GURU", "Nama Guru", "Nama_Guru", "Pengajar", "Ustadz", "Ustadzah");
+
+                        // Lewati baris jika data esensial kosong
+                        if (!finalHari || !rawWaktu || !finalKelasRaw || !rawMapel) {
                             dilewati++;
                             continue;
                         }
 
-                        // 2. Lewati Apel, Istirahat, Upacara, dll.
+                        // Lewati Apel, Istirahat, Sholat, dll.
                         if (isKegiatanNonPelajaran(rawMapel, rawGuru)) {
                             dilewati++;
                             continue;
                         }
 
-                        // 3. Normalisasi Hari & Waktu
-                        const finalHari = formatHari(rawHari);
+                        // Normalisasi Waktu
                         const finalWaktu = formatWaktu(rawWaktu);
-
-                        // Sync ke Master Waktu jika belum ada
                         const keyWaktu = finalWaktu.toLowerCase();
-                        if (!mapWaktu.has(keyWaktu)) {
-                            await addDoc(collection(db, "master_waktu"), { waktu: finalWaktu });
+                        if (!mapWaktu.has(keyWaktu) && !masterWaktuBaru.has(finalWaktu)) {
+                            masterWaktuBaru.add(finalWaktu);
                             mapWaktu.set(keyWaktu, finalWaktu);
-                            masterBaruWaktu++;
                         }
 
-                        // 4. Normalisasi & Sync Master Kelas
+                        // Normalisasi Kelas
                         let finalKelas = "";
-                        const keyKelas = rawKelas.toLowerCase();
+                        const keyKelas = finalKelasRaw.toLowerCase();
                         if (mapKelas.has(keyKelas)) {
                             finalKelas = mapKelas.get(keyKelas);
                         } else {
-                            finalKelas = formatNamaKelas(rawKelas);
-                            await addDoc(collection(db, "master_kelas"), { nama: finalKelas });
+                            finalKelas = formatNamaKelas(finalKelasRaw);
+                            masterKelasBaru.set(keyKelas, finalKelas);
                             mapKelas.set(keyKelas, finalKelas);
-                            mapKelas.set(finalKelas.toLowerCase(), finalKelas);
-                            masterBaruKelas++;
                         }
 
-                        // 5. Normalisasi & Sync Master Mapel
+                        // Normalisasi Mapel
                         let finalMapel = "";
                         const keyMapel = rawMapel.toLowerCase();
                         if (mapMapel.has(keyMapel)) {
                             finalMapel = mapMapel.get(keyMapel);
                         } else {
                             finalMapel = formatNamaMapel(rawMapel);
-                            await addDoc(collection(db, "master_mapel"), { nama: finalMapel });
+                            masterMapelBaru.set(keyMapel, finalMapel);
                             mapMapel.set(keyMapel, finalMapel);
-                            mapMapel.set(finalMapel.toLowerCase(), finalMapel);
-                            masterBaruMapel++;
                         }
 
-                        // 6. Normalisasi & Sync Master Guru
+                        // Normalisasi Guru
                         let finalGuru = "";
                         if (rawGuru && rawGuru !== "-" && rawGuru !== "--") {
                             const keyGuru = rawGuru.toLowerCase();
@@ -1043,39 +1082,82 @@
                                 finalGuru = mapGuru.get(keyGuru);
                             } else {
                                 finalGuru = formatNamaGuru(rawGuru);
-                                await addDoc(collection(db, "master_guru"), { nama: finalGuru });
+                                masterGuruBaru.set(keyGuru, finalGuru);
                                 mapGuru.set(keyGuru, finalGuru);
-                                mapGuru.set(finalGuru.toLowerCase(), finalGuru);
-                                masterBaruGuru++;
                             }
                         }
 
-                        // 7. Simpan data jadwal ke koleksi jadwal_pelajaran
-                        const dataBaru = {
+                        daftarJadwalFinal.push({
                             hari: finalHari,
                             waktu: finalWaktu,
                             kelas: finalKelas,
                             mapel: finalMapel,
                             guru: finalGuru
-                        };
+                        });
+                    }
 
-                        await addDoc(collection(db, "jadwal_pelajaran"), dataBaru);
+                    // 4. Batch Write Data Master (Hanya 1 transaksi cepat!)
+                    if (teksStatus) teksStatus.innerText = "Menyimpan Data Master baru ke database...";
+                    let batchMaster = writeBatch(db);
+                    let opsMaster = 0;
+
+                    for (const w of masterWaktuBaru) {
+                        batchMaster.set(doc(collection(db, "master_waktu")), { waktu: w });
+                        opsMaster++;
+                        if (opsMaster === 400) { await batchMaster.commit(); batchMaster = writeBatch(db); opsMaster = 0; }
+                    }
+                    for (const [k, n] of masterKelasBaru) {
+                        batchMaster.set(doc(collection(db, "master_kelas")), { nama: n });
+                        opsMaster++;
+                        if (opsMaster === 400) { await batchMaster.commit(); batchMaster = writeBatch(db); opsMaster = 0; }
+                    }
+                    for (const [k, n] of masterMapelBaru) {
+                        batchMaster.set(doc(collection(db, "master_mapel")), { nama: n });
+                        opsMaster++;
+                        if (opsMaster === 400) { await batchMaster.commit(); batchMaster = writeBatch(db); opsMaster = 0; }
+                    }
+                    for (const [k, n] of masterGuruBaru) {
+                        batchMaster.set(doc(collection(db, "master_guru")), { nama: n });
+                        opsMaster++;
+                        if (opsMaster === 400) { await batchMaster.commit(); batchMaster = writeBatch(db); opsMaster = 0; }
+                    }
+                    if (opsMaster > 0) {
+                        await batchMaster.commit();
+                    }
+
+                    // 5. Batch Write Jadwal Pelajaran (Super cepat!)
+                    if (teksStatus) teksStatus.innerText = `Menyimpan ${daftarJadwalFinal.length} jadwal secara serentak...`;
+                    let batchJadwal = writeBatch(db);
+                    let countOps = 0;
+                    let berhasil = 0;
+
+                    for (const item of daftarJadwalFinal) {
+                        batchJadwal.set(doc(collection(db, "jadwal_pelajaran")), item);
+                        countOps++;
                         berhasil++;
+                        if (countOps === 400) {
+                            await batchJadwal.commit();
+                            batchJadwal = writeBatch(db);
+                            countOps = 0;
+                        }
+                    }
+                    if (countOps > 0) {
+                        await batchJadwal.commit();
                     }
 
                     if (modalLoading) modalLoading.classList.add('hidden');
 
                     const rincianMaster = [];
-                    if (masterBaruGuru > 0) rincianMaster.push(`${masterBaruGuru} Guru`);
-                    if (masterBaruMapel > 0) rincianMaster.push(`${masterBaruMapel} Mapel`);
-                    if (masterBaruKelas > 0) rincianMaster.push(`${masterBaruKelas} Kelas`);
-                    if (masterBaruWaktu > 0) rincianMaster.push(`${masterBaruWaktu} Jam/Waktu`);
+                    if (masterGuruBaru.size > 0) rincianMaster.push(`${masterGuruBaru.size} Guru`);
+                    if (masterMapelBaru.size > 0) rincianMaster.push(`${masterMapelBaru.size} Mapel`);
+                    if (masterKelasBaru.size > 0) rincianMaster.push(`${masterKelasBaru.size} Kelas`);
+                    if (masterWaktuBaru.size > 0) rincianMaster.push(`${masterWaktuBaru.size} Jam/Waktu`);
 
                     let pesanMaster = rincianMaster.length > 0 
                         ? `\n✨ Data Master Baru yang otomatis ditambahkan:\n• ${rincianMaster.join('\n• ')}`
-                        : `\n✨ Seluruh Data Master sudah cocok dengan data yang ada (tanpa duplikat).`;
+                        : `\n✨ Seluruh Data Master sudah cocok dengan data yang ada.`;
 
-                    alert(`✅ PROSES IMPORT SELESAI!\n\n` +
+                    alert(`⚡ IMPORT KILAT SELESAI!\n\n` +
                           `• Berhasil diimport ke Jadwal: ${berhasil} jadwal\n` +
                           `• Dilewati (Apel/Istirahat/Kosong): ${dilewati} baris` +
                           pesanMaster);
