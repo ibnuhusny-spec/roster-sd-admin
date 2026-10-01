@@ -272,11 +272,17 @@
                 </button>
             </div>
         </div>
+    <div id="modalLoadingImport" class="fixed inset-0 bg-black bg-opacity-60 hidden flex flex-col justify-center items-center z-50 p-4 text-white">
+        <div class="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full text-center">
+            <div class="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <h3 class="font-bold text-lg text-white mb-1">Sedang Mengimport Data...</h3>
+            <p id="teksStatusImport" class="text-xs text-blue-200">Menyelaraskan Data Master & Jadwal</p>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         let firebaseConfig = null;
         try {
@@ -726,57 +732,326 @@
         window.bukaModalExcel = function() { document.getElementById('modalExcel').classList.remove('hidden'); }
         window.tutupModalExcel = function() { document.getElementById('modalExcel').classList.add('hidden'); }
 
-// --- FUNGSI IMPORT EXCEL ---
+        // --- HELPER NORMALISASI & SINKRONISASI DATA CERDAS ---
+        function formatHari(hari) {
+            if (!hari) return "";
+            let str = String(hari).trim().toLowerCase();
+            const mapHari = {
+                "senin": "Senin", "selasa": "Selasa", "rabu": "Rabu",
+                "kamis": "Kamis", "jumat": "Jumat", "jum'at": "Jumat",
+                "sabtu": "Sabtu", "minggu": "Minggu", "ahad": "Ahad"
+            };
+            return mapHari[str] || (str.charAt(0).toUpperCase() + str.slice(1));
+        }
+
+        function formatWaktu(waktu) {
+            if (!waktu) return "";
+            let str = String(waktu).trim();
+            // Menyeragamkan pemisah titik menjadi titik dua (contoh: 07.30 - 08.15 -> 07:30 - 08:15)
+            str = str.replace(/(\d{1,2})\.(\d{2})/g, '$1:$2');
+            str = str.replace(/\s*-\s*/g, ' - ');
+            return str;
+        }
+
+        function formatNamaKelas(kelas) {
+            if (!kelas) return "";
+            let str = String(kelas).trim().replace(/\s+/g, ' ');
+            return str.split(' ').map(w => {
+                if (/^\d+[a-zA-Z]?$/.test(w)) return w.toUpperCase();
+                return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+            }).join(' ');
+        }
+
+        function formatNamaMapel(mapel) {
+            if (!mapel) return "";
+            let str = String(mapel).trim().replace(/\s+/g, ' ');
+            if (!str || str === "-" || str === "--") return "";
+
+            const mapelKhusus = {
+                "pai": "PAI",
+                "pjok": "PJOK",
+                "ppkn": "PPKn",
+                "ppk": "PPKn",
+                "ipa": "IPA",
+                "ips": "IPS",
+                "sbdp": "SBdP",
+                "tik": "TIK",
+                "btq": "BTQ",
+                "bk": "BK",
+                "pancasila": "Pancasila"
+            };
+
+            return str.split(' ').map(w => {
+                let low = w.toLowerCase().replace(/[\(\)]/g, '');
+                if (mapelKhusus[low]) {
+                    return w.replace(new RegExp(low, 'i'), mapelKhusus[low]);
+                }
+                if (w.toLowerCase().startsWith('b.') || w.toLowerCase().startsWith('b-')) {
+                    return 'B.' + (w.length > 2 ? ' ' + w.slice(2).charAt(0).toUpperCase() + w.slice(3).toLowerCase() : '');
+                }
+                return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+            }).join(' ');
+        }
+
+        function formatNamaGuru(nama) {
+            if (!nama) return "";
+            let str = String(nama).trim().replace(/\s+/g, ' ');
+            if (!str || str === "-" || str === "--") return "";
+
+            const gelarMap = {
+                "s.pd": "S.Pd.", "s.pd.": "S.Pd.", "spd": "S.Pd.", "spd.": "S.Pd.",
+                "s.pd.i": "S.Pd.I.", "s.pd.i.": "S.Pd.I.", "spdi": "S.Pd.I.", "spdi.": "S.Pd.I.",
+                "m.pd": "M.Pd.", "m.pd.": "M.Pd.", "mpd": "M.Pd.", "mpd.": "M.Pd.",
+                "m.pd.i": "M.Pd.I.", "m.pd.i.": "M.Pd.I.", "mpdi": "M.Pd.I.", "mpdi.": "M.Pd.I.",
+                "s.ag": "S.Ag.", "s.ag.": "S.Ag.", "sag": "S.Ag.", "sag.": "S.Ag.",
+                "s.si": "S.Si.", "s.si.": "S.Si.", "ssi": "S.Si.", "ssi.": "S.Si.",
+                "s.kom": "S.Kom.", "s.kom.": "S.Kom.", "skom": "S.Kom.", "skom.": "S.Kom.",
+                "s.t": "S.T.", "s.t.": "S.T.", "st": "S.T.", "st.": "S.T.",
+                "s.sos": "S.Sos.", "s.sos.": "S.Sos.", "ssos": "S.Sos.", "ssos.": "S.Sos.",
+                "s.e": "S.E.", "s.e.": "S.E.", "se": "S.E.", "se.": "S.E.",
+                "s.h": "S.H.", "s.h.": "S.H.", "sh": "S.H.", "sh.": "S.H.",
+                "m.si": "M.Si.", "m.si.": "M.Si.", "msi": "M.Si.",
+                "m.ag": "M.Ag.", "m.ag.": "M.Ag.",
+                "m.kom": "M.Kom.", "m.kom.": "M.Kom.",
+                "lc": "Lc.", "lc.": "Lc.",
+                "dr": "Dr.", "dr.": "Dr.",
+                "drs": "Drs.", "drs.": "Drs.",
+                "dra": "Dra.", "dra.": "Dra.",
+                "h": "H.", "h.": "H.",
+                "hj": "Hj.", "hj.": "Hj.",
+                "a.ma": "A.Ma.", "a.ma.": "A.Ma.",
+                "gr": "Gr.", "gr.": "Gr."
+            };
+
+            const parts = str.split(',');
+            const formatWord = (w) => {
+                if (!w) return "";
+                let low = w.toLowerCase().replace(/,/g, '');
+                if (gelarMap[low]) return gelarMap[low];
+                return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+            };
+
+            let namaDepan = parts[0].trim().split(' ').map(formatWord).join(' ');
+            if (parts.length > 1) {
+                let gelar = parts.slice(1).join(',').trim().split(/\s+/).map(formatWord).join(' ');
+                return `${namaDepan}, ${gelar}`;
+            }
+            return namaDepan;
+        }
+
+        function isKegiatanNonPelajaran(mapel, guru) {
+            const textMapel = String(mapel || "").trim().toLowerCase();
+            const textGuru = String(guru || "").trim().toLowerCase();
+
+            // Kata kunci kegiatan rutin / non-pelajaran yang harus dilewati
+            const kataKunciSkip = [
+                "apel", "upacara", "istirahat", "rehat", 
+                "snack time", "sholat", "shalat", "dzuhur", "dhuha"
+            ];
+
+            for (const kata of kataKunciSkip) {
+                if (textMapel.includes(kata)) return true;
+            }
+
+            // Jika mapel kosong atau hanya karakter simbol
+            if (!textMapel || textMapel === "-" || textMapel === "--" || textMapel === ".") {
+                return true;
+            }
+
+            return false;
+        }
+
+        // --- FUNGSI IMPORT EXCEL CERDAS ---
         window.prosesImportExcel = function(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = async function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
+                let workbook;
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    workbook = XLSX.read(data, {type: 'array'});
+                } catch (err) {
+                    alert("❌ Format file Excel tidak valid atau rusak!");
+                    document.getElementById('fileImportExcel').value = "";
+                    return;
+                }
                 
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
-                
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, {raw: false});
                 
                 if(jsonData.length === 0) {
-                    alert("❌ File Excel kosong atau format tidak sesuai!");
-                    return;
-                }
-
-                if(!confirm(`Ditemukan ${jsonData.length} baris jadwal. Mulai proses import ke database?`)) {
+                    alert("❌ File Excel kosong atau tidak memiliki data!");
                     document.getElementById('fileImportExcel').value = "";
                     return;
                 }
 
-                let berhasil = 0;
-                let gagal = 0;
+                if(!confirm(`Ditemukan ${jsonData.length} baris data pada Excel.\n\nSistem akan:\n1. Melewati jadwal Apel / Istirahat / Kosong secara otomatis\n2. Menyeragamkan format huruf (Title Case)\n3. Mendaftarkan Guru, Mapel, Kelas & Jam baru ke Data Master\n\nMulai proses import ke database?`)) {
+                    document.getElementById('fileImportExcel').value = "";
+                    return;
+                }
 
-                for(const baris of jsonData) {
-                    // Di dalam for(const baris of jsonData) { ... }
+                const modalLoading = document.getElementById('modalLoadingImport');
+                const teksStatus = document.getElementById('teksStatusImport');
+                if (modalLoading) modalLoading.classList.remove('hidden');
+
                 try {
-                    const dataBaru = {
-                        hari: String(baris.Hari || "").trim(),
-                        waktu: String(baris.Waktu || "").trim(),
-                        kelas: String(baris.Kelas || "").trim(),
-                        mapel: String(baris.Mapel || "").trim(),
-                        guru: String(baris.Guru || "").trim()
-                    };
+                    // Ambil referensi Data Master yang sudah ada untuk pencocokan anti-duplikat
+                    if (teksStatus) teksStatus.innerText = "Membaca Data Master yang sudah ada...";
                     
-                    if(!dataBaru.hari || !dataBaru.waktu || !dataBaru.kelas) continue;
+                    const mapKelas = new Map();
+                    const mapGuru = new Map();
+                    const mapMapel = new Map();
+                    const mapWaktu = new Map();
 
-                    await addDoc(collection(db, "jadwal_pelajaran"), dataBaru);
-                    berhasil++;
+                    const snapKelas = await getDocs(collection(db, "master_kelas"));
+                    snapKelas.forEach(d => {
+                        const n = d.data().nama;
+                        if (n) mapKelas.set(String(n).trim().toLowerCase(), String(n).trim());
+                    });
+
+                    const snapGuru = await getDocs(collection(db, "master_guru"));
+                    snapGuru.forEach(d => {
+                        const n = d.data().nama;
+                        if (n) mapGuru.set(String(n).trim().toLowerCase(), String(n).trim());
+                    });
+
+                    const snapMapel = await getDocs(collection(db, "master_mapel"));
+                    snapMapel.forEach(d => {
+                        const n = d.data().nama;
+                        if (n) mapMapel.set(String(n).trim().toLowerCase(), String(n).trim());
+                    });
+
+                    const snapWaktu = await getDocs(collection(db, "master_waktu"));
+                    snapWaktu.forEach(d => {
+                        const w = d.data().waktu || d.data().nama;
+                        if (w) mapWaktu.set(formatWaktu(w).toLowerCase(), formatWaktu(w));
+                    });
+
+                    let berhasil = 0;
+                    let dilewati = 0;
+                    let masterBaruGuru = 0;
+                    let masterBaruMapel = 0;
+                    let masterBaruKelas = 0;
+                    let masterBaruWaktu = 0;
+
+                    let indeks = 0;
+                    for (const baris of jsonData) {
+                        indeks++;
+                        if (teksStatus && indeks % 10 === 0) {
+                            teksStatus.innerText = `Memproses ${indeks} dari ${jsonData.length} baris...`;
+                        }
+
+                        const rawHari = String(baris.Hari || "").trim();
+                        const rawWaktu = String(baris.Waktu || "").trim();
+                        const rawKelas = String(baris.Kelas || "").trim();
+                        const rawMapel = String(baris.Mapel || "").trim();
+                        const rawGuru = String(baris.Guru || "").trim();
+
+                        // 1. Lewati jika data inti tidak ada
+                        if (!rawHari || !rawWaktu || !rawKelas || !rawMapel) {
+                            dilewati++;
+                            continue;
+                        }
+
+                        // 2. Lewati Apel, Istirahat, Upacara, dll.
+                        if (isKegiatanNonPelajaran(rawMapel, rawGuru)) {
+                            dilewati++;
+                            continue;
+                        }
+
+                        // 3. Normalisasi Hari & Waktu
+                        const finalHari = formatHari(rawHari);
+                        const finalWaktu = formatWaktu(rawWaktu);
+
+                        // Sync ke Master Waktu jika belum ada
+                        const keyWaktu = finalWaktu.toLowerCase();
+                        if (!mapWaktu.has(keyWaktu)) {
+                            await addDoc(collection(db, "master_waktu"), { waktu: finalWaktu });
+                            mapWaktu.set(keyWaktu, finalWaktu);
+                            masterBaruWaktu++;
+                        }
+
+                        // 4. Normalisasi & Sync Master Kelas
+                        let finalKelas = "";
+                        const keyKelas = rawKelas.toLowerCase();
+                        if (mapKelas.has(keyKelas)) {
+                            finalKelas = mapKelas.get(keyKelas);
+                        } else {
+                            finalKelas = formatNamaKelas(rawKelas);
+                            await addDoc(collection(db, "master_kelas"), { nama: finalKelas });
+                            mapKelas.set(keyKelas, finalKelas);
+                            mapKelas.set(finalKelas.toLowerCase(), finalKelas);
+                            masterBaruKelas++;
+                        }
+
+                        // 5. Normalisasi & Sync Master Mapel
+                        let finalMapel = "";
+                        const keyMapel = rawMapel.toLowerCase();
+                        if (mapMapel.has(keyMapel)) {
+                            finalMapel = mapMapel.get(keyMapel);
+                        } else {
+                            finalMapel = formatNamaMapel(rawMapel);
+                            await addDoc(collection(db, "master_mapel"), { nama: finalMapel });
+                            mapMapel.set(keyMapel, finalMapel);
+                            mapMapel.set(finalMapel.toLowerCase(), finalMapel);
+                            masterBaruMapel++;
+                        }
+
+                        // 6. Normalisasi & Sync Master Guru
+                        let finalGuru = "";
+                        if (rawGuru && rawGuru !== "-" && rawGuru !== "--") {
+                            const keyGuru = rawGuru.toLowerCase();
+                            if (mapGuru.has(keyGuru)) {
+                                finalGuru = mapGuru.get(keyGuru);
+                            } else {
+                                finalGuru = formatNamaGuru(rawGuru);
+                                await addDoc(collection(db, "master_guru"), { nama: finalGuru });
+                                mapGuru.set(keyGuru, finalGuru);
+                                mapGuru.set(finalGuru.toLowerCase(), finalGuru);
+                                masterBaruGuru++;
+                            }
+                        }
+
+                        // 7. Simpan data jadwal ke koleksi jadwal_pelajaran
+                        const dataBaru = {
+                            hari: finalHari,
+                            waktu: finalWaktu,
+                            kelas: finalKelas,
+                            mapel: finalMapel,
+                            guru: finalGuru
+                        };
+
+                        await addDoc(collection(db, "jadwal_pelajaran"), dataBaru);
+                        berhasil++;
+                    }
+
+                    if (modalLoading) modalLoading.classList.add('hidden');
+
+                    const rincianMaster = [];
+                    if (masterBaruGuru > 0) rincianMaster.push(`${masterBaruGuru} Guru`);
+                    if (masterBaruMapel > 0) rincianMaster.push(`${masterBaruMapel} Mapel`);
+                    if (masterBaruKelas > 0) rincianMaster.push(`${masterBaruKelas} Kelas`);
+                    if (masterBaruWaktu > 0) rincianMaster.push(`${masterBaruWaktu} Jam/Waktu`);
+
+                    let pesanMaster = rincianMaster.length > 0 
+                        ? `\n✨ Data Master Baru yang otomatis ditambahkan:\n• ${rincianMaster.join('\n• ')}`
+                        : `\n✨ Seluruh Data Master sudah cocok dengan data yang ada (tanpa duplikat).`;
+
+                    alert(`✅ PROSES IMPORT SELESAI!\n\n` +
+                          `• Berhasil diimport ke Jadwal: ${berhasil} jadwal\n` +
+                          `• Dilewati (Apel/Istirahat/Kosong): ${dilewati} baris` +
+                          pesanMaster);
+
                 } catch (error) {
-                    console.error("Gagal import baris:", baris, error);
-                    gagal++;
+                    console.error("Terjadi kesalahan saat import:", error);
+                    if (modalLoading) modalLoading.classList.add('hidden');
+                    alert("❌ Terjadi kendala saat memproses import: " + error.message);
+                } finally {
+                    document.getElementById('fileImportExcel').value = ""; 
                 }
-                }
-
-                alert(`✅ IMPORT SELESAI!\nBerhasil: ${berhasil} jadwal\nGagal/Dilewati: ${gagal} jadwal`);
-                document.getElementById('fileImportExcel').value = ""; 
             };
             reader.readAsArrayBuffer(file);
         };
