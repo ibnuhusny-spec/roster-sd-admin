@@ -33,6 +33,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.default.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
@@ -357,15 +358,23 @@
                         </div>
                     </div>
 
-                    <!-- Toggle Gabung Jam Kembar -->
-                    <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/70 text-xs">
-                        <label class="inline-flex items-center gap-2 cursor-pointer select-none font-semibold text-slate-700 hover:text-indigo-700 transition-colors">
-                            <input type="checkbox" id="chkGabungJam" checked onchange="renderLivePreview()" 
-                                class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer">
-                            <span>⚡ Gabungkan Jam Pelajaran Kembar (misal: 2 JP Matematika otomatis jadi 1 baris waktu)</span>
-                        </label>
+                    <!-- Toggle Opsi Tampilan Canva -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-slate-200/70 text-xs">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <label class="inline-flex items-center gap-2 cursor-pointer select-none font-semibold text-slate-700 hover:text-indigo-700 transition-colors">
+                                <input type="checkbox" id="chkGabungJam" checked onchange="renderLivePreview()" 
+                                    class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer">
+                                <span>⚡ Gabungkan Jam Kembar (JP)</span>
+                            </label>
+
+                            <label class="inline-flex items-center gap-2 cursor-pointer select-none font-semibold text-slate-700 hover:text-indigo-700 transition-colors">
+                                <input type="checkbox" id="chkTampilkanGuru" onchange="renderLivePreview()" 
+                                    class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer">
+                                <span>👤 Tampilkan Nama Guru di Kotak Jadwal</span>
+                            </label>
+                        </div>
                         <span class="text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
-                            ✓ 100% Jadwal Ditampilkan Lengkap
+                            ✓ Format HD Anti Terpotong
                         </span>
                     </div>
                 </div>
@@ -979,6 +988,12 @@
             return perHari;
         }
 
+        function potongTeks(str, maxLen = 28) {
+            if (!str) return '';
+            const s = String(str).trim();
+            return s.length > maxLen ? s.slice(0, maxLen - 1) + '…' : s;
+        }
+
         function renderTemplateHTML(templateId, targetKelas, targetGuru) {
             const jadwalPerHari = dapatkanJadwalPerHari(targetKelas, targetGuru);
             const namaSekolah = (namaSekolahSistem !== "NAMA SEKOLAH BELUM DISETTING") 
@@ -1201,61 +1216,75 @@
                         </div>
                     `;
                 } else {
-                    // Dynamic styling based on items count
+                    // Cek apakah guru perlu disertakan di kartu (opsi toggle)
+                    const chkGuru = document.getElementById('chkTampilkanGuru');
+                    const sertakanGuru = chkGuru ? chkGuru.checked : false;
+                    // Jika filter target adalah Guru, kita SELALU tampilkan info Kelas agar guru tahu kelas yang dituju
+                    const harusTampilkanSub = (targetGuru !== "Semua") || sertakanGuru;
+
+                    // Dynamic styling based on items count & mode
                     let padY = "4px 8px";
                     let gap = "4px";
                     let mapelFont = "11.5px";
-                    let subFont = "9.5px";
+                    let subFont = "9px";
                     let timeFont = "9.5px";
                     let timePad = "2.5px 6px";
                     
-                    if (items.length >= 7) {
-                        padY = "2px 5px";
-                        gap = "2px";
-                        mapelFont = "9.5px";
-                        subFont = "8px";
-                        timeFont = "8.5px";
-                        timePad = "1.5px 4px";
-                    } else if (items.length >= 5) {
-                        padY = "3px 6px";
-                        gap = "3px";
-                        mapelFont = "10.5px";
-                        subFont = "8.5px";
-                        timeFont = "9px";
-                        timePad = "2px 5px";
+                    if (!harusTampilkanSub) {
+                        // Mode 1 Baris: Super Lega, Rapih, Bersih & Anti Menumpuk / Bersusun
+                        if (items.length >= 7) {
+                            padY = "3.5px 7px"; gap = "3px"; mapelFont = "10.5px"; timeFont = "9px"; timePad = "2px 5px";
+                        } else if (items.length >= 5) {
+                            padY = "5.5px 9px"; gap = "4px"; mapelFont = "11.5px"; timeFont = "9.5px"; timePad = "2.5px 6px";
+                        } else {
+                            padY = "8px 10px"; gap = "6px"; mapelFont = "12.5px"; timeFont = "10px"; timePad = "3px 7px";
+                        }
+                    } else {
+                        // Mode 2 Baris: Proporsional dengan line-height aman, anti clipping
+                        if (items.length >= 7) {
+                            padY = "2px 5px"; gap = "2px"; mapelFont = "9.5px"; subFont = "8px"; timeFont = "8.5px"; timePad = "1.5px 4px";
+                        } else if (items.length >= 5) {
+                            padY = "3px 6px"; gap = "3px"; mapelFont = "10.5px"; subFont = "8.5px"; timeFont = "9px"; timePad = "2px 5px";
+                        } else {
+                            padY = "5px 8px"; gap = "5px"; mapelFont = "11.5px"; subFont = "9.5px"; timeFont = "9.5px"; timePad = "2.5px 6px";
+                        }
                     }
 
-                    itemsListHtml = `<div class="canva-scroll-box" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: ${gap}; padding-top: 2px; padding-right: 2px;">`;
+                    itemsListHtml = `<div style="flex: 1; display: flex; flex-direction: column; gap: ${gap}; padding-top: 2px;">`;
                     
-                    // Render 100% of items with clear 2-line layout (Subject on top, Teacher below)
                     items.forEach(j => {
                         let jam = j.waktuTampil || j.waktu || j.jam_ke || '-';
                         let judulMapel = j.mapelTampil || j.mapel || '-';
-                        let sub = (targetGuru !== "Semua") ? (j.kelas ? 'Kelas ' + j.kelas : '') : (j.guru ? j.guru : '');
+                        let sub = '';
+                        if (targetGuru !== "Semua") {
+                            sub = j.kelas ? 'Kelas ' + j.kelas : '';
+                        } else if (sertakanGuru) {
+                            sub = j.guru || '';
+                        }
                         
                         itemsListHtml += `
-                            <div style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 8px; border: 1px solid ${themeConfig.itemBorder}; flex-shrink: 0; box-sizing: border-box;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder}; flex-shrink: 0; box-sizing: border-box;">
                                 
-                                <!-- Info Mata Pelajaran & Nama Guru (Tersusun 2 Baris Bersih & Bebas Tabrakan) -->
-                                <div style="display: flex; align-items: flex-start; gap: 6px; flex: 1; min-width: 0; overflow: hidden; padding-right: 4px;">
-                                    <span style="width: 5px; height: 5px; border-radius: 50%; background: ${themeConfig.dotColor}; flex-shrink: 0; margin-top: 4px;"></span>
+                                <!-- Info Mata Pelajaran & Nama Guru/Kelas -->
+                                <div style="display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0; padding-right: 4px;">
+                                    <span style="width: 5px; height: 5px; border-radius: 50%; background: ${themeConfig.dotColor}; flex-shrink: 0;"></span>
                                     
-                                    <div style="flex: 1; min-width: 0; overflow: hidden;">
-                                        <!-- Baris 1: Nama Mapel (Tebal, Jelas, line-height aman) -->
-                                        <div style="font-weight: 700; font-size: ${mapelFont}; color: ${themeConfig.itemText}; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">
-                                            ${escapeHtml(judulMapel)}
+                                    <div style="flex: 1; min-width: 0;">
+                                        <!-- Baris 1: Nama Mapel (Tebal, Jelas, line-height 1.4, Bebas Slicing) -->
+                                        <div style="font-weight: 700; font-size: ${mapelFont}; color: ${themeConfig.itemText}; line-height: 1.4; display: block;">
+                                            ${escapeHtml(potongTeks(judulMapel, 32))}
                                         </div>
                                         
-                                        <!-- Baris 2: Nama Guru / Kelas (Di bawah mapel, tidak menumpuk) -->
+                                        <!-- Baris 2: Sub Guru / Kelas (Hanya jika diaktifkan, Bebas Slicing) -->
                                         ${sub ? `
-                                        <div style="font-size: ${subFont}; color: ${themeConfig.itemSub}; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.9; margin-top: 0.5px; display: block;">
-                                            ${(targetGuru !== "Semua") ? '🏫 ' : '👤 '}${escapeHtml(sub)}
+                                        <div style="font-size: ${subFont}; color: ${themeConfig.itemSub}; line-height: 1.35; opacity: 0.88; margin-top: 1px; display: block;">
+                                            ${(targetGuru !== "Semua") ? '🏫 ' : '👤 '}${escapeHtml(potongTeks(sub, 28))}
                                         </div>` : ''}
                                     </div>
                                 </div>
 
                                 <!-- Badge Waktu Pelajaran (Di Kanan Rapi) -->
-                                <div style="font-family: monospace; font-size: ${timeFont}; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: ${timePad}; border-radius: 5px; flex-shrink: 0; white-space: nowrap; border: 1px solid ${themeConfig.itemBorder}; line-height: 1.2; text-align: center;">
+                                <div style="font-family: monospace; font-size: ${timeFont}; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: ${timePad}; border-radius: 6px; flex-shrink: 0; white-space: nowrap; border: 1px solid ${themeConfig.itemBorder}; line-height: 1.25; text-align: center; margin-left: 6px;">
                                     ${escapeHtml(jam)}
                                 </div>
 
@@ -1347,6 +1376,51 @@
             }
         });
 
+        async function buatCanvasPosterHD(targetKelas, targetGuru) {
+            const host = document.getElementById('posterExportHost');
+            if (!host) throw new Error("Host render tidak ditemukan.");
+
+            host.innerHTML = renderTemplateHTML(currentTemplate, targetKelas, targetGuru);
+
+            // Letakkan host di posisi (0,0) di balik modal (z-index 40, modal z-index 50)
+            // agar browser me-render seluruh teks & font secara sempurna tanpa terkena bug koordinat negatif
+            host.style.position = 'fixed';
+            host.style.left = '0px';
+            host.style.top = '0px';
+            host.style.width = '1120px';
+            host.style.height = '790px';
+            host.style.zIndex = '40';
+            host.style.visibility = 'visible';
+            host.style.opacity = '1';
+            host.style.pointerEvents = 'none';
+
+            if (document.fonts) { await document.fonts.ready; }
+            await new Promise(r => setTimeout(r, 200));
+
+            const canvas = await html2canvas(host.firstElementChild, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: null,
+                scrollX: 0,
+                scrollY: 0,
+                x: 0,
+                y: 0,
+                width: 1120,
+                height: 790,
+                windowWidth: 1200,
+                windowHeight: 900
+            });
+
+            // Kembalikan host ke posisi tersembunyi
+            host.innerHTML = '';
+            host.style.left = '-9999px';
+            host.style.top = '-9999px';
+            host.style.visibility = 'hidden';
+
+            return canvas;
+        }
+
         window.unduhRosterCanvaPNG = async function() {
             const btn = document.getElementById('btnUnduhPNG');
             const oldTeks = btn.innerHTML;
@@ -1356,17 +1430,8 @@
             try {
                 const targetKelas = document.getElementById('selModalKelas').value;
                 const targetGuru = document.getElementById('selModalGuru').value;
-                const host = document.getElementById('posterExportHost');
-                host.innerHTML = renderTemplateHTML(currentTemplate, targetKelas, targetGuru);
 
-                if (document.fonts) { await document.fonts.ready; }
-
-                const canvas = await html2canvas(host.firstElementChild, {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: null
-                });
+                const canvas = await buatCanvasPosterHD(targetKelas, targetGuru);
 
                 let namaFile = `Roster_${currentTemplate}`;
                 if (targetKelas !== "Semua") namaFile += `_Kls_${targetKelas}`;
@@ -1397,25 +1462,40 @@
             try {
                 const targetKelas = document.getElementById('selModalKelas').value;
                 const targetGuru = document.getElementById('selModalGuru').value;
-                const host = document.getElementById('posterExportHost');
-                host.innerHTML = renderTemplateHTML(currentTemplate, targetKelas, targetGuru);
 
-                if (document.fonts) { await document.fonts.ready; }
+                const canvas = await buatCanvasPosterHD(targetKelas, targetGuru);
 
                 let namaFile = `Roster_${currentTemplate}`;
                 if (targetKelas !== "Semua") namaFile += `_Kls_${targetKelas}`;
                 if (targetGuru !== "Semua") namaFile += `_Guru_${targetGuru.replace(/[^a-zA-Z0-9]/g, '_')}`;
                 namaFile += ".pdf";
 
-                const opsi = {
-                    margin: 0,
-                    filename: namaFile,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, logging: false },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-                };
+                const jsPDFClass = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
 
-                await html2pdf().set(opsi).from(host.firstElementChild).save();
+                if (jsPDFClass) {
+                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                    const pdf = new jsPDFClass({
+                        orientation: 'landscape',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                    // A4 landscape standar: 297mm x 210mm
+                    pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
+                    pdf.save(namaFile);
+                } else if (window.html2pdf) {
+                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                    const imgEl = document.createElement('img');
+                    imgEl.src = imgData;
+                    imgEl.style.width = '100%';
+                    await html2pdf().set({
+                        margin: 0,
+                        filename: namaFile,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                    }).from(imgEl).save();
+                } else {
+                    throw new Error("Library PDF tidak ditemukan.");
+                }
             } catch (err) {
                 console.error("Gagal export PDF Canva:", err);
                 alert("❌ Gagal membuat file PDF: " + err.message);
