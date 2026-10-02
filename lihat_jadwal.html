@@ -1231,22 +1231,23 @@
                     let timePad = "2.5px 6px";
                     
                     if (!harusTampilkanSub) {
-                        // Mode 1 Baris: Super Lega, Rapih, Bersih & Anti Menumpuk / Bersusun
+                        // Mode 1 Baris: Super Lega, Rapih, Bersih & Terpusat Vertikal Presisi
                         if (items.length >= 7) {
-                            padY = "4px 8px"; gap = "3px"; mapelFont = "11px"; timeFont = "9px"; timePad = "2px 5px";
+                            padY = "4.5px 8px 3.5px 8px"; gap = "3px"; mapelFont = "11px"; timeFont = "9px"; timePad = "2.5px 5px 1.5px 5px";
                         } else if (items.length >= 5) {
-                            padY = "6px 10px"; gap = "5px"; mapelFont = "12px"; timeFont = "9.5px"; timePad = "3px 6px";
+                            padY = "6px 10px 5px 10px"; gap = "5px"; mapelFont = "12px"; timeFont = "9.5px"; timePad = "3px 6px 2px 6px";
                         } else {
-                            padY = "9px 12px"; gap = "8px"; mapelFont = "13px"; timeFont = "10.5px"; timePad = "4px 8px";
+                            // Untuk 3-4 jadwal (misal hari Jumat): box tetap proporsional & presisi
+                            padY = "6.5px 10px 5.5px 10px"; gap = "8px"; mapelFont = "12.5px"; timeFont = "10px"; timePad = "3.5px 6px 2.5px 6px";
                         }
                     } else {
-                        // Mode 2 Baris: Proporsional dengan line-height aman, anti clipping
+                        // Mode 2 Baris: Proporsional & Terpusat Vertikal
                         if (items.length >= 7) {
-                            padY = "2.5px 6px"; gap = "2.5px"; mapelFont = "9.5px"; subFont = "8px"; timeFont = "8.5px"; timePad = "1.5px 4px";
+                            padY = "2.5px 6px 2px 6px"; gap = "2.5px"; mapelFont = "9.5px"; subFont = "8px"; timeFont = "8.5px"; timePad = "1.5px 4px 1px 4px";
                         } else if (items.length >= 5) {
-                            padY = "4px 8px"; gap = "3.5px"; mapelFont = "10.5px"; subFont = "8.5px"; timeFont = "9px"; timePad = "2px 5px";
+                            padY = "4.5px 8px 3.5px 8px"; gap = "3.5px"; mapelFont = "10.5px"; subFont = "8.5px"; timeFont = "9px"; timePad = "2.5px 5px 2px 5px";
                         } else {
-                            padY = "6px 10px"; gap = "6px"; mapelFont = "11.5px"; subFont = "9.5px"; timeFont = "9.5px"; timePad = "2.5px 6px";
+                            padY = "6px 10px 5px 10px"; gap = "6px"; mapelFont = "11.5px"; subFont = "9.5px"; timeFont = "9.5px"; timePad = "3px 6px 2px 6px";
                         }
                     }
 
@@ -1263,36 +1264,36 @@
                         }
                         
                         if (!harusTampilkanSub || !sub) {
-                            // Render 1 Baris Murni (Bebas Clipping, Bebas Min-Width Collapse)
+                            // Render 1 Baris Murni (Terpusat Vertikal Sempurna)
                             itemsListHtml += `
-                                <div style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder};">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder}; box-sizing: border-box;">
+                                    <div style="display: flex; align-items: center; gap: 8px; line-height: 1;">
                                         <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: ${themeConfig.dotColor}; flex-shrink: 0;"></span>
-                                        <span style="font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-weight: 700; font-size: ${mapelFont}; color: ${themeConfig.itemText};">
+                                        <span style="font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-weight: 700; font-size: ${mapelFont}; color: ${themeConfig.itemText}; line-height: 1.15; display: inline-flex; align-items: center; margin-top: 1px;">
                                             ${escapeHtml(potongTeks(judulMapel, 32))}
                                         </span>
                                     </div>
-                                    <span style="font-family: monospace; font-size: ${timeFont}; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: ${timePad}; border-radius: 6px; border: 1px solid ${themeConfig.itemBorder}; flex-shrink: 0;">
+                                    <span style="font-family: monospace; font-size: ${timeFont}; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: ${timePad}; border-radius: 6px; border: 1px solid ${themeConfig.itemBorder}; flex-shrink: 0; line-height: 1.15; display: inline-flex; align-items: center; justify-content: center; margin-top: 0.5px;">
                                         ${escapeHtml(jam)}
                                     </span>
                                 </div>
                             `;
                         } else {
-                            // Render 2 Baris Murni (Mapel + Guru/Kelas)
+                            // Render 2 Baris Murni (Terpusat Vertikal Sempurna)
                             itemsListHtml += `
-                                <div style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder};">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder}; box-sizing: border-box;">
+                                    <div style="display: flex; align-items: center; gap: 8px; line-height: 1;">
                                         <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: ${themeConfig.dotColor}; flex-shrink: 0;"></span>
-                                        <div style="display: flex; flex-direction: column;">
-                                            <span style="font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-weight: 700; font-size: ${mapelFont}; color: ${themeConfig.itemText};">
+                                        <div style="display: flex; flex-direction: column; justify-content: center;">
+                                            <span style="font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-weight: 700; font-size: ${mapelFont}; color: ${themeConfig.itemText}; line-height: 1.25;">
                                                 ${escapeHtml(potongTeks(judulMapel, 30))}
                                             </span>
-                                            <span style="font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-size: ${subFont}; color: ${themeConfig.itemSub}; opacity: 0.88; margin-top: 2px;">
+                                            <span style="font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-size: ${subFont}; color: ${themeConfig.itemSub}; opacity: 0.88; line-height: 1.2; margin-top: 2px;">
                                                 ${(targetGuru !== "Semua") ? '🏫 ' : '👤 '}${escapeHtml(potongTeks(sub, 28))}
                                             </span>
                                         </div>
                                     </div>
-                                    <span style="font-family: monospace; font-size: ${timeFont}; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: ${timePad}; border-radius: 6px; border: 1px solid ${themeConfig.itemBorder}; flex-shrink: 0;">
+                                    <span style="font-family: monospace; font-size: ${timeFont}; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: ${timePad}; border-radius: 6px; border: 1px solid ${themeConfig.itemBorder}; flex-shrink: 0; line-height: 1.15; display: inline-flex; align-items: center; justify-content: center; margin-top: 0.5px;">
                                         ${escapeHtml(jam)}
                                     </span>
                                 </div>
