@@ -32,9 +32,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.default.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
+        .canva-scroll-box::-webkit-scrollbar {
+            width: 4px;
+        }
+        .canva-scroll-box::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .canva-scroll-box::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.4);
+            border-radius: 99px;
+        }
+
         body {
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
             background-color: #f8fafc;
@@ -251,7 +263,7 @@
                                     var html = '';
                                     filtered.slice(0, 100).forEach(function(j, idx) {
                                         var rowBg = (idx % 2 === 0) ? 'bg-white' : 'bg-slate-50/60';
-                                        var h = (j.hari || '').trim().toLowerCase();
+                                        var h = (j.hari || '').trim().toLowerCase().replace(/['`’]/g, '');
                                         var bgH = "bg-slate-100 text-slate-700 border border-slate-200/70";
                                         if(h === "senin") bgH = "bg-rose-50 text-rose-700 border border-rose-200/80";
                                         else if(h === "selasa") bgH = "bg-amber-50 text-amber-700 border border-amber-200/80";
@@ -259,7 +271,7 @@
                                         else if(h === "kamis") bgH = "bg-emerald-50 text-emerald-700 border border-emerald-200/80";
                                         else if(h === "jumat") bgH = "bg-sky-50 text-sky-700 border border-sky-200/80";
                                         else if(h === "sabtu") bgH = "bg-indigo-50 text-indigo-700 border border-indigo-200/80";
-                                        var hTeks = h ? (h.charAt(0).toUpperCase() + h.slice(1)) : '-';
+                                        var hTeks = j.hari ? j.hari.trim() : (h ? (h.charAt(0).toUpperCase() + h.slice(1)) : '-');
                                         var gCell = j.guru 
                                             ? '<div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200 flex-shrink-0"></span><span class="font-semibold text-slate-800">' + j.guru + '</span></div>'
                                             : '<span class="text-rose-400 italic text-xs font-medium">Belum ditentukan</span>';
@@ -319,24 +331,42 @@
             <div id="panelStudioCanva" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
                 
                 <!-- Target Filter Selection Bar -->
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
-                    <div class="sm:col-span-4">
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Target Kelas</label>
-                        <select id="selModalKelas" onchange="updateStudioFilter()" class="w-full text-xs font-semibold px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none">
-                            <option value="Semua">Semua Kelas</option>
-                        </select>
-                    </div>
-                    <div class="sm:col-span-4">
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Target Guru</label>
-                        <select id="selModalGuru" onchange="updateStudioFilter()" class="w-full text-xs font-semibold px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none">
-                            <option value="Semua">Semua Guru (Jadwal Kelas)</option>
-                        </select>
-                    </div>
-                    <div class="sm:col-span-4 flex flex-col justify-center">
-                        <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Target Cetak Roster</span>
-                        <div class="text-xs font-bold text-indigo-900 bg-indigo-50/80 px-3 py-2 rounded-xl border border-indigo-100 truncate" id="keteranganTargetRoster">
-                            Memuat...
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-2.5">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                        <div class="sm:col-span-4">
+                            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                <span>🏫</span> Target Kelas:
+                            </label>
+                            <select id="selModalKelas" onchange="updateStudioFilter('kelas')" class="w-full text-xs font-semibold px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none">
+                                <option value="Semua">Semua Kelas</option>
+                            </select>
                         </div>
+                        <div class="sm:col-span-4">
+                            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                <span>👨‍🏫</span> Target Guru:
+                            </label>
+                            <select id="selModalGuru" onchange="updateStudioFilter('guru')" class="w-full text-xs font-semibold px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none">
+                                <option value="Semua">Semua Guru (Jadwal Kelas)</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-4 flex flex-col justify-center">
+                            <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Status Target Cetak:</span>
+                            <div class="text-xs font-bold text-indigo-900 bg-indigo-50/90 px-3 py-2 rounded-xl border border-indigo-200/80 truncate shadow-xs" id="keteranganTargetRoster">
+                                Memuat...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Toggle Gabung Jam Kembar -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/70 text-xs">
+                        <label class="inline-flex items-center gap-2 cursor-pointer select-none font-semibold text-slate-700 hover:text-indigo-700 transition-colors">
+                            <input type="checkbox" id="chkGabungJam" checked onchange="renderLivePreview()" 
+                                class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer">
+                            <span>⚡ Gabungkan Jam Pelajaran Kembar (misal: 2 JP Matematika otomatis jadi 1 baris waktu)</span>
+                        </label>
+                        <span class="text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
+                            ✓ 100% Jadwal Ditampilkan Lengkap
+                        </span>
                     </div>
                 </div>
 
@@ -667,10 +697,10 @@
             const tabel = document.getElementById('tabelJadwal');
             tabel.innerHTML = '';
 
-            // Filter yang sudah kebal huruf besar/kecil
+            // Filter yang sudah kebal huruf besar/kecil & variasi tanda petik (Jum'at/Jumat)
             let jadwalTerfilter = semuaJadwal.filter(j => {
                 let matchKelas = (kelasDipilih === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasDipilih.trim().toUpperCase());
-                let matchHari = (hariDipilih === "Semua" || (j.hari || "").trim().toUpperCase() === hariDipilih.trim().toUpperCase());
+                let matchHari = (hariDipilih === "Semua" || normalisasiHari(j.hari) === normalisasiHari(hariDipilih));
                 let matchGuru = (guruDipilih === "Semua" || (j.guru || "").trim().toUpperCase() === guruDipilih.trim().toUpperCase());
                 return matchKelas && matchHari && matchGuru;
             });
@@ -694,8 +724,8 @@
             }
 
             jadwalTerfilter.sort((a, b) => {
-                let hariA = (a.hari || "").trim().toLowerCase();
-                let hariB = (b.hari || "").trim().toLowerCase();
+                let hariA = normalisasiHari(a.hari);
+                let hariB = normalisasiHari(b.hari);
                 const urutanHariKu = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
                 
                 let nilaiHariA = urutanHariKu[hariA] || 99; 
@@ -719,7 +749,7 @@
                 const isEven = index % 2 === 0;
                 const rowBgClass = isEven ? 'bg-white' : 'bg-slate-50/60';
 
-                let hariWarna = (j.hari || "").trim().toLowerCase();
+                let hariWarna = normalisasiHari(j.hari);
                 let bgHari = "bg-slate-100 text-slate-700 border border-slate-200/70";
                 
                 if(hariWarna === "senin") bgHari = "bg-rose-50 text-rose-700 border border-rose-200/80";
@@ -729,7 +759,7 @@
                 else if(hariWarna === "jumat") bgHari = "bg-sky-50 text-sky-700 border border-sky-200/80";
                 else if(hariWarna === "sabtu") bgHari = "bg-indigo-50 text-indigo-700 border border-indigo-200/80";
 
-                let teksHariTampil = hariWarna ? (hariWarna.charAt(0).toUpperCase() + hariWarna.slice(1)) : '-';
+                let teksHariTampil = j.hari ? j.hari.trim() : (hariWarna ? (hariWarna.charAt(0).toUpperCase() + hariWarna.slice(1)) : '-');
 
                 const guruCell = j.guru 
                     ? `<div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200 flex-shrink-0"></span><span class="font-semibold text-slate-800">${j.guru}</span></div>` 
@@ -799,9 +829,18 @@
             renderLivePreview();
         };
 
-        window.updateStudioFilter = function() {
-            const targetKelas = document.getElementById('selModalKelas') ? document.getElementById('selModalKelas').value : 'Semua';
-            const targetGuru = document.getElementById('selModalGuru') ? document.getElementById('selModalGuru').value : 'Semua';
+        window.updateStudioFilter = function(sumber) {
+            const elKelas = document.getElementById('selModalKelas');
+            const elGuru = document.getElementById('selModalGuru');
+
+            if (sumber === 'guru' && elGuru && elGuru.value !== 'Semua' && elKelas) {
+                elKelas.value = 'Semua';
+            } else if (sumber === 'kelas' && elKelas && elKelas.value !== 'Semua' && elGuru) {
+                elGuru.value = 'Semua';
+            }
+
+            const targetKelas = elKelas ? elKelas.value : 'Semua';
+            const targetGuru = elGuru ? elGuru.value : 'Semua';
             const ketEl = document.getElementById('keteranganTargetRoster');
 
             if (ketEl) {
@@ -810,11 +849,91 @@
                 } else if (targetKelas !== "Semua") {
                     ketEl.innerText = `🏫 Roster Kelas: ${targetKelas}`;
                 } else {
-                    ketEl.innerText = `📑 Semua Roster (Kelas & Guru)`;
+                    ketEl.innerText = `📑 Seluruh Kelas & Guru (${semuaJadwal.length} Jadwal)`;
                 }
             }
             renderLivePreview();
         };
+
+        function normalisasiHari(str) {
+            if (!str) return '';
+            return str.toString().trim().toLowerCase().replace(/['`’]/g, '');
+        }
+
+        function formatRentangWaktu(items) {
+            if (!items || items.length === 0) return '-';
+            if (items.length === 1) return items[0].waktu || items[0].jam_ke || '-';
+
+            const wPertama = (items[0].waktu || '').trim();
+            const wTerakhir = (items[items.length - 1].waktu || '').trim();
+
+            const partAwal = wPertama.split(/\s*-\s*|\s*s\/d\s*/i);
+            const partAkhir = wTerakhir.split(/\s*-\s*|\s*s\/d\s*/i);
+
+            const jamMulai = partAwal[0] ? partAwal[0].trim() : wPertama;
+            const jamSelesai = partAkhir[partAkhir.length - 1] ? partAkhir[partAkhir.length - 1].trim() : wTerakhir;
+
+            if (jamMulai && jamSelesai && jamMulai !== jamSelesai) {
+                return `${jamMulai} - ${jamSelesai}`;
+            }
+
+            const jkAwal = items[0].jam_ke ? String(items[0].jam_ke).trim() : '';
+            const jkAkhir = items[items.length - 1].jam_ke ? String(items[items.length - 1].jam_ke).trim() : '';
+            if (jkAwal && jkAkhir && jkAwal !== jkAkhir) {
+                return `Jam ${jkAwal}-${jkAkhir}`;
+            }
+
+            return wPertama || jkAwal || '-';
+        }
+
+        function ciptakanItemGabungan(kelompok) {
+            if (kelompok.length === 1) {
+                return {
+                    ...kelompok[0],
+                    jumlahJP: 1,
+                    waktuTampil: kelompok[0].waktu || kelompok[0].jam_ke || '-',
+                    mapelTampil: kelompok[0].mapel || '-'
+                };
+            }
+
+            const itemUtama = kelompok[0];
+            const rentangWaktu = formatRentangWaktu(kelompok);
+            return {
+                ...itemUtama,
+                jumlahJP: kelompok.length,
+                waktuTampil: rentangWaktu,
+                mapelTampil: `${itemUtama.mapel} (${kelompok.length} JP)`
+            };
+        }
+
+        function gabungkanJamPelajaranKembar(jadwalList) {
+            if (!jadwalList || jadwalList.length <= 1) return (jadwalList || []).map(j => ciptakanItemGabungan([j]));
+
+            const hasil = [];
+            let kelompokSaatIni = [jadwalList[0]];
+
+            for (let i = 1; i < jadwalList.length; i++) {
+                const item = jadwalList[i];
+                const prev = kelompokSaatIni[kelompokSaatIni.length - 1];
+
+                const mapelSama = (item.mapel || '').trim().toLowerCase() === (prev.mapel || '').trim().toLowerCase();
+                const guruSama = (item.guru || '').trim().toLowerCase() === (prev.guru || '').trim().toLowerCase();
+                const kelasSama = (item.kelas || '').trim().toLowerCase() === (prev.kelas || '').trim().toLowerCase();
+
+                if (mapelSama && guruSama && kelasSama && item.mapel) {
+                    kelompokSaatIni.push(item);
+                } else {
+                    hasil.push(ciptakanItemGabungan(kelompokSaatIni));
+                    kelompokSaatIni = [item];
+                }
+            }
+
+            if (kelompokSaatIni.length > 0) {
+                hasil.push(ciptakanItemGabungan(kelompokSaatIni));
+            }
+
+            return hasil;
+        }
 
         function dapatkanJadwalPerHari(targetKelas, targetGuru) {
             let filtered = semuaJadwal.filter(j => {
@@ -825,8 +944,8 @@
 
             const urutHari = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
             filtered.sort((a, b) => {
-                let hA = urutHari[(a.hari || "").trim().toLowerCase()] || 99;
-                let hB = urutHari[(b.hari || "").trim().toLowerCase()] || 99;
+                let hA = urutHari[normalisasiHari(a.hari)] || 99;
+                let hB = urutHari[normalisasiHari(b.hari)] || 99;
                 if (hA !== hB) return hA - hB;
                 let m1 = (a.waktu||"").match(/\d+/g); let m2 = (b.waktu||"").match(/\d+/g);
                 let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
@@ -839,10 +958,21 @@
             hariList.forEach(h => perHari[h] = []);
 
             filtered.forEach(j => {
-                let h = (j.hari || "").trim();
-                let key = hariList.find(x => x.toLowerCase() === h.toLowerCase());
+                let norm = normalisasiHari(j.hari);
+                let key = hariList.find(x => normalisasiHari(x) === norm);
                 if (key) {
                     perHari[key].push(j);
+                }
+            });
+
+            const chkGabung = document.getElementById('chkGabungJam');
+            const harusGabung = !chkGabung || chkGabung.checked;
+
+            hariList.forEach(h => {
+                if (harusGabung) {
+                    perHari[h] = gabungkanJamPelajaranKembar(perHari[h]);
+                } else {
+                    perHari[h] = perHari[h].map(j => ciptakanItemGabungan([j]));
                 }
             });
 
@@ -1028,7 +1158,7 @@
                         <div style="background: ${themeConfig.cardBg}; border: ${themeConfig.cardBorder}; border-radius: 20px; padding: 12px 14px; box-shadow: ${themeConfig.cardShadow}; height: 260px; box-sizing: border-box; position: relative; display: flex; flex-direction: column;">
                             ${(templateId === 'notebook') ? `<div style="position: absolute; top: -9px; left: 50%; transform: translateX(-50%) rotate(1deg); width: 85px; height: 16px; background: ${washiColors[idx]}; border-radius: 2px;"></div>` : ''}
                             
-                            <div style="display: flex; items-center; justify-content: space-between; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                                 <div style="background: ${themeConfig.headerPillBg}; color: ${themeConfig.headerPillColor}; padding: 3px 12px; border-radius: 12px; font-family: 'Fredoka', cursive; font-size: 13px; font-weight: 700;">
                                     ${themeConfig.quoteTitle}
                                 </div>
@@ -1058,34 +1188,59 @@
                     return;
                 }
 
+                // Total JP calculation
+                const totalJP = items.reduce((acc, curr) => acc + (curr.jumlahJP || 1), 0);
+
                 // Regular Day Card
                 let itemsListHtml = '';
                 if (items.length === 0) {
                     itemsListHtml = `
-                        <div style="flex: 1; display: flex; flex-direction: column; items-center; justify-content: center; text-align: center; color: #94a3b8; font-size: 11px; font-style: italic; gap: 4px;">
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #94a3b8; font-size: 11px; font-style: italic; gap: 4px;">
                             <span style="font-size: 20px;">☕</span>
                             <span>Tidak ada jadwal / Libur</span>
                         </div>
                     `;
                 } else {
-                    itemsListHtml = `<div style="flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 4px; padding-top: 4px;">`;
-                    items.slice(0, 6).forEach(j => {
-                        let jam = j.waktu || j.jam_ke || '-';
+                    // Dynamic styling based on items count
+                    let padY = "3px 6px";
+                    let gap = "4px";
+                    let mapelFont = "11px";
+                    let timeFont = "9.5px";
+                    let subFont = "9px";
+                    
+                    if (items.length >= 7) {
+                        padY = "2px 5px";
+                        gap = "2px";
+                        mapelFont = "9.5px";
+                        timeFont = "8.5px";
+                        subFont = "8px";
+                    } else if (items.length >= 5) {
+                        padY = "2.5px 6px";
+                        gap = "3px";
+                        mapelFont = "10.5px";
+                        timeFont = "9px";
+                        subFont = "8.5px";
+                    }
+
+                    itemsListHtml = `<div class="canva-scroll-box" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: ${gap}; padding-top: 2px; padding-right: 2px;">`;
+                    
+                    // Render 100% of items without truncation
+                    items.forEach(j => {
+                        let jam = j.waktuTampil || j.waktu || j.jam_ke || '-';
+                        let judulMapel = j.mapelTampil || j.mapel || '-';
                         let sub = (targetGuru !== "Semua") ? (j.kelas ? 'Kls ' + j.kelas : '') : (j.guru ? j.guru : '');
+                        
                         itemsListHtml += `
-                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 3px 6px; background: ${themeConfig.itemBg}; border-radius: 8px; border: 1px solid ${themeConfig.itemBorder};">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 7px; border: 1px solid ${themeConfig.itemBorder}; flex-shrink: 0;">
                                 <div style="display: flex; align-items: center; gap: 5px; overflow: hidden; flex: 1;">
                                     <span style="width: 5px; height: 5px; border-radius: 50%; background: ${themeConfig.dotColor}; flex-shrink: 0;"></span>
-                                    <span style="font-weight: 700; font-size: 11px; color: ${themeConfig.itemText}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(j.mapel)}</span>
-                                    ${sub ? `<span style="font-size: 9.5px; color: ${themeConfig.itemSub}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">(${escapeHtml(sub)})</span>` : ''}
+                                    <span style="font-weight: 700; font-size: ${mapelFont}; color: ${themeConfig.itemText}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(judulMapel)}</span>
+                                    ${sub ? `<span style="font-size: ${subFont}; color: ${themeConfig.itemSub}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.9;">(${escapeHtml(sub)})</span>` : ''}
                                 </div>
-                                <span style="font-family: monospace; font-size: 9.5px; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: 1px 5px; border-radius: 4px; flex-shrink: 0;">${escapeHtml(jam)}</span>
+                                <span style="font-family: monospace; font-size: ${timeFont}; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: 1.5px 5px; border-radius: 4px; flex-shrink: 0; white-space: nowrap;">${escapeHtml(jam)}</span>
                             </div>
                         `;
                     });
-                    if (items.length > 6) {
-                        itemsListHtml += `<div style="text-align: right; font-size: 9px; color: #94a3b8; font-style: italic; padding-right: 4px;">+${items.length - 6} jam lainnya...</div>`;
-                    }
                     itemsListHtml += `</div>`;
                 }
 
@@ -1093,11 +1248,11 @@
                     <div style="background: ${themeConfig.cardBg}; border: ${themeConfig.cardBorder}; border-radius: 20px; padding: 12px 14px; box-shadow: ${themeConfig.cardShadow}; height: 260px; box-sizing: border-box; position: relative; display: flex; flex-direction: column;">
                         ${(templateId === 'notebook') ? `<div style="position: absolute; top: -9px; left: 50%; transform: translateX(-50%) rotate(${idx % 2 === 0 ? '-1.5deg' : '1.5deg'}); width: 85px; height: 16px; background: ${washiColors[idx]}; border-radius: 2px;"></div>` : ''}
                         
-                        <div style="display: flex; items-center; justify-content: space-between; margin-bottom: 4px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
                             <div style="background: ${themeConfig.headerPillBg}; color: ${themeConfig.headerPillColor}; padding: 3px 14px; border-radius: 12px; font-family: 'Fredoka', cursive; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">
                                 ${hari.toUpperCase()}
                             </div>
-                            <span style="font-size: 10px; font-weight: 700; color: #94a3b8; font-family: monospace;">${items.length} JP</span>
+                            <span style="font-size: 10px; font-weight: 700; color: ${themeConfig.itemSub}; background: ${themeConfig.timeBg}; padding: 1.5px 6px; border-radius: 6px; font-family: monospace;">${totalJP} JP</span>
                         </div>
 
                         ${itemsListHtml}
@@ -1256,30 +1411,46 @@
             const kelasAktif = document.getElementById('filterKelas').value;
             const guruAktif = document.getElementById('filterGuru').value;
             
+            // Dapatkan daftar unik kelas dan guru dari semuaJadwal
+            const daftarKelasUnik = [...new Set(semuaJadwal.map(j => (j.kelas || '').trim()).filter(Boolean))]
+                .sort((a,b) => a.localeCompare(b, undefined, {numeric: true}));
+            const daftarGuruUnik = [...new Set(semuaJadwal.map(j => (j.guru || '').trim()).filter(Boolean))].sort();
+
             // Populate Dropdown Kelas di Modal Canva
             const selKelas = document.getElementById('selModalKelas');
             if (selKelas) {
                 selKelas.innerHTML = `<option value="Semua">Semua Kelas</option>`;
-                const kelasOptions = Array.from(document.getElementById('filterKelas').options)
-                    .map(opt => opt.value)
-                    .filter(v => v !== "Semua");
-                kelasOptions.forEach(k => {
+                daftarKelasUnik.forEach(k => {
                     selKelas.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(k)}">Kelas ${escapeHtml(k)}</option>`);
                 });
-                selKelas.value = kelasAktif;
             }
 
             // Populate Dropdown Guru di Modal Canva
             const selGuru = document.getElementById('selModalGuru');
             if (selGuru) {
                 selGuru.innerHTML = `<option value="Semua">Semua Guru (Jadwal Kelas)</option>`;
-                const guruOptions = Array.from(document.getElementById('filterGuru').options)
-                    .map(opt => opt.value)
-                    .filter(v => v !== "Semua");
-                guruOptions.forEach(g => {
+                daftarGuruUnik.forEach(g => {
                     selGuru.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`);
                 });
-                selGuru.value = guruAktif;
+            }
+
+            // Tentukan pilihan target awal yang paling ideal:
+            // 1. Jika guru aktif dipilih di filter utama -> fokus ke guru tersebut
+            // 2. Jika kelas aktif dipilih di filter utama -> fokus ke kelas tersebut
+            // 3. Jika keduanya "Semua" -> pilih kelas pertama yang ada agar poster rapi, lengkap, dan tidak bertumpuk seluruh sekolah!
+            if (guruAktif !== "Semua") {
+                if (selGuru) selGuru.value = guruAktif;
+                if (selKelas) selKelas.value = "Semua";
+            } else if (kelasAktif !== "Semua") {
+                if (selKelas) selKelas.value = kelasAktif;
+                if (selGuru) selGuru.value = "Semua";
+            } else {
+                if (daftarKelasUnik.length > 0 && selKelas) {
+                    selKelas.value = daftarKelasUnik[0];
+                } else if (selKelas) {
+                    selKelas.value = "Semua";
+                }
+                if (selGuru) selGuru.value = "Semua";
             }
 
             // Default ke tab Canva dan render preview
@@ -1350,14 +1521,14 @@
                 
                 let dataExport = semuaJadwal.filter(j => {
                     let matchKelas = (kelasAktif === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasAktif.trim().toUpperCase());
-                    let matchHari = (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase());
+                    let matchHari = (hariAktif === "Semua" || normalisasiHari(j.hari) === normalisasiHari(hariAktif));
                     let matchGuru = (guruAktif === "Semua" || (j.guru || "").trim().toUpperCase() === guruAktif.trim().toUpperCase());
                     return matchKelas && matchHari && matchGuru;
                 });
 
                 dataExport.sort((a, b) => {
-                    let hariA = (a.hari || "").trim().toLowerCase();
-                    let hariB = (b.hari || "").trim().toLowerCase();
+                    let hariA = normalisasiHari(a.hari);
+                    let hariB = normalisasiHari(b.hari);
                     const urut = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
                     let nilaiHariA = urut[hariA] || 99; let nilaiHariB = urut[hariB] || 99;
                     if (nilaiHariA !== nilaiHariB) return nilaiHariA - nilaiHariB;
@@ -1472,7 +1643,7 @@
 
             let dataExport = semuaJadwal.filter(j => {
                 let matchKelas = (kelasAktif === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasAktif.trim().toUpperCase());
-                let matchHari = (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase());
+                let matchHari = (hariAktif === "Semua" || normalisasiHari(j.hari) === normalisasiHari(hariAktif));
                 let matchGuru = (guruAktif === "Semua" || (j.guru || "").trim().toUpperCase() === guruAktif.trim().toUpperCase());
                 return matchKelas && matchHari && matchGuru;
             });
@@ -1480,8 +1651,8 @@
             if(dataExport.length === 0) return alert("⚠️ Data kosong, tidak ada yang bisa diunduh.");
 
             dataExport.sort((a, b) => {
-                let hariA = (a.hari || "").trim().toLowerCase();
-                let hariB = (b.hari || "").trim().toLowerCase();
+                let hariA = normalisasiHari(a.hari);
+                let hariB = normalisasiHari(b.hari);
                 const urut = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
                 let nilaiHariA = urut[hariA] || 99; let nilaiHariB = urut[hariB] || 99;
                 
@@ -1932,10 +2103,11 @@
             const sekarang = new Date();
             const hariIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
             const hariIni = hariIndo[sekarang.getDay()];
+            const hariIniNorm = normalisasiHari(hariIni);
             const jadwalHariIni = semuaJadwal.filter(j => {
-                let h = (j.hari || "").trim().toLowerCase();
+                let h = normalisasiHari(j.hari);
                 let g = (j.guru || "").trim().toLowerCase();
-                return h === hariIni.toLowerCase() && g === guruAktif.trim().toLowerCase();
+                return h === hariIniNorm && g === guruAktif.trim().toLowerCase();
             });
 
             let pesanJadwal = `Jadwal mengajar Anda hari ini (${hariIni}):\n`;
@@ -1987,7 +2159,7 @@
             const sekarang = new Date();
             const hariIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
             const hariIni = hariIndo[sekarang.getDay()];
-            const hariIniLower = hariIni.toLowerCase();
+            const hariIniNorm = normalisasiHari(hariIni);
 
             const jam = sekarang.getHours();
             const menit = sekarang.getMinutes();
@@ -1996,8 +2168,8 @@
 
             // Filter ketat HANYA jadwal guru terpilih untuk hari ini
             const jadwalGuruHariIni = semuaJadwal.filter(j => {
-                let h = (j.hari || "").trim().toLowerCase();
-                if (h !== hariIniLower) return false;
+                let h = normalisasiHari(j.hari);
+                if (h !== hariIniNorm) return false;
                 let g = (j.guru || "").trim().toLowerCase();
                 return g === guruAktif.trim().toLowerCase();
             });
