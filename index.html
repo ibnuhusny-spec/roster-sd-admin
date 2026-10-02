@@ -73,6 +73,11 @@
 
         async function muatSplashScreen() {
             const teksNamaSekolah = document.getElementById('teksNamaSekolah');
+            try {
+                const cached = localStorage.getItem('cache_info_sekolah');
+                if (cached) teksNamaSekolah.innerText = cached;
+            } catch(e) {}
+
             if (firebaseConfig.apiKey === "API_KEY_ANDA") {
                 teksNamaSekolah.innerText = "SD Negeri Default (Mode Demo)";
                 return; 
@@ -80,12 +85,16 @@
             try {
                 const docSnap = await getDoc(doc(db, "pengaturan", "info_sekolah"));
                 if (docSnap.exists()) {
-                    teksNamaSekolah.innerText = docSnap.data().nama_sekolah || "SD Negeri Default";
+                    const nama = docSnap.data().nama_sekolah || "SD Negeri Default";
+                    teksNamaSekolah.innerText = nama;
+                    try { localStorage.setItem('cache_info_sekolah', nama); } catch(e) {}
                 } else {
                     teksNamaSekolah.innerText = "Selamat Datang!";
                 }
             } catch (error) {
-                teksNamaSekolah.innerText = "Aplikasi Roster (Mode Offline)";
+                if (!teksNamaSekolah.innerText || teksNamaSekolah.innerText === "Memuat Data...") {
+                    teksNamaSekolah.innerText = "Aplikasi Roster (Mode Offline)";
+                }
             }
         }
 
