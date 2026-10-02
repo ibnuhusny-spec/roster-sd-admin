@@ -1233,20 +1233,20 @@
                     if (!harusTampilkanSub) {
                         // Mode 1 Baris: Super Lega, Rapih, Bersih & Anti Menumpuk / Bersusun
                         if (items.length >= 7) {
-                            padY = "3.5px 7px"; gap = "3px"; mapelFont = "10.5px"; timeFont = "9px"; timePad = "2px 5px";
+                            padY = "4px 8px"; gap = "3px"; mapelFont = "11px"; timeFont = "9px"; timePad = "2px 5px";
                         } else if (items.length >= 5) {
-                            padY = "5.5px 9px"; gap = "4px"; mapelFont = "11.5px"; timeFont = "9.5px"; timePad = "2.5px 6px";
+                            padY = "6px 10px"; gap = "5px"; mapelFont = "12px"; timeFont = "9.5px"; timePad = "3px 6px";
                         } else {
-                            padY = "8px 10px"; gap = "6px"; mapelFont = "12.5px"; timeFont = "10px"; timePad = "3px 7px";
+                            padY = "9px 12px"; gap = "8px"; mapelFont = "13px"; timeFont = "10.5px"; timePad = "4px 8px";
                         }
                     } else {
                         // Mode 2 Baris: Proporsional dengan line-height aman, anti clipping
                         if (items.length >= 7) {
-                            padY = "2px 5px"; gap = "2px"; mapelFont = "9.5px"; subFont = "8px"; timeFont = "8.5px"; timePad = "1.5px 4px";
+                            padY = "2.5px 6px"; gap = "2.5px"; mapelFont = "9.5px"; subFont = "8px"; timeFont = "8.5px"; timePad = "1.5px 4px";
                         } else if (items.length >= 5) {
-                            padY = "3px 6px"; gap = "3px"; mapelFont = "10.5px"; subFont = "8.5px"; timeFont = "9px"; timePad = "2px 5px";
+                            padY = "4px 8px"; gap = "3.5px"; mapelFont = "10.5px"; subFont = "8.5px"; timeFont = "9px"; timePad = "2px 5px";
                         } else {
-                            padY = "5px 8px"; gap = "5px"; mapelFont = "11.5px"; subFont = "9.5px"; timeFont = "9.5px"; timePad = "2.5px 6px";
+                            padY = "6px 10px"; gap = "6px"; mapelFont = "11.5px"; subFont = "9.5px"; timeFont = "9.5px"; timePad = "2.5px 6px";
                         }
                     }
 
@@ -1262,34 +1262,42 @@
                             sub = j.guru || '';
                         }
                         
-                        itemsListHtml += `
-                            <div style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder}; flex-shrink: 0; box-sizing: border-box;">
-                                
-                                <!-- Info Mata Pelajaran & Nama Guru/Kelas -->
-                                <div style="display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0; padding-right: 4px;">
-                                    <span style="width: 5px; height: 5px; border-radius: 50%; background: ${themeConfig.dotColor}; flex-shrink: 0;"></span>
-                                    
-                                    <div style="flex: 1; min-width: 0;">
-                                        <!-- Baris 1: Nama Mapel (Tebal, Jelas, line-height 1.4, Bebas Slicing) -->
-                                        <div style="font-weight: 700; font-size: ${mapelFont}; color: ${themeConfig.itemText}; line-height: 1.4; display: block;">
+                        if (!harusTampilkanSub || !sub) {
+                            // Render 1 Baris Murni (Bebas Clipping, Bebas Min-Width Collapse)
+                            itemsListHtml += `
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder};">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: ${themeConfig.dotColor}; flex-shrink: 0;"></span>
+                                        <span style="font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-weight: 700; font-size: ${mapelFont}; color: ${themeConfig.itemText};">
                                             ${escapeHtml(potongTeks(judulMapel, 32))}
-                                        </div>
-                                        
-                                        <!-- Baris 2: Sub Guru / Kelas (Hanya jika diaktifkan, Bebas Slicing) -->
-                                        ${sub ? `
-                                        <div style="font-size: ${subFont}; color: ${themeConfig.itemSub}; line-height: 1.35; opacity: 0.88; margin-top: 1px; display: block;">
-                                            ${(targetGuru !== "Semua") ? '🏫 ' : '👤 '}${escapeHtml(potongTeks(sub, 28))}
-                                        </div>` : ''}
+                                        </span>
                                     </div>
+                                    <span style="font-family: monospace; font-size: ${timeFont}; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: ${timePad}; border-radius: 6px; border: 1px solid ${themeConfig.itemBorder}; flex-shrink: 0;">
+                                        ${escapeHtml(jam)}
+                                    </span>
                                 </div>
-
-                                <!-- Badge Waktu Pelajaran (Di Kanan Rapi) -->
-                                <div style="font-family: monospace; font-size: ${timeFont}; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: ${timePad}; border-radius: 6px; flex-shrink: 0; white-space: nowrap; border: 1px solid ${themeConfig.itemBorder}; line-height: 1.25; text-align: center; margin-left: 6px;">
-                                    ${escapeHtml(jam)}
+                            `;
+                        } else {
+                            // Render 2 Baris Murni (Mapel + Guru/Kelas)
+                            itemsListHtml += `
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder};">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: ${themeConfig.dotColor}; flex-shrink: 0;"></span>
+                                        <div style="display: flex; flex-direction: column;">
+                                            <span style="font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-weight: 700; font-size: ${mapelFont}; color: ${themeConfig.itemText};">
+                                                ${escapeHtml(potongTeks(judulMapel, 30))}
+                                            </span>
+                                            <span style="font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-size: ${subFont}; color: ${themeConfig.itemSub}; opacity: 0.88; margin-top: 2px;">
+                                                ${(targetGuru !== "Semua") ? '🏫 ' : '👤 '}${escapeHtml(potongTeks(sub, 28))}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <span style="font-family: monospace; font-size: ${timeFont}; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: ${timePad}; border-radius: 6px; border: 1px solid ${themeConfig.itemBorder}; flex-shrink: 0;">
+                                        ${escapeHtml(jam)}
+                                    </span>
                                 </div>
-
-                            </div>
-                        `;
+                            `;
+                        }
                     });
                     itemsListHtml += `</div>`;
                 }
@@ -1312,7 +1320,7 @@
 
             // Assemble Full Poster HTML
             return `
-                <div style="background: ${themeConfig.containerBg}; ${(themeConfig.containerPattern) ? `background-image: ${themeConfig.containerPattern}; background-size: 24px 24px;` : ''} color: ${themeConfig.textColor}; padding: 22px 28px; width: 1120px; height: 790px; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+                <div style="background: ${themeConfig.containerBg}; ${(themeConfig.containerPattern) ? `background-image: ${themeConfig.containerPattern}; background-size: 24px 24px;` : ''} color: ${themeConfig.textColor}; padding: 22px 28px; width: 1120px; height: 790px; box-sizing: border-box; font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
                     
                     <!-- Decorative Corner Icons -->
                     <div style="position: absolute; top: 14px; left: 20px; font-size: 28px; pointer-events: none; opacity: 0.85;">${themeConfig.decorTopLeft}</div>
@@ -1409,7 +1417,14 @@
                 width: 1120,
                 height: 790,
                 windowWidth: 1200,
-                windowHeight: 900
+                windowHeight: 900,
+                onclone: (clonedDoc) => {
+                    if (document.fonts) {
+                        try {
+                            document.fonts.forEach(font => clonedDoc.fonts.add(font));
+                        } catch(e) {}
+                    }
+                }
             });
 
             // Kembalikan host ke posisi tersembunyi
