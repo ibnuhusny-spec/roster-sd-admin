@@ -33,6 +33,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.default.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.13/dist/html-to-image.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -1266,7 +1267,7 @@
                         if (!harusTampilkanSub || !sub) {
                             // Render 1 Baris Murni (Terpusat Vertikal Sempurna)
                             itemsListHtml += `
-                                <div style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder}; box-sizing: border-box;">
+                                <div class="canva-item-row" style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder}; box-sizing: border-box;">
                                     <div style="display: flex; align-items: center; gap: 8px; line-height: 1;">
                                         <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: ${themeConfig.dotColor}; flex-shrink: 0;"></span>
                                         <span style="font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-weight: 700; font-size: ${mapelFont}; color: ${themeConfig.itemText}; line-height: 1.15; display: inline-flex; align-items: center; margin-top: 1px;">
@@ -1281,7 +1282,7 @@
                         } else {
                             // Render 2 Baris Murni (Terpusat Vertikal Sempurna)
                             itemsListHtml += `
-                                <div style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder}; box-sizing: border-box;">
+                                <div class="canva-item-row" style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder}; box-sizing: border-box;">
                                     <div style="display: flex; align-items: center; gap: 8px; line-height: 1;">
                                         <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: ${themeConfig.dotColor}; flex-shrink: 0;"></span>
                                         <div style="display: flex; flex-direction: column; justify-content: center;">
@@ -1406,27 +1407,51 @@
             if (document.fonts) { await document.fonts.ready; }
             await new Promise(r => setTimeout(r, 200));
 
-            const canvas = await html2canvas(host.firstElementChild, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                backgroundColor: null,
-                scrollX: 0,
-                scrollY: 0,
-                x: 0,
-                y: 0,
-                width: 1120,
-                height: 790,
-                windowWidth: 1200,
-                windowHeight: 900,
-                onclone: (clonedDoc) => {
-                    if (document.fonts) {
-                        try {
-                            document.fonts.forEach(font => clonedDoc.fonts.add(font));
-                        } catch(e) {}
-                    }
+            let canvas = null;
+
+            // Engine 1: html-to-image (Render asli mesin browser SVG foreignObject pixel-perfect 1:1 persis seperti preview layar)
+            if (window.htmlToImage && typeof window.htmlToImage.toCanvas === 'function') {
+                try {
+                    canvas = await window.htmlToImage.toCanvas(host.firstElementChild, {
+                        pixelRatio: 2,
+                        width: 1120,
+                        height: 790,
+                        backgroundColor: null
+                    });
+                } catch (errHtmlToImage) {
+                    console.warn("htmlToImage toCanvas gagal, beralih ke engine html2canvas:", errHtmlToImage);
                 }
-            });
+            }
+
+            // Engine 2: html2canvas (Fallback dengan kompensasi padding optik agar teks terpusat vertikal)
+            if (!canvas && window.html2canvas) {
+                canvas = await html2canvas(host.firstElementChild, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: null,
+                    scrollX: 0,
+                    scrollY: 0,
+                    x: 0,
+                    y: 0,
+                    width: 1120,
+                    height: 790,
+                    windowWidth: 1200,
+                    windowHeight: 900,
+                    onclone: (clonedDoc) => {
+                        if (document.fonts) {
+                            try {
+                                document.fonts.forEach(font => clonedDoc.fonts.add(font));
+                            } catch(e) {}
+                        }
+                        // Kompensasi pergeseran vertikal html2canvas agar turun 2.5px tepat di tengah
+                        clonedDoc.querySelectorAll('.canva-item-row').forEach(row => {
+                            row.style.paddingTop = '8px';
+                            row.style.paddingBottom = '3.5px';
+                        });
+                    }
+                });
+            }
 
             // Kembalikan host ke posisi tersembunyi
             host.innerHTML = '';
@@ -1434,6 +1459,7 @@
             host.style.top = '-9999px';
             host.style.visibility = 'hidden';
 
+            if (!canvas) throw new Error("Gagal memproses render kanvas poster.");
             return canvas;
         }
 
