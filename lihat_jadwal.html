@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lihat Jadwal Pelajaran</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1d4ed8">
+    <link rel="apple-touch-icon" href="logo1.png">
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
@@ -1007,6 +1010,82 @@
             }
         }
 
+        // ========================================================
+        // PENDAFTARAN SERVICE WORKER & NOTIFIKASI LAYAR TERDEPAN
+        // ========================================================
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').then((reg) => {
+                console.log("Service Worker aktif:", reg.scope);
+            }).catch((err) => {
+                console.warn("Service Worker gagal didaftarkan:", err);
+            });
+        }
+
+        async function mintaIzinNotifikasiSistem() {
+            if (!("Notification" in window)) {
+                return false;
+            }
+            if (Notification.permission === "granted") {
+                return true;
+            }
+            if (Notification.permission === "denied") {
+                alert("⚠️ Izin Notifikasi Diblokir oleh Browser!\n\nAgar notifikasi dan alarm jadwal mengajar dapat muncul di layar terdepan (desktop/layar kunci) saat Anda membuka aplikasi lain, silakan klik ikon 'Gembok' atau 'Setelan Situs' di sebelah kiri URL browser Anda, lalu ubah izin 'Notifikasi' menjadi 'Izinkan' (Allow).");
+                return false;
+            }
+            try {
+                const res = await Notification.requestPermission();
+                return res === "granted";
+            } catch(e) {
+                return false;
+            }
+        }
+
+        async function munculkanNotifikasiLayarTerdepan(judul, pesan, jam) {
+            // 1. Tampilkan banner internal di dalam aplikasi
+            tampilkanBannerBel(judul, pesan, jam);
+
+            // 2. Tampilkan notifikasi sistem level OS (muncul di layar terdepan laptop/HP)
+            if (!("Notification" in window)) return;
+
+            const izin = await mintaIzinNotifikasiSistem();
+            if (!izin) return;
+
+            const opsiNotif = {
+                body: pesan,
+                icon: "logo1.png",
+                badge: "logo1.png",
+                vibrate: [800, 250, 800, 250, 800, 250, 1000],
+                tag: `alarm-${jam}`,
+                renotify: true,
+                requireInteraction: true // Di Windows & Android: tetap mengapung di layar terdepan sampai diklik / ditutup
+            };
+
+            // Jalur 1: Service Worker (Sangat stabil di Windows background & Wajib untuk Android Chrome)
+            try {
+                if ('serviceWorker' in navigator) {
+                    const reg = await navigator.serviceWorker.ready;
+                    if (reg && reg.showNotification) {
+                        await reg.showNotification(judul, opsiNotif);
+                        return;
+                    }
+                }
+            } catch(e) {
+                console.warn("ServiceWorker showNotification fallback:", e);
+            }
+
+            // Jalur 2: Native Notification API (Fallback)
+            try {
+                const notif = new Notification(judul, opsiNotif);
+                notif.onclick = () => {
+                    window.focus();
+                    notif.close();
+                    window.hentikanSuaraBel();
+                };
+            } catch(e) {
+                console.warn("Notification constructor fallback:", e);
+            }
+        }
+
         function tampilkanBannerBel(judul, pesan, jam) {
             const banner = document.getElementById('bannerNotifBel');
             const judulEl = document.getElementById('judulBannerBel');
@@ -1021,7 +1100,11 @@
         window.tesBunyiBel = async function() {
             await getAudioContextReady();
             await putarBelSekolahKeras();
-            tampilkanBannerBel("🔔 UJI COBA SUARA ALARM", "Bel Lonceng Sekolah Berbunyi (8 Nada Keras, Tebal & Bergema)", "Sekarang");
+            await munculkanNotifikasiLayarTerdepan(
+                "🔔 UJI COBA NOTIFIKASI LAYAR", 
+                "Notifikasi ini berhasil muncul di layar terdepan laptop/HP Anda meskipun sedang membuka aplikasi lain atau browser diminimalkan!", 
+                "Sekarang"
+            );
         };
 
         window.toggleAlarm = async function() {
@@ -1049,15 +1132,20 @@
             // Buka Web Audio Context pada klik pengguna
             await getAudioContextReady();
 
-            // Minta izin notifikasi browser jika belum diberikan
-            if ("Notification" in window && Notification.permission !== "granted") {
-                Notification.requestPermission();
-            }
+            // Minta izin notifikasi layar terdepan
+            await mintaIzinNotifikasiSistem();
 
             isAlarmAktif = true;
             localStorage.setItem('guru_terpilih', guruAktif);
             localStorage.setItem('alarm_aktif_guru', guruAktif);
             updateStatusTombolAlarm();
+
+            // Tampilkan konfirmasi notifikasi sistem uji coba kilat di layar
+            await munculkanNotifikasiLayarTerdepan(
+                "✅ ALARM DIAKTIFKAN", 
+                `Alarm jadwal mengajar aktif untuk Bpk/Ibu ${guruAktif}. Notifikasi akan muncul otomatis di layar terdepan.`, 
+                "Siaga"
+            );
 
             // Rangkum jadwal hari ini untuk kepastian guru
             const sekarang = new Date();
@@ -1147,7 +1235,7 @@
             });
 
             // Periksa setiap jam mengajar guru ini
-            mapJamMulai.forEach(info => {
+            mapJamMulai.forEach(async (info) => {
                 const keyUnik = `${tglHariIni}|${guruAktif.trim().toLowerCase()}|${info.jamStr}`;
 
                 // Jangan bunyikan lagi jika jam mengajar ini sudah berbunyi hari ini
@@ -1160,24 +1248,15 @@
                     riwayatBelHariIni.add(keyUnik);
 
                     // Bunyikan Alarm Lonceng Sekolah Keras
-                    putarBelSekolahKeras();
+                    await putarBelSekolahKeras();
 
                     const item = info.list[0];
                     const deskripsi = `Waktunya Mengajar: Kelas ${item.kelas} • Mapel: ${item.mapel}`;
-                    tampilkanBannerBel(`🔔 ALARM JADWAL MENGAJAR (${info.jamStr})`, deskripsi, info.jamStr);
-
-                    if ("Notification" in window && Notification.permission === "granted") {
-                        const notif = new Notification(`🔔 Waktunya Mengajar: Jam ${info.jamStr}`, {
-                            body: `${deskripsi}\nBpk/Ibu ${guruAktif}`,
-                            icon: "logo1.png",
-                            requireInteraction: true
-                        });
-                        notif.onclick = () => {
-                            window.focus();
-                            notif.close();
-                            window.hentikanSuaraBel();
-                        };
-                    }
+                    await munculkanNotifikasiLayarTerdepan(
+                        `🔔 ALARM JADWAL MENGAJAR (${info.jamStr})`, 
+                        `${deskripsi}\nBpk/Ibu ${guruAktif}`, 
+                        info.jamStr
+                    );
                 }
             });
         }
