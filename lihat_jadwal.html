@@ -9,9 +9,10 @@
     <link rel="apple-touch-icon" href="logo1.png">
     
     <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+    <!-- Google Fonts: Plus Jakarta Sans, Outfit, & Fredoka -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -21,6 +22,7 @@
                     fontFamily: {
                         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
                         heading: ['"Outfit"', 'sans-serif'],
+                        playful: ['"Fredoka"', 'sans-serif'],
                     }
                 }
             }
@@ -279,78 +281,236 @@
         </div>
     </div>
 
-    <div id="modalExportExcel" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-200 overflow-y-auto">
-        <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 w-full max-w-2xl my-8 overflow-hidden max-h-[90vh] flex flex-col">
-            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-6 py-5 flex justify-between items-center text-white shrink-0">
+    <!-- MODAL STUDIO CETAK & DOWNLOAD ROSTER (CANVA EDITION & RESMI) -->
+    <div id="modalExportExcel" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 transition-all duration-200 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 w-full max-w-5xl my-2 sm:my-6 overflow-hidden max-h-[94vh] flex flex-col">
+            
+            <!-- Top Header -->
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-5 sm:px-6 py-4 flex justify-between items-center text-white shrink-0">
                 <div class="flex items-center gap-3">
-                    <span class="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30 text-lg">🖨️</span>
+                    <span class="p-2.5 bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 text-white rounded-2xl text-lg shadow-md">🎨</span>
                     <div>
-                        <h3 class="font-heading font-bold text-lg">Download Roster Siap Cetak</h3>
-                        <p class="text-xs text-slate-400">Ekspor jadwal ke format PDF atau Excel siap print</p>
+                        <h3 class="font-heading font-bold text-lg sm:text-xl flex items-center gap-2">
+                            <span>Studio Download Roster Pelajaran</span>
+                            <span class="text-[10px] font-extrabold bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Canva Edition</span>
+                        </h3>
+                        <p class="text-xs text-slate-300">Pilih template kreatif ala Canva siap cetak atau format dokumen resmi kedinasan</p>
                     </div>
                 </div>
                 <button onclick="tutupModal('modalExportExcel')" class="w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors text-xl font-bold">&times;</button>
             </div>
-            
-            <form id="formExport" class="p-6 md:p-8 space-y-4 overflow-y-auto">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nama Sekolah</label>
-                    <input type="text" id="exNamaSekolah" placeholder="Contoh: SD Negeri 1 Jakarta" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-blue-900 font-bold uppercase transition text-sm" required>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tahun Pelajaran</label>
-                        <input type="text" id="exTahun" placeholder="Contoh: 2024/2025" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm transition" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tempat, Tanggal Pembuatan</label>
-                        <input type="text" id="exTempatTgl" placeholder="Contoh: Makassar, 15 Juli 2024" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm transition" required>
-                    </div>
-                </div>
+            <!-- Tab Switcher -->
+            <div class="bg-slate-100/90 border-b border-slate-200 px-4 sm:px-6 py-2.5 flex flex-wrap items-center gap-2 shrink-0">
+                <button type="button" id="tabBtnCanva" onclick="gantiTabStudio('canva')" 
+                    class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-indigo-700 shadow-sm border border-slate-200 transition-all">
+                    <span>🎨</span>
+                    <span>Template Kreatif Canva (5 Pilihan)</span>
+                    <span class="bg-indigo-100 text-indigo-700 text-[10px] px-1.5 py-0.5 rounded-full font-extrabold">Favorit</span>
+                </button>
+                <button type="button" id="tabBtnResmi" onclick="gantiTabStudio('resmi')" 
+                    class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition-all">
+                    <span>🏛️</span>
+                    <span>Format Resmi Kedinasan (KOP & TTD)</span>
+                </button>
+            </div>
 
-                <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100/80">
-                    <h4 class="font-bold text-blue-900 mb-3 text-xs uppercase tracking-wider flex items-center gap-2">👨‍💼 Data Kepala Sekolah</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Kepala Sekolah</label>
-                            <input type="text" id="exNamaKepsek" placeholder="Nama Lengkap beserta gelar" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm" required>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">NIP Kepala Sekolah</label>
-                            <input type="text" id="exNipKepsek" placeholder="Nomor Induk Pegawai" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm" required>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100/80">
-                    <h4 class="font-bold text-emerald-900 mb-3 text-xs uppercase tracking-wider flex items-center gap-2">
-                        <span>👩‍🏫</span> Data Wali Kelas / Guru <span id="labelWaliKelas" class="font-semibold text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md normal-case"></span>
-                    </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Wali / Guru</label>
-                            <input type="text" id="exNamaWali" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">NIP Wali / Guru</label>
-                            <input type="text" id="exNipWali" placeholder="Kosongkan jika tidak ada" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
-                        </div>
-                    </div>
-                </div>
+            <!-- TAB 1: TEMPLATE KREATIF CANVA -->
+            <div id="panelStudioCanva" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
                 
-                <div class="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t border-slate-100">
-                    <button type="button" onclick="tutupModal('modalExportExcel')" class="w-full sm:w-1/4 px-4 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-sm transition-colors">Batal</button>
-                    <button type="button" onclick="prosesDownloadPDF()" class="w-full sm:w-1/3 px-4 py-2.5 text-white bg-rose-600 hover:bg-rose-700 shadow-md shadow-rose-200 rounded-xl font-bold text-sm transition-all flex justify-center items-center gap-2">
-                        <span>📄</span> Cetak PDF
+                <!-- Target Filter Selection Bar -->
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
+                    <div class="sm:col-span-4">
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Target Kelas</label>
+                        <select id="selModalKelas" onchange="updateStudioFilter()" class="w-full text-xs font-semibold px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none">
+                            <option value="Semua">Semua Kelas</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-4">
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Target Guru</label>
+                        <select id="selModalGuru" onchange="updateStudioFilter()" class="w-full text-xs font-semibold px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none">
+                            <option value="Semua">Semua Guru (Jadwal Kelas)</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-4 flex flex-col justify-center">
+                        <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Target Cetak Roster</span>
+                        <div class="text-xs font-bold text-indigo-900 bg-indigo-50/80 px-3 py-2 rounded-xl border border-indigo-100 truncate" id="keteranganTargetRoster">
+                            Memuat...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Template Picker Buttons Carousel -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <span>✨</span> Pilih Desain Template Roster Canva:
+                        </label>
+                        <span class="text-[11px] text-slate-400 font-medium">Klik untuk ganti tema secara instan</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+                        
+                        <!-- Template 1: Galaxy -->
+                        <button type="button" onclick="pilihTemplateCanva('galaxy')" id="btnTpl-galaxy" 
+                            class="tpl-btn group relative p-3 rounded-2xl border-2 transition-all text-left flex flex-col gap-1.5 bg-gradient-to-b from-slate-900 to-indigo-950 text-white border-purple-500 shadow-md ring-2 ring-purple-500/30">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xl">🚀</span>
+                                <span class="text-[9px] font-bold bg-purple-500/40 text-purple-200 px-1.5 py-0.5 rounded-full border border-purple-400/30">Luar Angkasa</span>
+                            </div>
+                            <span class="font-bold text-xs">Galaxy Space</span>
+                            <span class="text-[10px] text-slate-400 leading-tight">Astronot & Bintang</span>
+                        </button>
+
+                        <!-- Template 2: Notebook -->
+                        <button type="button" onclick="pilihTemplateCanva('notebook')" id="btnTpl-notebook" 
+                            class="tpl-btn group relative p-3 rounded-2xl border-2 transition-all text-left flex flex-col gap-1.5 bg-[#fdfaf3] text-amber-950 border-slate-200 hover:border-amber-400 hover:shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xl">📝</span>
+                                <span class="text-[9px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">Kertas Grid</span>
+                            </div>
+                            <span class="font-bold text-xs">Aesthetic Notes</span>
+                            <span class="text-[10px] text-amber-800/70 leading-tight">Washi Tape & Siswa</span>
+                        </button>
+
+                        <!-- Template 3: Sage Green -->
+                        <button type="button" onclick="pilihTemplateCanva('sage')" id="btnTpl-sage" 
+                            class="tpl-btn group relative p-3 rounded-2xl border-2 transition-all text-left flex flex-col gap-1.5 bg-[#eef4ee] text-emerald-950 border-slate-200 hover:border-emerald-400 hover:shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xl">🌿</span>
+                                <span class="text-[9px] font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full">Botanical</span>
+                            </div>
+                            <span class="font-bold text-xs">Sage Green</span>
+                            <span class="text-[10px] text-emerald-800/70 leading-tight">Tanaman Minimalis</span>
+                        </button>
+
+                        <!-- Template 4: Ocean -->
+                        <button type="button" onclick="pilihTemplateCanva('ocean')" id="btnTpl-ocean" 
+                            class="tpl-btn group relative p-3 rounded-2xl border-2 transition-all text-left flex flex-col gap-1.5 bg-gradient-to-b from-sky-600 to-blue-700 text-white border-slate-200 hover:border-sky-300 hover:shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xl">🌊</span>
+                                <span class="text-[9px] font-bold bg-white/20 text-white px-1.5 py-0.5 rounded-full">Bawah Laut</span>
+                            </div>
+                            <span class="font-bold text-xs">Ocean Marine</span>
+                            <span class="text-[10px] text-sky-100 leading-tight">Paus & Lumba-lumba</span>
+                        </button>
+
+                        <!-- Template 5: Pastel Floral -->
+                        <button type="button" onclick="pilihTemplateCanva('pastel')" id="btnTpl-pastel" 
+                            class="tpl-btn group relative p-3 rounded-2xl border-2 transition-all text-left flex flex-col gap-1.5 bg-[#fff1f2] text-rose-950 border-slate-200 hover:border-rose-400 hover:shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xl">🌸</span>
+                                <span class="text-[9px] font-bold bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded-full">Sweet Pink</span>
+                            </div>
+                            <span class="font-bold text-xs">Pastel Floral</span>
+                            <span class="text-[10px] text-rose-800/70 leading-tight">Bunga & Ceria</span>
+                        </button>
+
+                    </div>
+                </div>
+
+                <!-- Live Preview Viewport -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <span>👁️</span> Pratinjau Desain Live (Canva Poster):
+                        </span>
+                        <span class="text-[11px] text-slate-400 font-medium">Ukuran standar cetak: A4 Landscape HD</span>
+                    </div>
+
+                    <div id="previewViewport" class="w-full bg-slate-200/90 rounded-2xl p-2.5 overflow-hidden flex items-start justify-center border border-slate-300 shadow-inner relative transition-all" style="height: 380px;">
+                        <div id="previewScaleWrapper" style="transform-origin: top center; width: 1120px; height: 790px; flex-shrink: 0;">
+                            <!-- Injected poster live preview -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Download Buttons for Canva -->
+                <div class="flex flex-col-reverse sm:flex-row gap-3 pt-3 border-t border-slate-200">
+                    <button type="button" onclick="tutupModal('modalExportExcel')" class="w-full sm:w-1/4 px-4 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-xs sm:text-sm transition-colors">Tutup</button>
+                    
+                    <button type="button" onclick="unduhRosterCanvaPNG()" id="btnUnduhPNG" 
+                        class="w-full sm:w-1/3 px-4 py-2.5 text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-md shadow-emerald-200 rounded-xl font-bold text-xs sm:text-sm transition-all flex justify-center items-center gap-2">
+                        <span>🖼️</span>
+                        <span>Download Gambar HD (PNG)</span>
                     </button>
-                    <button type="button" onclick="prosesExportExcel()" id="btnProsesExport" class="w-full sm:w-5/12 px-4 py-2.5 text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-200 rounded-xl font-bold text-sm transition-all flex justify-center items-center gap-2">
-                        <span>📊</span> Download Excel
+
+                    <button type="button" onclick="unduhRosterCanvaPDF()" id="btnUnduhCanvaPDF" 
+                        class="w-full sm:w-5/12 px-4 py-2.5 text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:to-purple-700 shadow-md shadow-indigo-200 rounded-xl font-bold text-xs sm:text-sm transition-all flex justify-center items-center gap-2">
+                        <span>📄</span>
+                        <span>Download PDF (A4 Landscape)</span>
                     </button>
                 </div>
-            </form>
+            </div>
+
+            <!-- TAB 2: FORMAT RESMI KEDINASAN -->
+            <div id="panelStudioResmi" class="hidden flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                <form id="formExport" class="space-y-4">
+                    <p class="text-xs text-slate-500 mb-2">Lengkapi data di bawah ini untuk mengisi KOP Surat dan Tanda Tangan resmi kedinasan pada file cetak.</p>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nama Sekolah</label>
+                        <input type="text" id="exNamaSekolah" placeholder="Contoh: SD Negeri 1 Jakarta" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-blue-900 font-bold uppercase transition text-sm" required>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tahun Pelajaran</label>
+                            <input type="text" id="exTahun" placeholder="Contoh: 2024/2025" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm transition" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tempat, Tanggal Pembuatan</label>
+                            <input type="text" id="exTempatTgl" placeholder="Contoh: Makassar, 15 Juli 2024" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm transition" required>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100/80">
+                        <h4 class="font-bold text-blue-900 mb-3 text-xs uppercase tracking-wider flex items-center gap-2">👨‍💼 Data Kepala Sekolah</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Kepala Sekolah</label>
+                                <input type="text" id="exNamaKepsek" placeholder="Nama Lengkap beserta gelar" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm" required>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1">NIP Kepala Sekolah</label>
+                                <input type="text" id="exNipKepsek" placeholder="Nomor Induk Pegawai" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100/80">
+                        <h4 class="font-bold text-emerald-900 mb-3 text-xs uppercase tracking-wider flex items-center gap-2">
+                            <span>👩‍🏫</span> Data Wali Kelas / Guru <span id="labelWaliKelas" class="font-semibold text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md normal-case"></span>
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Wali / Guru</label>
+                                <input type="text" id="exNamaWali" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1">NIP Wali / Guru</label>
+                                <input type="text" id="exNipWali" placeholder="Kosongkan jika tidak ada" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t border-slate-100">
+                        <button type="button" onclick="tutupModal('modalExportExcel')" class="w-full sm:w-1/4 px-4 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-sm transition-colors">Batal</button>
+                        <button type="button" onclick="prosesDownloadPDF()" class="w-full sm:w-1/3 px-4 py-2.5 text-white bg-rose-600 hover:bg-rose-700 shadow-md shadow-rose-200 rounded-xl font-bold text-sm transition-all flex justify-center items-center gap-2">
+                            <span>📄</span> Cetak PDF Resmi
+                        </button>
+                        <button type="button" onclick="prosesExportExcel()" id="btnProsesExport" class="w-full sm:w-5/12 px-4 py-2.5 text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-200 rounded-xl font-bold text-sm transition-all flex justify-center items-center gap-2">
+                            <span>📊</span> Download Excel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
         </div>
     </div>
+
+    <!-- Hidden Host for Rendering High-Definition Canva Poster Export -->
+    <div id="posterExportHost" style="position: fixed; left: -9999px; top: -9999px; width: 1120px; height: 790px; overflow: hidden; z-index: -999; pointer-events: none;"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -587,6 +747,508 @@
             });
         };
 
+        // ========================================================
+        // CANVA EDITION: STUDIO DOWNLOAD ROSTER KREATIF & FORMAL
+        // ========================================================
+        let currentTemplate = 'galaxy';
+        let currentStudioTab = 'canva';
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        window.gantiTabStudio = function(tab) {
+            currentStudioTab = tab;
+            const panelCanva = document.getElementById('panelStudioCanva');
+            const panelResmi = document.getElementById('panelStudioResmi');
+            const btnCanva = document.getElementById('tabBtnCanva');
+            const btnResmi = document.getElementById('tabBtnResmi');
+
+            if (tab === 'canva') {
+                panelCanva.classList.remove('hidden');
+                panelResmi.classList.add('hidden');
+                btnCanva.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-indigo-700 shadow-sm border border-slate-200 transition-all";
+                btnResmi.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition-all";
+                setTimeout(() => { renderLivePreview(); }, 60);
+            } else {
+                panelCanva.classList.add('hidden');
+                panelResmi.classList.remove('hidden');
+                btnResmi.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-indigo-700 shadow-sm border border-slate-200 transition-all";
+                btnCanva.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition-all";
+            }
+        };
+
+        window.pilihTemplateCanva = function(tplId) {
+            currentTemplate = tplId;
+            const daftarTpl = ['galaxy', 'notebook', 'sage', 'ocean', 'pastel'];
+            daftarTpl.forEach(id => {
+                const btn = document.getElementById(`btnTpl-${id}`);
+                if (!btn) return;
+                if (id === tplId) {
+                    btn.classList.add('ring-4', 'ring-indigo-500/40', 'border-indigo-600', 'scale-[1.02]');
+                } else {
+                    btn.classList.remove('ring-4', 'ring-indigo-500/40', 'border-indigo-600', 'scale-[1.02]');
+                }
+            });
+            renderLivePreview();
+        };
+
+        window.updateStudioFilter = function() {
+            const targetKelas = document.getElementById('selModalKelas') ? document.getElementById('selModalKelas').value : 'Semua';
+            const targetGuru = document.getElementById('selModalGuru') ? document.getElementById('selModalGuru').value : 'Semua';
+            const ketEl = document.getElementById('keteranganTargetRoster');
+
+            if (ketEl) {
+                if (targetGuru !== "Semua") {
+                    ketEl.innerText = `👨‍🏫 Roster Guru: ${targetGuru}`;
+                } else if (targetKelas !== "Semua") {
+                    ketEl.innerText = `🏫 Roster Kelas: ${targetKelas}`;
+                } else {
+                    ketEl.innerText = `📑 Semua Roster (Kelas & Guru)`;
+                }
+            }
+            renderLivePreview();
+        };
+
+        function dapatkanJadwalPerHari(targetKelas, targetGuru) {
+            let filtered = semuaJadwal.filter(j => {
+                let matchKelas = (targetKelas === "Semua" || (j.kelas || "").trim().toUpperCase() === targetKelas.trim().toUpperCase());
+                let matchGuru = (targetGuru === "Semua" || (j.guru || "").trim().toUpperCase() === targetGuru.trim().toUpperCase());
+                return matchKelas && matchGuru;
+            });
+
+            const urutHari = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
+            filtered.sort((a, b) => {
+                let hA = urutHari[(a.hari || "").trim().toLowerCase()] || 99;
+                let hB = urutHari[(b.hari || "").trim().toLowerCase()] || 99;
+                if (hA !== hB) return hA - hB;
+                let m1 = (a.waktu||"").match(/\d+/g); let m2 = (b.waktu||"").match(/\d+/g);
+                let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
+                let val2 = m2 ? parseInt(m2[0])*60 + (m2[1] ? parseInt(m2[1]) : 0) : 9999;
+                return val1 - val2;
+            });
+
+            const hariList = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+            const perHari = {};
+            hariList.forEach(h => perHari[h] = []);
+
+            filtered.forEach(j => {
+                let h = (j.hari || "").trim();
+                let key = hariList.find(x => x.toLowerCase() === h.toLowerCase());
+                if (key) {
+                    perHari[key].push(j);
+                }
+            });
+
+            return perHari;
+        }
+
+        function renderTemplateHTML(templateId, targetKelas, targetGuru) {
+            const jadwalPerHari = dapatkanJadwalPerHari(targetKelas, targetGuru);
+            const namaSekolah = (namaSekolahSistem !== "NAMA SEKOLAH BELUM DISETTING") 
+                ? namaSekolahSistem : "UPT SPF SD NEGERI 1 MAKASSAR";
+            const dataTersimpan = JSON.parse(localStorage.getItem('savedDataExportExcelPublic') || '{}');
+            const tahunPelajaran = dataTersimpan.tahun || `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`;
+
+            let subJudul = "SEMUA JADWAL KELAS";
+            if (targetGuru !== "Semua") {
+                subJudul = `GURU: ${targetGuru.toUpperCase()}`;
+            } else if (targetKelas !== "Semua") {
+                subJudul = `KELAS ${targetKelas.toUpperCase()}`;
+            }
+
+            const daftarHari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+            const sabtuKosong = (jadwalPerHari["Sabtu"] || []).length === 0;
+
+            // Template Palette Configurations
+            let themeConfig = {};
+
+            if (templateId === 'galaxy') {
+                themeConfig = {
+                    containerBg: "linear-gradient(135deg, #090919 0%, #151035 45%, #2b1055 100%)",
+                    textColor: "#ffffff",
+                    titleColor: "#ffffff",
+                    titleShadow: "0 0 16px rgba(192, 132, 252, 0.8)",
+                    badgeBg: "rgba(168, 85, 247, 0.25)",
+                    badgeBorder: "#a855f7",
+                    badgeColor: "#f3e8ff",
+                    cardBg: "rgba(255, 255, 255, 0.96)",
+                    cardBorder: "2.5px solid #a855f7",
+                    cardShadow: "0 8px 24px rgba(0,0,0,0.35)",
+                    headerPillBg: "linear-gradient(135deg, #7c3aed, #4f46e5)",
+                    headerPillColor: "#ffffff",
+                    itemBg: "#f8fafc",
+                    itemBorder: "#e2e8f0",
+                    itemText: "#0f172a",
+                    itemSub: "#6b21a8",
+                    timeBg: "#f3e8ff",
+                    timeColor: "#7e22ce",
+                    dotColor: "#8b5cf6",
+                    quoteTitle: "🪐 MISI BELAJAR HEBAT",
+                    decorTopLeft: "🪐",
+                    decorTopRight: "🚀",
+                    decorBottomLeft: "🛸",
+                    decorBottomRight: "👨‍🚀"
+                };
+            } else if (templateId === 'notebook') {
+                themeConfig = {
+                    containerBg: "#fdfaf3",
+                    containerPattern: "linear-gradient(#eadaaf 1px, transparent 1px), linear-gradient(90deg, #eadaaf 1px, transparent 1px)",
+                    textColor: "#292524",
+                    titleColor: "#292524",
+                    titleShadow: "2px 2px 0 #fbbf24, 4px 4px 0 #f97316",
+                    badgeBg: "#fef3c7",
+                    badgeBorder: "#f59e0b",
+                    badgeColor: "#92400e",
+                    cardBg: "#ffffff",
+                    cardBorder: "1.5px solid #ebd5b3",
+                    cardShadow: "2px 6px 16px rgba(70,50,20,0.08)",
+                    headerPillBg: "linear-gradient(135deg, #f59e0b, #d97706)",
+                    headerPillColor: "#ffffff",
+                    itemBg: "#fffbeb",
+                    itemBorder: "#fde68a",
+                    itemText: "#292524",
+                    itemSub: "#92400e",
+                    timeBg: "#fef3c7",
+                    timeColor: "#b45309",
+                    dotColor: "#f59e0b",
+                    quoteTitle: "📌 CATATAN SISWA RAJIN",
+                    decorTopLeft: "⭐",
+                    decorTopRight: "📎",
+                    decorBottomLeft: "📐",
+                    decorBottomRight: "👧"
+                };
+            } else if (templateId === 'sage') {
+                themeConfig = {
+                    containerBg: "linear-gradient(135deg, #eef4ee 0%, #e2ece2 100%)",
+                    textColor: "#1e3a29",
+                    titleColor: "#14281b",
+                    titleShadow: "none",
+                    badgeBg: "#ffffff",
+                    badgeBorder: "#a3b899",
+                    badgeColor: "#2d4a34",
+                    cardBg: "#ffffff",
+                    cardBorder: "2px solid #a3b899",
+                    cardShadow: "0 4px 16px rgba(30,58,41,0.06)",
+                    headerPillBg: "linear-gradient(135deg, #588157, #3a5a40)",
+                    headerPillColor: "#ffffff",
+                    itemBg: "#f4f8f4",
+                    itemBorder: "#dce7dc",
+                    itemText: "#14281b",
+                    itemSub: "#3a5a40",
+                    timeBg: "#e9f1e9",
+                    timeColor: "#2d4a34",
+                    dotColor: "#588157",
+                    quoteTitle: "🌱 MOTIVASI HARIAN",
+                    decorTopLeft: "🌿",
+                    decorTopRight: "🍃",
+                    decorBottomLeft: "🪴",
+                    decorBottomRight: "🌱"
+                };
+            } else if (templateId === 'ocean') {
+                themeConfig = {
+                    containerBg: "linear-gradient(180deg, #0284c7 0%, #0369a1 45%, #075985 100%)",
+                    textColor: "#ffffff",
+                    titleColor: "#ffffff",
+                    titleShadow: "0 4px 14px rgba(2,132,199,0.9)",
+                    badgeBg: "rgba(255,255,255,0.22)",
+                    badgeBorder: "#7dd3fc",
+                    badgeColor: "#e0f2fe",
+                    cardBg: "#ffffff",
+                    cardBorder: "2.5px solid #7dd3fc",
+                    cardShadow: "0 8px 24px rgba(7,89,133,0.3)",
+                    headerPillBg: "linear-gradient(135deg, #0284c7, #0369a1)",
+                    headerPillColor: "#ffffff",
+                    itemBg: "#f0f9ff",
+                    itemBorder: "#bae6fd",
+                    itemText: "#082f49",
+                    itemSub: "#0369a1",
+                    timeBg: "#e0f2fe",
+                    timeColor: "#0284c7",
+                    dotColor: "#0ea5e9",
+                    quoteTitle: "🌊 TIPS BELAJAR CERIA",
+                    decorTopLeft: "🫧",
+                    decorTopRight: "🐬",
+                    decorBottomLeft: "🐢",
+                    decorBottomRight: "🐋"
+                };
+            } else { // pastel
+                themeConfig = {
+                    containerBg: "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)",
+                    textColor: "#4c0519",
+                    titleColor: "#be123c",
+                    titleShadow: "0 2px 8px rgba(244,63,94,0.2)",
+                    badgeBg: "#ffffff",
+                    badgeBorder: "#fecdd3",
+                    badgeColor: "#e11d48",
+                    cardBg: "#ffffff",
+                    cardBorder: "2.5px solid #fecdd3",
+                    cardShadow: "0 6px 18px rgba(244,63,94,0.08)",
+                    headerPillBg: "linear-gradient(135deg, #fb7185, #f43f5e)",
+                    headerPillColor: "#ffffff",
+                    itemBg: "#fff1f2",
+                    itemBorder: "#fecdd3",
+                    itemText: "#4c0519",
+                    itemSub: "#e11d48",
+                    timeBg: "#ffe4e6",
+                    timeColor: "#be123c",
+                    dotColor: "#f43f5e",
+                    quoteTitle: "💖 PENGINGAT SENYUM",
+                    decorTopLeft: "🌸",
+                    decorTopRight: "💌",
+                    decorBottomLeft: "🌷",
+                    decorBottomRight: "🌼"
+                };
+            }
+
+            // Build 6 Cards HTML
+            let cardsHtml = '';
+            const washiColors = [
+                "rgba(244, 63, 94, 0.75)",
+                "rgba(245, 158, 11, 0.75)",
+                "rgba(14, 165, 233, 0.75)",
+                "rgba(16, 185, 129, 0.75)",
+                "rgba(139, 92, 246, 0.75)",
+                "rgba(249, 115, 22, 0.75)"
+            ];
+
+            daftarHari.forEach((hari, idx) => {
+                const items = jadwalPerHari[hari] || [];
+                const isSaturdayCard = (hari === "Sabtu");
+                
+                // If Saturday is empty, show creative Notes card!
+                if (isSaturdayCard && sabtuKosong) {
+                    cardsHtml += `
+                        <div style="background: ${themeConfig.cardBg}; border: ${themeConfig.cardBorder}; border-radius: 20px; padding: 12px 14px; box-shadow: ${themeConfig.cardShadow}; height: 260px; box-sizing: border-box; position: relative; display: flex; flex-direction: column;">
+                            ${(templateId === 'notebook') ? `<div style="position: absolute; top: -9px; left: 50%; transform: translateX(-50%) rotate(1deg); width: 85px; height: 16px; background: ${washiColors[idx]}; border-radius: 2px;"></div>` : ''}
+                            
+                            <div style="display: flex; items-center; justify-content: space-between; margin-bottom: 8px;">
+                                <div style="background: ${themeConfig.headerPillBg}; color: ${themeConfig.headerPillColor}; padding: 3px 12px; border-radius: 12px; font-family: 'Fredoka', cursive; font-size: 13px; font-weight: 700;">
+                                    ${themeConfig.quoteTitle}
+                                </div>
+                                <span style="font-size: 14px;">⭐</span>
+                            </div>
+
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-around; padding: 4px 6px; font-size: 11px; line-height: 1.4; color: ${themeConfig.itemText};">
+                                <div style="display: flex; align-items: center; gap: 8px; background: ${themeConfig.itemBg}; padding: 4px 8px; border-radius: 8px; border: 1px dashed ${themeConfig.itemBorder};">
+                                    <span>🎒</span>
+                                    <span>Siapkan buku pelajaran malam hari</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; background: ${themeConfig.itemBg}; padding: 4px 8px; border-radius: 8px; border: 1px dashed ${themeConfig.itemBorder};">
+                                    <span>⏰</span>
+                                    <span>Hadir tepat waktu sebelum bel masuk</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; background: ${themeConfig.itemBg}; padding: 4px 8px; border-radius: 8px; border: 1px dashed ${themeConfig.itemBorder};">
+                                    <span>✨</span>
+                                    <span>Jaga kebersihan & kerapian ruang kelas</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; background: ${themeConfig.itemBg}; padding: 4px 8px; border-radius: 8px; border: 1px dashed ${themeConfig.itemBorder};">
+                                    <span>🤝</span>
+                                    <span>Saling menghargai sesama teman & guru</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Regular Day Card
+                let itemsListHtml = '';
+                if (items.length === 0) {
+                    itemsListHtml = `
+                        <div style="flex: 1; display: flex; flex-direction: column; items-center; justify-content: center; text-align: center; color: #94a3b8; font-size: 11px; font-style: italic; gap: 4px;">
+                            <span style="font-size: 20px;">☕</span>
+                            <span>Tidak ada jadwal / Libur</span>
+                        </div>
+                    `;
+                } else {
+                    itemsListHtml = `<div style="flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 4px; padding-top: 4px;">`;
+                    items.slice(0, 6).forEach(j => {
+                        let jam = j.waktu || j.jam_ke || '-';
+                        let sub = (targetGuru !== "Semua") ? (j.kelas ? 'Kls ' + j.kelas : '') : (j.guru ? j.guru : '');
+                        itemsListHtml += `
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 3px 6px; background: ${themeConfig.itemBg}; border-radius: 8px; border: 1px solid ${themeConfig.itemBorder};">
+                                <div style="display: flex; align-items: center; gap: 5px; overflow: hidden; flex: 1;">
+                                    <span style="width: 5px; height: 5px; border-radius: 50%; background: ${themeConfig.dotColor}; flex-shrink: 0;"></span>
+                                    <span style="font-weight: 700; font-size: 11px; color: ${themeConfig.itemText}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(j.mapel)}</span>
+                                    ${sub ? `<span style="font-size: 9.5px; color: ${themeConfig.itemSub}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">(${escapeHtml(sub)})</span>` : ''}
+                                </div>
+                                <span style="font-family: monospace; font-size: 9.5px; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: 1px 5px; border-radius: 4px; flex-shrink: 0;">${escapeHtml(jam)}</span>
+                            </div>
+                        `;
+                    });
+                    if (items.length > 6) {
+                        itemsListHtml += `<div style="text-align: right; font-size: 9px; color: #94a3b8; font-style: italic; padding-right: 4px;">+${items.length - 6} jam lainnya...</div>`;
+                    }
+                    itemsListHtml += `</div>`;
+                }
+
+                cardsHtml += `
+                    <div style="background: ${themeConfig.cardBg}; border: ${themeConfig.cardBorder}; border-radius: 20px; padding: 12px 14px; box-shadow: ${themeConfig.cardShadow}; height: 260px; box-sizing: border-box; position: relative; display: flex; flex-direction: column;">
+                        ${(templateId === 'notebook') ? `<div style="position: absolute; top: -9px; left: 50%; transform: translateX(-50%) rotate(${idx % 2 === 0 ? '-1.5deg' : '1.5deg'}); width: 85px; height: 16px; background: ${washiColors[idx]}; border-radius: 2px;"></div>` : ''}
+                        
+                        <div style="display: flex; items-center; justify-content: space-between; margin-bottom: 4px;">
+                            <div style="background: ${themeConfig.headerPillBg}; color: ${themeConfig.headerPillColor}; padding: 3px 14px; border-radius: 12px; font-family: 'Fredoka', cursive; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">
+                                ${hari.toUpperCase()}
+                            </div>
+                            <span style="font-size: 10px; font-weight: 700; color: #94a3b8; font-family: monospace;">${items.length} JP</span>
+                        </div>
+
+                        ${itemsListHtml}
+                    </div>
+                `;
+            });
+
+            // Assemble Full Poster HTML
+            return `
+                <div style="background: ${themeConfig.containerBg}; ${(themeConfig.containerPattern) ? `background-image: ${themeConfig.containerPattern}; background-size: 24px 24px;` : ''} color: ${themeConfig.textColor}; padding: 22px 28px; width: 1120px; height: 790px; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+                    
+                    <!-- Decorative Corner Icons -->
+                    <div style="position: absolute; top: 14px; left: 20px; font-size: 28px; pointer-events: none; opacity: 0.85;">${themeConfig.decorTopLeft}</div>
+                    <div style="position: absolute; top: 14px; right: 20px; font-size: 28px; pointer-events: none; opacity: 0.85;">${themeConfig.decorTopRight}</div>
+                    <div style="position: absolute; bottom: 12px; left: 20px; font-size: 26px; pointer-events: none; opacity: 0.85;">${themeConfig.decorBottomLeft}</div>
+                    <div style="position: absolute; bottom: 12px; right: 20px; font-size: 26px; pointer-events: none; opacity: 0.85;">${themeConfig.decorBottomRight}</div>
+
+                    <!-- Header Section -->
+                    <div style="text-align: center; margin-bottom: 12px;">
+                        <h1 style="font-family: 'Fredoka', cursive; font-size: 34px; font-weight: 800; letter-spacing: 1.5px; color: ${themeConfig.titleColor}; ${(themeConfig.titleShadow !== 'none') ? `text-shadow: ${themeConfig.titleShadow};` : ''} margin: 0 0 6px 0; text-transform: uppercase;">
+                            JADWAL PELAJARAN
+                        </h1>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                            <span style="background: ${themeConfig.badgeBg}; border: 1.5px solid ${themeConfig.badgeBorder}; padding: 4px 16px; border-radius: 999px; font-size: 13px; font-weight: 800; color: ${themeConfig.badgeColor};">
+                                ${escapeHtml(subJudul)}
+                            </span>
+                            <span style="background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.4); padding: 4px 16px; border-radius: 999px; font-size: 13px; font-weight: 700; color: ${themeConfig.textColor};">
+                                ${escapeHtml(namaSekolah)}
+                            </span>
+                            <span style="font-size: 12px; font-weight: 600; opacity: 0.9; padding: 4px 10px;">
+                                TP ${escapeHtml(tahunPelajaran)}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 6 Day Cards Grid (3 Columns x 2 Rows) -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 12px;">
+                        ${cardsHtml}
+                    </div>
+
+                    <!-- Footer Bar -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 11px; opacity: 0.85;">
+                        <span>🔔 Bel Otomatis &bull; ROSTERKU Smart School</span>
+                        <span>Dibuat dengan ❤️ untuk Guru & Siswa Hebat Indonesia</span>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        window.renderLivePreview = function() {
+            const targetKelas = document.getElementById('selModalKelas') ? document.getElementById('selModalKelas').value : 'Semua';
+            const targetGuru = document.getElementById('selModalGuru') ? document.getElementById('selModalGuru').value : 'Semua';
+            const wrapper = document.getElementById('previewScaleWrapper');
+            const viewport = document.getElementById('previewViewport');
+            if (!wrapper || !viewport) return;
+
+            wrapper.innerHTML = renderTemplateHTML(currentTemplate, targetKelas, targetGuru);
+
+            const vpWidth = viewport.offsetWidth || 700;
+            const targetWidth = 1120;
+            const scale = Math.min(1, Math.max(0.28, (vpWidth - 24) / targetWidth));
+            wrapper.style.transform = `scale(${scale})`;
+            viewport.style.height = `${Math.round(790 * scale) + 24}px`;
+        };
+
+        window.addEventListener('resize', () => {
+            const modal = document.getElementById('modalExportExcel');
+            if (modal && !modal.classList.contains('hidden') && currentStudioTab === 'canva') {
+                renderLivePreview();
+            }
+        });
+
+        window.unduhRosterCanvaPNG = async function() {
+            const btn = document.getElementById('btnUnduhPNG');
+            const oldTeks = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span>⏳</span><span>Membuat Gambar HD...</span>`;
+
+            try {
+                const targetKelas = document.getElementById('selModalKelas').value;
+                const targetGuru = document.getElementById('selModalGuru').value;
+                const host = document.getElementById('posterExportHost');
+                host.innerHTML = renderTemplateHTML(currentTemplate, targetKelas, targetGuru);
+
+                if (document.fonts) { await document.fonts.ready; }
+
+                const canvas = await html2canvas(host.firstElementChild, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: null
+                });
+
+                let namaFile = `Roster_${currentTemplate}`;
+                if (targetKelas !== "Semua") namaFile += `_Kls_${targetKelas}`;
+                if (targetGuru !== "Semua") namaFile += `_Guru_${targetGuru.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                namaFile += ".png";
+
+                const link = document.createElement('a');
+                link.download = namaFile;
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (err) {
+                console.error("Gagal export PNG:", err);
+                alert("❌ Gagal membuat gambar PNG: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oldTeks;
+            }
+        };
+
+        window.unduhRosterCanvaPDF = async function() {
+            const btn = document.getElementById('btnUnduhCanvaPDF');
+            const oldTeks = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span>⏳</span><span>Membuat PDF A4...</span>`;
+
+            try {
+                const targetKelas = document.getElementById('selModalKelas').value;
+                const targetGuru = document.getElementById('selModalGuru').value;
+                const host = document.getElementById('posterExportHost');
+                host.innerHTML = renderTemplateHTML(currentTemplate, targetKelas, targetGuru);
+
+                if (document.fonts) { await document.fonts.ready; }
+
+                let namaFile = `Roster_${currentTemplate}`;
+                if (targetKelas !== "Semua") namaFile += `_Kls_${targetKelas}`;
+                if (targetGuru !== "Semua") namaFile += `_Guru_${targetGuru.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                namaFile += ".pdf";
+
+                const opsi = {
+                    margin: 0,
+                    filename: namaFile,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, logging: false },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                };
+
+                await html2pdf().set(opsi).from(host.firstElementChild).save();
+            } catch (err) {
+                console.error("Gagal export PDF Canva:", err);
+                alert("❌ Gagal membuat file PDF: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oldTeks;
+            }
+        };
+
         window.tutupModal = function(idModal) { document.getElementById(idModal).classList.add('hidden'); };
 
         window.bukaModalExport = function() {
@@ -594,8 +1256,39 @@
             const kelasAktif = document.getElementById('filterKelas').value;
             const guruAktif = document.getElementById('filterGuru').value;
             
-            const dataTersimpan = JSON.parse(localStorage.getItem('savedDataExportExcelPublic') || '{}');
+            // Populate Dropdown Kelas di Modal Canva
+            const selKelas = document.getElementById('selModalKelas');
+            if (selKelas) {
+                selKelas.innerHTML = `<option value="Semua">Semua Kelas</option>`;
+                const kelasOptions = Array.from(document.getElementById('filterKelas').options)
+                    .map(opt => opt.value)
+                    .filter(v => v !== "Semua");
+                kelasOptions.forEach(k => {
+                    selKelas.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(k)}">Kelas ${escapeHtml(k)}</option>`);
+                });
+                selKelas.value = kelasAktif;
+            }
 
+            // Populate Dropdown Guru di Modal Canva
+            const selGuru = document.getElementById('selModalGuru');
+            if (selGuru) {
+                selGuru.innerHTML = `<option value="Semua">Semua Guru (Jadwal Kelas)</option>`;
+                const guruOptions = Array.from(document.getElementById('filterGuru').options)
+                    .map(opt => opt.value)
+                    .filter(v => v !== "Semua");
+                guruOptions.forEach(g => {
+                    selGuru.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`);
+                });
+                selGuru.value = guruAktif;
+            }
+
+            // Default ke tab Canva dan render preview
+            gantiTabStudio('canva');
+            pilihTemplateCanva(currentTemplate || 'galaxy');
+            updateStudioFilter();
+
+            // Populate form resmi
+            const dataTersimpan = JSON.parse(localStorage.getItem('savedDataExportExcelPublic') || '{}');
             document.getElementById('exNamaSekolah').value = (namaSekolahSistem !== "NAMA SEKOLAH BELUM DISETTING") 
                 ? namaSekolahSistem : (dataTersimpan.sekolah || "");
             
@@ -624,7 +1317,9 @@
                 document.getElementById('exNamaWali').value = ""; 
                 document.getElementById('exNipWali').value = "";
             }
+
             document.getElementById('modalExportExcel').classList.remove('hidden');
+            setTimeout(() => { renderLivePreview(); }, 80);
         };
 
         window.prosesExportExcel = async function() {
