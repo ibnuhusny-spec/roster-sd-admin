@@ -3,112 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lihat Jadwal Pelajaran</title>
+    <title>Lihat Jadwal Pelajaran - ROSTERKU</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1d4ed8">
     <link rel="apple-touch-icon" href="logo1.png">
+    
+    <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        heading: ['"Outfit"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.default.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(244, 63, 94, 0.02) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .font-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* TomSelect Modern Styling */
         .ts-control {
-            border-radius: 0.75rem !important; 
-            padding: 0.625rem 0.75rem !important; 
-            border-color: #d1d5db !important; 
-            background-color: #f9fafb !important; 
+            border-radius: 0.875rem !important; 
+            padding: 0.65rem 0.875rem !important; 
+            border-color: #e2e8f0 !important; 
+            background-color: #f8fafc !important; 
             font-weight: 600 !important; 
-            color: #1d4ed8 !important; 
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important; 
+            color: #1e40af !important; 
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04) !important; 
+            transition: all 0.2s ease !important;
+        }
+        .ts-control.focus {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+            background-color: #ffffff !important;
         }
         .ts-dropdown {
-            border-radius: 0.75rem !important;
+            border-radius: 1rem !important;
             font-weight: 600;
-            color: #374151;
+            color: #334155;
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.1) !important;
+            border: 1px solid #e2e8f0 !important;
             overflow: hidden;
+            padding: 0.25rem !important;
         }
-        .ts-dropdown .active { background-color: #eff6ff !important; color: #1d4ed8 !important; }
+        .ts-dropdown .option {
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            margin: 0.1rem 0;
+        }
+        .ts-dropdown .active { 
+            background-color: #eff6ff !important; 
+            color: #1d4ed8 !important; 
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans text-gray-800">
+<body class="min-h-screen text-slate-800 antialiased selection:bg-blue-500 selection:text-white">
 
-    <!-- Banner Notifikasi Bel Lonceng Sekolah -->
-    <div id="bannerNotifBel" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 hidden max-w-lg w-full px-4">
-        <div class="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white p-4 rounded-2xl shadow-2xl border-2 border-yellow-300 flex items-center justify-between gap-3 animate-pulse">
-            <div class="flex items-center gap-3">
-                <span class="text-3xl">🔔</span>
+    <!-- Banner Notifikasi Bel Lonceng Sekolah (Modern Dynamic Island Style) -->
+    <div id="bannerNotifBel" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 hidden max-w-lg w-full px-4">
+        <div class="bg-slate-900/95 backdrop-blur-2xl text-white p-4 sm:p-5 rounded-2xl shadow-2xl border border-amber-400/50 ring-4 ring-amber-400/10 flex items-center justify-between gap-4 animate-bounce">
+            <div class="flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-2xl flex-shrink-0 animate-pulse">
+                    🔔
+                </div>
                 <div>
-                    <h4 id="judulBannerBel" class="font-extrabold text-sm md:text-base text-yellow-300">WAKTU PELAJARAN DIMULAI!</h4>
-                    <p id="pesanBannerBel" class="text-xs md:text-sm text-blue-100 font-medium"></p>
+                    <h4 id="judulBannerBel" class="font-heading font-extrabold text-sm sm:text-base text-amber-400 tracking-wide">WAKTU PELAJARAN DIMULAI!</h4>
+                    <p id="pesanBannerBel" class="text-xs sm:text-sm text-slate-300 font-medium mt-0.5"></p>
                 </div>
             </div>
-            <button onclick="hentikanSuaraBel()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1.5 px-3 rounded-lg text-xs shadow flex-shrink-0 transition">
+            <button onclick="hentikanSuaraBel()" class="bg-rose-500 hover:bg-rose-600 active:bg-rose-700 text-white font-bold py-2 px-3.5 rounded-xl text-xs shadow-md transition-all flex-shrink-0">
                 Matikan
             </button>
         </div>
     </div>
 
-    <nav class="bg-blue-700 shadow-lg">
+    <!-- Modern Dark Glass Navbar -->
+    <nav class="bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/80 sticky top-0 z-40 text-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <img src="logo1.png" alt="Logo Sekolah" class="h-10 w-auto object-contain bg-white p-1 rounded-full shadow-sm" onerror="this.src='https://ui-avatars.com/api/?name=JS&background=fff&color=1d4ed8&rounded=true'">
-                    <span class="font-bold text-white text-lg tracking-wide" id="teksNamaSekolah">Jadwal Pelajaran</span>
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <div class="flex items-center gap-3.5">
+                    <div class="relative w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/10 p-1.5 flex items-center justify-center border border-white/20 shadow-inner">
+                        <img src="logo1.png" alt="Logo Sekolah" class="max-w-full max-h-full object-contain" onerror="this.src='https://ui-avatars.com/api/?name=JS&background=fff&color=1d4ed8&rounded=true'">
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-heading font-extrabold text-white text-base sm:text-lg tracking-wide" id="teksNamaSekolah">Jadwal Pelajaran</span>
+                            <span class="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">Portal Roster</span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-medium hidden sm:block">Sistem Roster & Bel Pelajaran Otomatis</p>
+                    </div>
                 </div>
                 <div>
-                    <a href="index.html" class="text-blue-100 hover:text-white font-medium flex items-center gap-1 transition">
-                        <span>🏠</span> Kembali
+                    <a href="index.html" class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-300 hover:text-white bg-white/10 hover:bg-white/15 px-4 py-2 rounded-xl border border-white/10 transition-all duration-150 backdrop-blur-sm shadow-sm">
+                        <span>🏠</span>
+                        <span>Beranda</span>
                     </a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto p-4 md:p-8">
+    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         
-        <div class="flex flex-col md:flex-row justify-between items-end mb-6 gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:sticky lg:top-4 z-10">
+        <!-- Modern Floating Filter Bar -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-6 bg-white/90 backdrop-blur-xl p-6 sm:p-7 rounded-3xl shadow-[0_10px_35px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80 lg:sticky lg:top-24 z-20">
             <div>
-                <h1 class="text-3xl font-extrabold text-blue-800 mb-2">📅 Jadwal Pelajaran</h1>
-                <p class="text-gray-500">Pilih kelas atau guru untuk melihat jadwal secara spesifik.</p>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/60 text-indigo-700 text-xs font-bold tracking-wide mb-2 shadow-sm">
+                    <span>📅</span>
+                    <span>Tahun Ajaran Aktif</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 tracking-tight">Roster Pelajaran</h1>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Filter jadwal berdasarkan Hari, Kelas, atau Guru pengajar.</p>
             </div>
             
-            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                <div class="flex-grow md:flex-grow-0" style="min-width: 140px;">
-                    <label class="block text-sm font-bold text-gray-600 mb-1">Hari:</label>
+            <div class="flex flex-wrap items-end gap-3 w-full lg:w-auto">
+                <div class="flex-grow sm:flex-grow-0" style="min-width: 140px;">
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1.5">
+                        <span>📅</span> Hari
+                    </label>
                     <select id="filterHari" onchange="tampilkanJadwal('hari')" class="w-full">
                         <option value="Semua">Semua Hari</option>
                     </select>
                 </div>
 
-                <div class="flex-grow md:flex-grow-0" style="min-width: 140px;">
-                    <label class="block text-sm font-bold text-gray-600 mb-1">Kelas:</label>
+                <div class="flex-grow sm:flex-grow-0" style="min-width: 140px;">
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1.5">
+                        <span>🏫</span> Kelas
+                    </label>
                     <select id="filterKelas" onchange="tampilkanJadwal('kelas')" class="w-full">
                         <option value="Semua">Semua Kelas</option>
                     </select>
                 </div>
 
-                <div class="flex-grow md:flex-grow-0" style="min-width: 200px;">
-                    <label class="block text-sm font-bold text-gray-600 mb-1">Guru:</label>
+                <div class="flex-grow sm:flex-grow-0" style="min-width: 210px;">
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1.5">
+                        <span>👨‍🏫</span> Guru Pengajar
+                    </label>
                     <select id="filterGuru" onchange="tampilkanJadwal('guru')" class="w-full">
                         <option value="Semua">Semua Guru</option>
                     </select>
                 </div>
                 
-                <button onclick="bukaModalExport()" class="mt-auto h-[46px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-emerald-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto">
-                    <span>🖨️</span> Cetak / Unduh
-                </button>
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                    <button onclick="bukaModalExport()" class="h-[46px] bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-emerald-200/50 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 flex-1 sm:flex-none text-xs sm:text-sm">
+                        <span>🖨️</span> Cetak / Unduh
+                    </button>
 
-                <button onclick="toggleAlarm()" id="btnNotif" class="mt-auto h-[46px] bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-blue-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto">
-                    <span>🔔</span> Aktifkan Alarm Guru
-                </button>
+                    <button onclick="toggleAlarm()" id="btnNotif" class="h-[46px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-blue-200/50 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 flex-1 sm:flex-none text-xs sm:text-sm">
+                        <span>🔔</span> Aktifkan Alarm Guru
+                    </button>
 
-                <button onclick="tesBunyiBel()" id="btnTesBel" class="mt-auto h-[46px] bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-xl shadow-md shadow-amber-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-1 w-full md:w-auto text-sm" title="Uji coba nada bel agar terdengar jelas">
-                    <span>🔊</span> Tes Bel
-                </button>
+                    <button onclick="tesBunyiBel()" id="btnTesBel" class="h-[46px] bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-2 px-3.5 rounded-xl shadow-md shadow-amber-200/50 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-1.5 text-xs sm:text-sm" title="Uji coba nada bel agar terdengar jelas">
+                        <span>🔊</span> Tes Bel
+                    </button>
+                </div>
                 
                 <audio id="suaraAlarm" preload="auto">
                     <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
@@ -117,34 +197,34 @@
         </div>
 
         <div id="infoJamMengajar" class="hidden mb-6 transition-all duration-300 transform origin-top scale-95 opacity-0">
-            <div class="inline-flex items-center p-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg border border-blue-400 w-full md:w-auto">
-                <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm mr-4 text-white shadow-inner">
+            <div class="inline-flex items-center p-5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl shadow-xl shadow-indigo-100 border border-white/20 w-full sm:w-auto">
+                <div class="p-3 bg-white/20 rounded-2xl backdrop-blur-md mr-4 text-white shadow-inner">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
                 <div>
-                    <p class="text-blue-100 text-sm font-medium mb-0.5">Total Jam Mengajar <span id="namaGuruInfo" class="font-bold text-white ml-1"></span></p>
-                    <div class="flex items-baseline gap-1.5">
-                        <span id="angkaJamMengajar" class="text-3xl font-extrabold text-white leading-none tracking-tight">0</span>
-                        <span class="text-blue-200 font-semibold text-sm uppercase tracking-wider">Jam Pelajaran (JP)</span>
+                    <p class="text-blue-100 text-xs font-semibold uppercase tracking-wider mb-0.5">Total Jam Mengajar <span id="namaGuruInfo" class="font-bold text-white normal-case"></span></p>
+                    <div class="flex items-baseline gap-2">
+                        <span id="angkaJamMengajar" class="font-heading text-4xl font-extrabold text-white leading-none tracking-tight">0</span>
+                        <span class="text-blue-200 font-bold text-xs uppercase tracking-wider">Jam Pelajaran (JP)</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+        <div class="bg-white rounded-3xl shadow-[0_15px_40px_-15px_rgba(0,0,0,0.05)] border border-slate-200/80 overflow-hidden mb-10">
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm text-left border-collapse">
-                    <thead class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white uppercase font-bold text-xs tracking-wider">
+                    <thead class="bg-slate-900 text-slate-200 font-heading text-xs tracking-wider uppercase">
                         <tr>
-                            <th class="py-4 px-5 w-24">Hari</th>
-                            <th class="py-4 px-5 w-32">Waktu</th>
-                            <th class="py-4 px-5 w-24">Kelas</th>
-                            <th class="py-4 px-5">Mata Pelajaran</th>
-                            <th class="py-4 px-5">Guru Pengajar</th>
+                            <th class="py-4 px-6 w-28 font-bold">Hari</th>
+                            <th class="py-4 px-6 w-36 font-bold">Waktu</th>
+                            <th class="py-4 px-6 w-28 font-bold">Kelas</th>
+                            <th class="py-4 px-6 font-bold">Mata Pelajaran</th>
+                            <th class="py-4 px-6 font-bold">Guru Pengajar</th>
                         </tr>
                     </thead>
-                    <tbody id="tabelJadwal" class="bg-white">
-                        <tr><td colspan="5" class="text-center py-8 text-gray-500 animate-pulse">Memuat data jadwal pelajaran...</td></tr>
+                    <tbody id="tabelJadwal" class="bg-white divide-y divide-slate-100">
+                        <tr><td colspan="5" class="text-center py-12 text-slate-400 font-medium animate-pulse">Memuat data jadwal pelajaran...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -168,25 +248,25 @@
                                     }
                                     var html = '';
                                     filtered.slice(0, 100).forEach(function(j, idx) {
-                                        var rowBg = (idx % 2 === 0) ? 'bg-white' : 'bg-slate-50';
+                                        var rowBg = (idx % 2 === 0) ? 'bg-white' : 'bg-slate-50/60';
                                         var h = (j.hari || '').trim().toLowerCase();
-                                        var bgH = "bg-gray-100 text-gray-700 border border-gray-200";
-                                        if(h === "senin") bgH = "bg-red-50 text-red-700 border border-red-200";
-                                        else if(h === "selasa") bgH = "bg-orange-50 text-orange-700 border border-orange-200";
-                                        else if(h === "rabu") bgH = "bg-amber-50 text-amber-700 border border-amber-200";
-                                        else if(h === "kamis") bgH = "bg-emerald-50 text-emerald-700 border border-emerald-200";
-                                        else if(h === "jumat") bgH = "bg-sky-50 text-sky-700 border border-sky-200";
-                                        else if(h === "sabtu") bgH = "bg-indigo-50 text-indigo-700 border border-indigo-200";
+                                        var bgH = "bg-slate-100 text-slate-700 border border-slate-200/70";
+                                        if(h === "senin") bgH = "bg-rose-50 text-rose-700 border border-rose-200/80";
+                                        else if(h === "selasa") bgH = "bg-amber-50 text-amber-700 border border-amber-200/80";
+                                        else if(h === "rabu") bgH = "bg-yellow-50 text-yellow-800 border border-yellow-200/80";
+                                        else if(h === "kamis") bgH = "bg-emerald-50 text-emerald-700 border border-emerald-200/80";
+                                        else if(h === "jumat") bgH = "bg-sky-50 text-sky-700 border border-sky-200/80";
+                                        else if(h === "sabtu") bgH = "bg-indigo-50 text-indigo-700 border border-indigo-200/80";
                                         var hTeks = h ? (h.charAt(0).toUpperCase() + h.slice(1)) : '-';
                                         var gCell = j.guru 
-                                            ? '<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span><span class="font-medium text-gray-700">' + j.guru + '</span></div>'
-                                            : '<span class="text-rose-500 italic text-sm font-medium">Belum ditentukan</span>';
-                                        html += '<tr class="hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 ' + rowBg + '">' +
-                                            '<td class="py-4 px-5 align-middle"><span class="inline-block px-3 py-1 rounded-md font-bold text-xs shadow-sm ' + bgH + '">' + hTeks + '</span></td>' +
-                                            '<td class="py-4 px-5 align-middle font-semibold text-gray-600 whitespace-nowrap">' + (j.waktu || j.jam_ke || '-') + '</td>' +
-                                            '<td class="py-4 px-5 align-middle"><span class="bg-indigo-100 text-indigo-800 text-sm font-bold px-2.5 py-1 rounded border border-indigo-200">' + (j.kelas || '-') + '</span></td>' +
-                                            '<td class="py-4 px-5 align-middle font-medium text-gray-800">' + (j.mapel || '-') + '</td>' +
-                                            '<td class="py-4 px-5 align-middle">' + gCell + '</td>' +
+                                            ? '<div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200 flex-shrink-0"></span><span class="font-semibold text-slate-800">' + j.guru + '</span></div>'
+                                            : '<span class="text-rose-400 italic text-xs font-medium">Belum ditentukan</span>';
+                                        html += '<tr class="hover:bg-blue-50/50 transition-colors duration-150 ' + rowBg + '">' +
+                                            '<td class="py-4 px-6 align-middle"><span class="inline-block px-3 py-1 rounded-lg font-bold text-xs shadow-sm ' + bgH + '">' + hTeks + '</span></td>' +
+                                            '<td class="py-4 px-6 align-middle font-mono font-semibold text-slate-600 text-xs whitespace-nowrap"><span class="bg-slate-100/90 text-slate-700 px-2.5 py-1 rounded-md border border-slate-200/60">' + (j.waktu || j.jam_ke || '-') + '</span></td>' +
+                                            '<td class="py-4 px-6 align-middle"><span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-md border border-indigo-200/70 shadow-sm">' + (j.kelas || '-') + '</span></td>' +
+                                            '<td class="py-4 px-6 align-middle font-semibold text-slate-800">' + (j.mapel || '-') + '</td>' +
+                                            '<td class="py-4 px-6 align-middle">' + gCell + '</td>' +
                                         '</tr>';
                                     });
                                     tbody.innerHTML = html;
@@ -199,66 +279,72 @@
         </div>
     </div>
 
-    <div id="modalExportExcel" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity overflow-y-auto">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform scale-100 transition-transform my-8 overflow-y-auto max-h-[90vh]">
-            <div class="bg-emerald-600 p-4 flex justify-between items-center text-white sticky top-0 z-10">
-                <h3 class="text-xl font-bold flex items-center gap-2"><span>🖨️</span> Download Roster Siap Cetak</h3>
-                <button onclick="tutupModal('modalExportExcel')" class="text-white hover:text-gray-200 font-bold text-2xl">&times;</button>
+    <div id="modalExportExcel" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-200 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 w-full max-w-2xl my-8 overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-6 py-5 flex justify-between items-center text-white shrink-0">
+                <div class="flex items-center gap-3">
+                    <span class="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30 text-lg">🖨️</span>
+                    <div>
+                        <h3 class="font-heading font-bold text-lg">Download Roster Siap Cetak</h3>
+                        <p class="text-xs text-slate-400">Ekspor jadwal ke format PDF atau Excel siap print</p>
+                    </div>
+                </div>
+                <button onclick="tutupModal('modalExportExcel')" class="w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors text-xl font-bold">&times;</button>
             </div>
             
-            <form id="formExport" class="p-6 md:p-8 space-y-4">
-                <p class="text-sm text-gray-500 mb-4">Lengkapi data di bawah ini untuk mengisi KOP dan Tanda Tangan pada file.</p>
-                
+            <form id="formExport" class="p-6 md:p-8 space-y-4 overflow-y-auto">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Nama Sekolah</label>
-                    <input type="text" id="exNamaSekolah" placeholder="Contoh: SD Negeri 1 Jakarta" class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-emerald-500 text-blue-800 font-semibold uppercase" required>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nama Sekolah</label>
+                    <input type="text" id="exNamaSekolah" placeholder="Contoh: SD Negeri 1 Jakarta" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-blue-900 font-bold uppercase transition text-sm" required>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Tahun Pelajaran</label>
-                        <input type="text" id="exTahun" placeholder="Contoh: 2024/2025" class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-emerald-500" required>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tahun Pelajaran</label>
+                        <input type="text" id="exTahun" placeholder="Contoh: 2024/2025" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm transition" required>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Tempat, Tanggal Pembuatan</label>
-                        <input type="text" id="exTempatTgl" placeholder="Contoh: Makassar, 15 Juli 2024" class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-emerald-500" required>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tempat, Tanggal Pembuatan</label>
+                        <input type="text" id="exTempatTgl" placeholder="Contoh: Makassar, 15 Juli 2024" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm transition" required>
                     </div>
                 </div>
 
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-2">
-                    <h4 class="font-bold text-blue-800 mb-3 text-sm flex items-center gap-2">👨‍💼 Data Kepala Sekolah</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100/80">
+                    <h4 class="font-bold text-blue-900 mb-3 text-xs uppercase tracking-wider flex items-center gap-2">👨‍💼 Data Kepala Sekolah</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1">Nama Kepala Sekolah</label>
-                            <input type="text" id="exNamaKepsek" placeholder="Nama Lengkap beserta gelar" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Kepala Sekolah</label>
+                            <input type="text" id="exNamaKepsek" placeholder="Nama Lengkap beserta gelar" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm" required>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1">NIP Kepala Sekolah</label>
-                            <input type="text" id="exNipKepsek" placeholder="Nomor Induk Pegawai" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">NIP Kepala Sekolah</label>
+                            <input type="text" id="exNipKepsek" placeholder="Nomor Induk Pegawai" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm" required>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-green-50 p-4 rounded-xl border border-green-100 mt-2">
-                    <h4 class="font-bold text-green-800 mb-3 text-sm flex items-center gap-2">👩‍🏫 Data Wali Kelas / Guru <span id="labelWaliKelas" class="font-normal text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded"></span></h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100/80">
+                    <h4 class="font-bold text-emerald-900 mb-3 text-xs uppercase tracking-wider flex items-center gap-2">
+                        <span>👩‍🏫</span> Data Wali Kelas / Guru <span id="labelWaliKelas" class="font-semibold text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md normal-case"></span>
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1">Nama Wali / Guru</label>
-                            <input type="text" id="exNamaWali" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Wali / Guru</label>
+                            <input type="text" id="exNamaWali" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1">NIP Wali / Guru</label>
-                            <input type="text" id="exNipWali" placeholder="Kosongkan jika tidak ada" class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">NIP Wali / Guru</label>
+                            <input type="text" id="exNipWali" placeholder="Kosongkan jika tidak ada" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
                         </div>
                     </div>
                 </div>
                 
-                <div class="flex flex-col-reverse sm:flex-row gap-3 mt-6 pt-4 border-t sticky bottom-0 bg-white z-10 pb-2">
-                    <button type="button" onclick="tutupModal('modalExportExcel')" class="w-full sm:w-1/4 px-4 py-3 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors">Batal</button>
-                    <button type="button" onclick="prosesDownloadPDF()" class="w-full sm:w-1/3 px-4 py-3 text-white bg-red-600 hover:bg-red-700 shadow-lg shadow-red-200 rounded-xl font-bold transition-all flex justify-center items-center gap-2">
+                <div class="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="tutupModal('modalExportExcel')" class="w-full sm:w-1/4 px-4 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-sm transition-colors">Batal</button>
+                    <button type="button" onclick="prosesDownloadPDF()" class="w-full sm:w-1/3 px-4 py-2.5 text-white bg-rose-600 hover:bg-rose-700 shadow-md shadow-rose-200 rounded-xl font-bold text-sm transition-all flex justify-center items-center gap-2">
                         <span>📄</span> Cetak PDF
                     </button>
-                    <button type="button" onclick="prosesExportExcel()" id="btnProsesExport" class="w-full sm:w-5/12 px-4 py-3 text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-200 rounded-xl font-bold transition-all flex justify-center items-center gap-2">
+                    <button type="button" onclick="prosesExportExcel()" id="btnProsesExport" class="w-full sm:w-5/12 px-4 py-2.5 text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-200 rounded-xl font-bold text-sm transition-all flex justify-center items-center gap-2">
                         <span>📊</span> Download Excel
                     </button>
                 </div>
@@ -471,31 +557,31 @@
 
             jadwalTerfilter.forEach((j, index) => {
                 const isEven = index % 2 === 0;
-                const rowBgClass = isEven ? 'bg-white' : 'bg-slate-50';
+                const rowBgClass = isEven ? 'bg-white' : 'bg-slate-50/60';
 
                 let hariWarna = (j.hari || "").trim().toLowerCase();
-                let bgHari = "bg-gray-100 text-gray-700 border border-gray-200";
+                let bgHari = "bg-slate-100 text-slate-700 border border-slate-200/70";
                 
-                if(hariWarna === "senin") bgHari = "bg-red-50 text-red-700 border border-red-200";
-                else if(hariWarna === "selasa") bgHari = "bg-orange-50 text-orange-700 border border-orange-200";
-                else if(hariWarna === "rabu") bgHari = "bg-amber-50 text-amber-700 border border-amber-200";
-                else if(hariWarna === "kamis") bgHari = "bg-emerald-50 text-emerald-700 border border-emerald-200";
-                else if(hariWarna === "jumat") bgHari = "bg-sky-50 text-sky-700 border border-sky-200";
-                else if(hariWarna === "sabtu") bgHari = "bg-indigo-50 text-indigo-700 border border-indigo-200";
+                if(hariWarna === "senin") bgHari = "bg-rose-50 text-rose-700 border border-rose-200/80";
+                else if(hariWarna === "selasa") bgHari = "bg-amber-50 text-amber-700 border border-amber-200/80";
+                else if(hariWarna === "rabu") bgHari = "bg-yellow-50 text-yellow-800 border border-yellow-200/80";
+                else if(hariWarna === "kamis") bgHari = "bg-emerald-50 text-emerald-700 border border-emerald-200/80";
+                else if(hariWarna === "jumat") bgHari = "bg-sky-50 text-sky-700 border border-sky-200/80";
+                else if(hariWarna === "sabtu") bgHari = "bg-indigo-50 text-indigo-700 border border-indigo-200/80";
 
-                let teksHariTampil = hariWarna.charAt(0).toUpperCase() + hariWarna.slice(1);
+                let teksHariTampil = hariWarna ? (hariWarna.charAt(0).toUpperCase() + hariWarna.slice(1)) : '-';
 
                 const guruCell = j.guru 
-                    ? `<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span><span class="font-medium text-gray-700">${j.guru}</span></div>` 
-                    : `<span class="text-rose-500 italic text-sm font-medium">Belum ditentukan</span>`;
+                    ? `<div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200 flex-shrink-0"></span><span class="font-semibold text-slate-800">${j.guru}</span></div>` 
+                    : `<span class="text-rose-400 italic text-xs font-medium">Belum ditentukan</span>`;
 
                 tabel.insertAdjacentHTML('beforeend', `
-                    <tr class="hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 ${rowBgClass}">
-                        <td class="py-4 px-5 align-middle"><span class="inline-block px-3 py-1 rounded-md font-bold text-xs shadow-sm ${bgHari}">${teksHariTampil}</span></td>
-                        <td class="py-4 px-5 align-middle font-semibold text-gray-600 whitespace-nowrap">${j.waktu || j.jam_ke}</td>
-                        <td class="py-4 px-5 align-middle"><span class="bg-indigo-100 text-indigo-800 text-sm font-bold px-2.5 py-1 rounded border border-indigo-200">${j.kelas}</span></td>
-                        <td class="py-4 px-5 align-middle font-medium text-gray-800">${j.mapel}</td>
-                        <td class="py-4 px-5 align-middle">${guruCell}</td>
+                    <tr class="hover:bg-blue-50/50 transition-colors duration-150 ${rowBgClass}">
+                        <td class="py-4 px-6 align-middle"><span class="inline-block px-3 py-1 rounded-lg font-bold text-xs shadow-sm ${bgHari}">${teksHariTampil}</span></td>
+                        <td class="py-4 px-6 align-middle font-mono font-semibold text-slate-600 text-xs whitespace-nowrap"><span class="bg-slate-100/90 text-slate-700 px-2.5 py-1 rounded-md border border-slate-200/60">${j.waktu || j.jam_ke || '-'}</span></td>
+                        <td class="py-4 px-6 align-middle"><span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-md border border-indigo-200/70 shadow-sm">${j.kelas || '-'}</span></td>
+                        <td class="py-4 px-6 align-middle font-semibold text-slate-800">${j.mapel || '-'}</td>
+                        <td class="py-4 px-6 align-middle">${guruCell}</td>
                     </tr>
                 `);
             });
