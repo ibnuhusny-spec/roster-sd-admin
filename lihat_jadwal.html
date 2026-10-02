@@ -100,7 +100,7 @@
                 </button>
 
                 <button onclick="toggleAlarm()" id="btnNotif" class="mt-auto h-[46px] bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-blue-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto">
-                    <span>🔔</span> Aktifkan Bel / Alarm
+                    <span>🔔</span> Aktifkan Alarm Guru
                 </button>
 
                 <button onclick="tesBunyiBel()" id="btnTesBel" class="mt-auto h-[46px] bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-xl shadow-md shadow-amber-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-1 w-full md:w-auto text-sm" title="Uji coba nada bel agar terdengar jelas">
@@ -145,6 +145,54 @@
                     </tbody>
                 </table>
             </div>
+            <!-- Render Instan Sinkron (0 ms Loading langsung dari cache) -->
+            <script>
+                (function() {
+                    try {
+                        var cached = localStorage.getItem('cache_semua_jadwal');
+                        var savedGuru = localStorage.getItem('guru_terpilih') || 'Semua';
+                        if (cached) {
+                            var list = JSON.parse(cached);
+                            if (Array.isArray(list) && list.length > 0) {
+                                var tbody = document.getElementById('tabelJadwal');
+                                if (tbody) {
+                                    var filtered = list;
+                                    if (savedGuru !== 'Semua') {
+                                        filtered = list.filter(function(j) {
+                                            return (j.guru || '').trim().toUpperCase() === savedGuru.trim().toUpperCase();
+                                        });
+                                        if (filtered.length === 0) filtered = list;
+                                    }
+                                    var html = '';
+                                    filtered.slice(0, 100).forEach(function(j, idx) {
+                                        var rowBg = (idx % 2 === 0) ? 'bg-white' : 'bg-slate-50';
+                                        var h = (j.hari || '').trim().toLowerCase();
+                                        var bgH = "bg-gray-100 text-gray-700 border border-gray-200";
+                                        if(h === "senin") bgH = "bg-red-50 text-red-700 border border-red-200";
+                                        else if(h === "selasa") bgH = "bg-orange-50 text-orange-700 border border-orange-200";
+                                        else if(h === "rabu") bgH = "bg-amber-50 text-amber-700 border border-amber-200";
+                                        else if(h === "kamis") bgH = "bg-emerald-50 text-emerald-700 border border-emerald-200";
+                                        else if(h === "jumat") bgH = "bg-sky-50 text-sky-700 border border-sky-200";
+                                        else if(h === "sabtu") bgH = "bg-indigo-50 text-indigo-700 border border-indigo-200";
+                                        var hTeks = h ? (h.charAt(0).toUpperCase() + h.slice(1)) : '-';
+                                        var gCell = j.guru 
+                                            ? '<div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span><span class="font-medium text-gray-700">' + j.guru + '</span></div>'
+                                            : '<span class="text-rose-500 italic text-sm font-medium">Belum ditentukan</span>';
+                                        html += '<tr class="hover:bg-blue-50 transition-colors duration-200 border-b border-gray-100 ' + rowBg + '">' +
+                                            '<td class="py-4 px-5 align-middle"><span class="inline-block px-3 py-1 rounded-md font-bold text-xs shadow-sm ' + bgH + '">' + hTeks + '</span></td>' +
+                                            '<td class="py-4 px-5 align-middle font-semibold text-gray-600 whitespace-nowrap">' + (j.waktu || j.jam_ke || '-') + '</td>' +
+                                            '<td class="py-4 px-5 align-middle"><span class="bg-indigo-100 text-indigo-800 text-sm font-bold px-2.5 py-1 rounded border border-indigo-200">' + (j.kelas || '-') + '</span></td>' +
+                                            '<td class="py-4 px-5 align-middle font-medium text-gray-800">' + (j.mapel || '-') + '</td>' +
+                                            '<td class="py-4 px-5 align-middle">' + gCell + '</td>' +
+                                        '</tr>';
+                                    });
+                                    tbody.innerHTML = html;
+                                }
+                            }
+                        }
+                    } catch(e) {}
+                })();
+            </script>
         </div>
     </div>
 
@@ -339,6 +387,15 @@
                             nilaiCocok = val; break;
                         }
                     }
+                } else if (tipe === "Guru" && (sumberTrigger === 'init' || sumberTrigger === 'cache')) {
+                    const savedGuru = localStorage.getItem('guru_terpilih');
+                    if (savedGuru) {
+                        for (let val of mapOpsi.values()) {
+                            if (val.toUpperCase() === savedGuru.toUpperCase()) {
+                                nilaiCocok = val; break;
+                            }
+                        }
+                    }
                 }
                 tom.setValue(nilaiCocok, true); 
             };
@@ -346,6 +403,17 @@
             updateDropdown(tomKelas, opsiKelas, "Kelas", 'kelas');
             updateDropdown(tomHari, opsiHari, "Hari", 'hari');
             updateDropdown(tomGuru, opsiGuru, "Guru", 'guru');
+
+            if (sumberTrigger === 'guru') {
+                if (guruDipilih && guruDipilih !== "Semua") {
+                    localStorage.setItem('guru_terpilih', guruDipilih);
+                } else {
+                    localStorage.removeItem('guru_terpilih');
+                }
+            }
+            if (typeof updateStatusTombolAlarm === 'function') {
+                updateStatusTombolAlarm();
+            }
 
             const tabel = document.getElementById('tabelJadwal');
             tabel.innerHTML = '';
@@ -770,21 +838,49 @@
         };
 
         // ========================================================
-        // FITUR BEL & ALARM CERDAS (WEB AUDIO LOUD & ANDAL)
+        // FITUR BEL & ALARM CERDAS KHUSUS GURU (LOUD, ANDAL & TEPAT)
         // ========================================================
         let audioCtx = null;
         let activeNodes = [];
         let intervalAlarm = null;
         let isAlarmAktif = false;
-        const riwayatBelHariIni = new Set(); // Mencegah bunyi berulang di jam yang sama
+        const riwayatBelHariIni = new Set(); // Mencegah bunyi berulang di jam & guru yang sama
 
-        function getAudioContext() {
+        function updateStatusTombolAlarm() {
+            const btn = document.getElementById('btnNotif');
+            if (!btn) return;
+            const guruAktif = document.getElementById('filterGuru') ? document.getElementById('filterGuru').value : "Semua";
+
+            if (isAlarmAktif) {
+                if (!guruAktif || guruAktif === "Semua") {
+                    btn.innerHTML = "<span>⚠️</span> Alarm Dijeda (Pilih Guru)";
+                    btn.className = "mt-auto h-[46px] bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-amber-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto";
+                } else {
+                    const namaPanggilan = guruAktif.split(',')[0].trim();
+                    btn.innerHTML = `<span>✅</span> Alarm Aktif (${namaPanggilan})`;
+                    btn.className = "mt-auto h-[46px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-emerald-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto animate-pulse";
+                }
+            } else {
+                if (guruAktif && guruAktif !== "Semua") {
+                    const namaPanggilan = guruAktif.split(',')[0].trim();
+                    btn.innerHTML = `<span>🔔</span> Aktifkan Alarm (${namaPanggilan})`;
+                } else {
+                    btn.innerHTML = `<span>🔔</span> Aktifkan Alarm Guru`;
+                }
+                btn.className = "mt-auto h-[46px] bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-blue-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto";
+            }
+        }
+        window.updateStatusTombolAlarm = updateStatusTombolAlarm;
+
+        async function getAudioContextReady() {
             if (!audioCtx) {
                 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
                 audioCtx = new AudioContextClass();
             }
             if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
+                try {
+                    await audioCtx.resume();
+                } catch(e) {}
             }
             return audioCtx;
         }
@@ -800,75 +896,114 @@
             if (banner) banner.classList.add('hidden');
         };
 
-        function putarBelSekolahKeras() {
+        // Nada Bel Lonceng Sekolah Keras, Tebal & Bergema (Westminster Chimes 8 Nada)
+        async function putarBelSekolahKeras() {
             window.hentikanSuaraBel();
             try {
-                const ctx = getAudioContext();
+                const ctx = await getAudioContextReady();
                 const now = ctx.currentTime;
 
-                // Master Gain keras (Volume maksimal & bertenaga)
-                const masterGain = ctx.createGain();
-                masterGain.gain.setValueAtTime(1.0, now);
-                masterGain.connect(ctx.destination);
+                // Compressor Dinamis: Memaksimalkan kenyaringan (loudness) tanpa distorsi/pecah
+                const compressor = ctx.createDynamicsCompressor();
+                compressor.threshold.setValueAtTime(-24, now);
+                compressor.knee.setValueAtTime(30, now);
+                compressor.ratio.setValueAtTime(12, now);
+                compressor.attack.setValueAtTime(0.003, now);
+                compressor.release.setValueAtTime(0.25, now);
+                compressor.connect(ctx.destination);
 
-                // Nada Bel Sekolah Indonesia yang khas (Westminster Chimes 8 Nada):
+                // Master Gain Keras (1.8x Volume Bertenaga)
+                const masterGain = ctx.createGain();
+                masterGain.gain.setValueAtTime(1.8, now);
+                masterGain.connect(compressor);
+
+                // Melodi Westminster Chimes 8 Nada:
                 // Bagian 1: E5 (Mi), C5 (Do), D5 (Re), G4 (Sol)
                 // Bagian 2: C5 (Do), D5 (Re), E5 (Mi), C5 (Do panjang)
                 const notes = [
-                    { freq: 659.25, time: 0.00, dur: 0.65 }, // E5 (Mi)
-                    { freq: 523.25, time: 0.65, dur: 0.65 }, // C5 (Do)
-                    { freq: 587.33, time: 1.30, dur: 0.65 }, // D5 (Re)
-                    { freq: 392.00, time: 1.95, dur: 1.10 }, // G4 (Sol)
+                    { freq: 659.25, time: 0.00, dur: 0.60 }, // E5 (Mi)
+                    { freq: 523.25, time: 0.60, dur: 0.60 }, // C5 (Do)
+                    { freq: 587.33, time: 1.20, dur: 0.60 }, // D5 (Re)
+                    { freq: 392.00, time: 1.80, dur: 1.00 }, // G4 (Sol)
                     
-                    { freq: 523.25, time: 3.10, dur: 0.65 }, // C5 (Do)
-                    { freq: 587.33, time: 3.75, dur: 0.65 }, // D5 (Re)
-                    { freq: 659.25, time: 4.40, dur: 0.65 }, // E5 (Mi)
-                    { freq: 523.25, time: 5.05, dur: 1.50 }  // C5 (Do)
+                    { freq: 523.25, time: 2.90, dur: 0.60 }, // C5 (Do)
+                    { freq: 587.33, time: 3.50, dur: 0.60 }, // D5 (Re)
+                    { freq: 659.25, time: 4.10, dur: 0.60 }, // E5 (Mi)
+                    { freq: 523.25, time: 4.70, dur: 1.60 }  // C5 (Do panjang & bergema)
                 ];
 
                 notes.forEach(n => {
                     const start = now + n.time;
                     const duration = n.dur;
 
-                    // Nada dasar (Sine - bulat & jernih)
+                    // 1. Nada Utama (Sine wave: bersih dan bulat tebal)
                     const osc1 = ctx.createOscillator();
                     osc1.type = 'sine';
                     osc1.frequency.setValueAtTime(n.freq, start);
 
-                    // Harmonis lonceng (Triangle - tajam, berdenting & tebal)
-                    const osc2 = ctx.createOscillator();
-                    osc2.type = 'triangle';
-                    osc2.frequency.setValueAtTime(n.freq * 2, start);
-
                     const g1 = ctx.createGain();
                     g1.gain.setValueAtTime(0, start);
-                    g1.gain.linearRampToValueAtTime(0.75, start + 0.02);
+                    g1.gain.linearRampToValueAtTime(0.95, start + 0.015);
                     g1.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+                    // 2. Harmonis Oktaf (Sine wave 2x freq: membuat suara terdengar nyaring dan tembus kebisingan)
+                    const osc2 = ctx.createOscillator();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(n.freq * 2, start);
 
                     const g2 = ctx.createGain();
                     g2.gain.setValueAtTime(0, start);
-                    g2.gain.linearRampToValueAtTime(0.40, start + 0.015);
-                    g2.gain.exponentialRampToValueAtTime(0.0001, start + (duration * 0.7));
+                    g2.gain.linearRampToValueAtTime(0.60, start + 0.012);
+                    g2.gain.exponentialRampToValueAtTime(0.0001, start + (duration * 0.8));
+
+                    // 3. Denting Lonceng Logam (Triangle wave: efek denting lonceng sekolah asli)
+                    const osc3 = ctx.createOscillator();
+                    osc3.type = 'triangle';
+                    osc3.frequency.setValueAtTime(n.freq * 3, start);
+
+                    const g3 = ctx.createGain();
+                    g3.gain.setValueAtTime(0, start);
+                    g3.gain.linearRampToValueAtTime(0.35, start + 0.01);
+                    g3.gain.exponentialRampToValueAtTime(0.0001, start + (duration * 0.5));
+
+                    // 4. Dentuman Pukulan Lonceng (Short strike transient)
+                    const oscStrike = ctx.createOscillator();
+                    oscStrike.type = 'sine';
+                    oscStrike.frequency.setValueAtTime(n.freq * 4, start);
+
+                    const gStrike = ctx.createGain();
+                    gStrike.gain.setValueAtTime(0, start);
+                    gStrike.gain.linearRampToValueAtTime(0.25, start + 0.005);
+                    gStrike.gain.exponentialRampToValueAtTime(0.0001, start + 0.08);
 
                     osc1.connect(g1); g1.connect(masterGain);
                     osc2.connect(g2); g2.connect(masterGain);
+                    osc3.connect(g3); g3.connect(masterGain);
+                    oscStrike.connect(gStrike); gStrike.connect(masterGain);
 
                     osc1.start(start); osc1.stop(start + duration + 0.1);
                     osc2.start(start); osc2.stop(start + duration + 0.1);
+                    osc3.start(start); osc3.stop(start + duration + 0.1);
+                    oscStrike.start(start); oscStrike.stop(start + 0.1);
 
-                    activeNodes.push(osc1, osc2);
+                    activeNodes.push(osc1, osc2, osc3, oscStrike);
                 });
 
             } catch (err) {
                 console.warn("Web Audio API fallback ke audio tag:", err);
             }
 
-            // Putar juga audio element sebagai lapis cadangan
+            // Putar audio tag cadangan
             const audioEl = document.getElementById('suaraAlarm');
             if (audioEl) {
                 audioEl.currentTime = 0;
                 audioEl.volume = 1.0;
                 audioEl.play().catch(() => {});
+            }
+
+            // Getaran HP (jika dibuka dari ponsel pintar)
+            if (navigator.vibrate) {
+                navigator.vibrate([800, 250, 800, 250, 800, 250, 1000]);
             }
         }
 
@@ -883,60 +1018,102 @@
             }
         }
 
-        window.tesBunyiBel = function() {
-            getAudioContext();
-            putarBelSekolahKeras();
-            tampilkanBannerBel("🔔 UJI COBA SUARA BEL", "Bel Lonceng Sekolah Berbunyi (8 Nada Keras & Jernih)", "Sekarang");
+        window.tesBunyiBel = async function() {
+            await getAudioContextReady();
+            await putarBelSekolahKeras();
+            tampilkanBannerBel("🔔 UJI COBA SUARA ALARM", "Bel Lonceng Sekolah Berbunyi (8 Nada Keras, Tebal & Bergema)", "Sekarang");
         };
 
-        window.toggleAlarm = function() {
+        window.toggleAlarm = async function() {
+            const guruAktif = document.getElementById('filterGuru') ? document.getElementById('filterGuru').value : "Semua";
+
             if (isAlarmAktif) {
                 // Matikan Alarm
                 isAlarmAktif = false;
                 if (intervalAlarm) clearInterval(intervalAlarm);
                 intervalAlarm = null;
                 window.hentikanSuaraBel();
-
-                const btn = document.getElementById('btnNotif');
-                btn.innerHTML = "<span>🔔</span> Aktifkan Bel / Alarm";
-                btn.classList.replace('bg-emerald-600', 'bg-blue-600');
-                btn.classList.replace('hover:bg-emerald-700', 'hover:bg-blue-700');
-                alert("🔕 Bel / Alarm telah dinonaktifkan.");
+                localStorage.removeItem('alarm_aktif_guru');
+                updateStatusTombolAlarm();
+                alert("🔕 Alarm mengajar telah dinonaktifkan.");
                 return;
             }
 
-            // Buka izin Web Audio Context pada klik pengguna
-            getAudioContext();
-
-            const guruAktif = document.getElementById('filterGuru').value;
-            const kelasAktif = document.getElementById('filterKelas').value;
-
-            let infoMode = "Bel Otomatis Seluruh Jadwal Sekolah";
-            if (guruAktif !== "Semua") {
-                infoMode = `Alarm Jadwal Guru: ${guruAktif}`;
-            } else if (kelasAktif !== "Semua") {
-                infoMode = `Alarm Jadwal Kelas: ${kelasAktif}`;
+            // Validasi: Wajib memilih nama Guru spesifik agar alarm tidak bunyi untuk jadwal guru lain!
+            if (!guruAktif || guruAktif === "Semua") {
+                alert("⚠️ SILAKAN PILIH NAMA GURU ANDA TERLEBIH DAHULU!\n\nPada kotak filter 'Guru' di atas, silakan pilih nama Anda sendiri.\n\nAlarm dirancang khusus agar berdering HANYA pada jam mengajar Anda sendiri, sehingga tidak akan berbunyi saat guru lain yang mengajar.");
+                if (tomGuru) tomGuru.focus();
+                return;
             }
 
+            // Buka Web Audio Context pada klik pengguna
+            await getAudioContextReady();
+
+            // Minta izin notifikasi browser jika belum diberikan
             if ("Notification" in window && Notification.permission !== "granted") {
                 Notification.requestPermission();
             }
 
             isAlarmAktif = true;
-            const btn = document.getElementById('btnNotif');
-            btn.innerHTML = "<span>✅</span> Bel Aktif (ON)";
-            btn.classList.replace('bg-blue-600', 'bg-emerald-600');
-            btn.classList.replace('hover:bg-blue-700', 'hover:bg-emerald-700');
+            localStorage.setItem('guru_terpilih', guruAktif);
+            localStorage.setItem('alarm_aktif_guru', guruAktif);
+            updateStatusTombolAlarm();
 
-            alert(`🔔 BEL TELAH DIAKTIFKAN!\n\nMode: ${infoMode}\n\nBel akan berdering otomatis di SETIAP waktu jam pelajaran.\nPastikan volume laptop/speaker Anda aktif.`);
+            // Rangkum jadwal hari ini untuk kepastian guru
+            const sekarang = new Date();
+            const hariIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+            const hariIni = hariIndo[sekarang.getDay()];
+            const jadwalHariIni = semuaJadwal.filter(j => {
+                let h = (j.hari || "").trim().toLowerCase();
+                let g = (j.guru || "").trim().toLowerCase();
+                return h === hariIni.toLowerCase() && g === guruAktif.trim().toLowerCase();
+            });
+
+            let pesanJadwal = `Jadwal mengajar Anda hari ini (${hariIni}):\n`;
+            if (jadwalHariIni.length > 0) {
+                jadwalHariIni.sort((a,b) => (a.waktu||'').localeCompare(b.waktu||''));
+                jadwalHariIni.forEach(j => {
+                    pesanJadwal += `• Jam ${j.waktu || j.jam_ke} : Kelas ${j.kelas} (${j.mapel})\n`;
+                });
+            } else {
+                pesanJadwal += `(Tidak ada jadwal mengajar pada hari ${hariIni})\n`;
+            }
+
+            alert(`🔔 ALARM JADWAL BERHASIL DIAKTIFKAN!\n\n👨‍🏫 Guru: ${guruAktif}\n\n${pesanJadwal}\nAlarm akan otomatis berdering keras di SETIAP jam mengajar Anda di atas.\nPastikan tab ini tetap terbuka dan volume perangkat aktif.`);
 
             if (intervalAlarm) clearInterval(intervalAlarm);
-            intervalAlarm = setInterval(cekWaktuPelajaran, 5000); // Cek tiap 5 detik
+            intervalAlarm = setInterval(cekWaktuPelajaran, 5000); // Periksa tiap 5 detik
             cekWaktuPelajaran();
         };
 
-        function cekWaktuPelajaran() {
+        function parseJamMulai(strWaktu) {
+            if (!strWaktu) return null;
+            const str = String(strWaktu).trim();
+            const bagianAwal = str.split(/[-–—]/)[0].trim();
+            const match = bagianAwal.match(/(\d{1,2})[:.](\d{2})/);
+            if (!match) return null;
+            const h = parseInt(match[1], 10);
+            const m = parseInt(match[2], 10);
+            if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+                return {
+                    jamStr: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`,
+                    menitTotal: (h * 60) + m
+                };
+            }
+            return null;
+        }
+
+        async function cekWaktuPelajaran() {
             if (!isAlarmAktif || semuaJadwal.length === 0) return;
+
+            const guruAktif = document.getElementById('filterGuru') ? document.getElementById('filterGuru').value : "Semua";
+            // KUNCI: Alarm HANYA berbunyi jika nama guru spesifik dipilih (TIDAK berbunyi jika 'Semua')!
+            if (!guruAktif || guruAktif === "Semua") return;
+
+            // Bangunkan AudioContext jika sempat tertidur di latar belakang
+            if (audioCtx && audioCtx.state === 'suspended') {
+                try { await audioCtx.resume(); } catch(e) {}
+            }
 
             const sekarang = new Date();
             const hariIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
@@ -946,75 +1123,52 @@
             const jam = sekarang.getHours();
             const menit = sekarang.getMinutes();
             const totalMenitSekarang = (jam * 60) + menit;
-            const tglHariIni = sekarang.toISOString().slice(0, 10);
+            const tglHariIni = `${sekarang.getFullYear()}-${String(sekarang.getMonth() + 1).padStart(2, '0')}-${String(sekarang.getDate()).padStart(2, '0')}`;
 
-            const guruAktif = document.getElementById('filterGuru').value;
-            const kelasAktif = document.getElementById('filterKelas').value;
-
-            // Filter jadwal relevan untuk hari ini
-            const jadwalHariIni = semuaJadwal.filter(j => {
+            // Filter ketat HANYA jadwal guru terpilih untuk hari ini
+            const jadwalGuruHariIni = semuaJadwal.filter(j => {
                 let h = (j.hari || "").trim().toLowerCase();
                 if (h !== hariIniLower) return false;
-                if (guruAktif !== "Semua" && j.guru !== guruAktif) return false;
-                if (kelasAktif !== "Semua" && j.kelas !== kelasAktif) return false;
-                return true;
+                let g = (j.guru || "").trim().toLowerCase();
+                return g === guruAktif.trim().toLowerCase();
             });
 
-            if (jadwalHariIni.length === 0) return;
+            if (jadwalGuruHariIni.length === 0) return;
 
             // Kelompokkan jadwal berdasarkan jam mulai
             const mapJamMulai = new Map();
-
-            jadwalHariIni.forEach(j => {
-                if (!j.waktu) return;
-                let bagian = j.waktu.includes('-') ? j.waktu.split('-')[0].trim() : j.waktu.trim();
-                const match = bagian.match(/(\d{1,2})[:.](\d{2})/);
-                if (!match) return;
-                const h = parseInt(match[1], 10);
-                const m = parseInt(match[2], 10);
-                const jamStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-                const menitTotal = (h * 60) + m;
-
-                if (!mapJamMulai.has(jamStr)) {
-                    mapJamMulai.set(jamStr, { jamStr, menitTotal, list: [] });
+            jadwalGuruHariIni.forEach(j => {
+                const infoW = parseJamMulai(j.waktu || j.jam_ke);
+                if (!infoW) return;
+                if (!mapJamMulai.has(infoW.jamStr)) {
+                    mapJamMulai.set(infoW.jamStr, { ...infoW, list: [] });
                 }
-                mapJamMulai.get(jamStr).list.push(j);
+                mapJamMulai.get(infoW.jamStr).list.push(j);
             });
 
-            // Periksa setiap jam pelajaran
+            // Periksa setiap jam mengajar guru ini
             mapJamMulai.forEach(info => {
-                const keyUnik = `${tglHariIni}|${info.jamStr}`;
-                
-                // Jangan bunyikan lagi jika sudah dibunyikan hari ini
+                const keyUnik = `${tglHariIni}|${guruAktif.trim().toLowerCase()}|${info.jamStr}`;
+
+                // Jangan bunyikan lagi jika jam mengajar ini sudah berbunyi hari ini
                 if (riwayatBelHariIni.has(keyUnik)) return;
 
                 const selisih = info.menitTotal - totalMenitSekarang;
 
-                // Bunyikan bel ketika tepat waktu (selisih == 0)
-                // atau dalam jendela toleransi 0 s/d 1 menit setelah jam masuk jika browser sempat tertunda
-                if (selisih >= -1 && selisih <= 0) {
+                // Toleransi: Berbunyi tepat waktu (0 menit) atau hingga 2 menit setelahnya jika tab sempat tertahan di latar belakang
+                if (selisih >= -2 && selisih <= 0) {
                     riwayatBelHariIni.add(keyUnik);
-                    
-                    // Putar Bel Sekolah Keras
+
+                    // Bunyikan Alarm Lonceng Sekolah Keras
                     putarBelSekolahKeras();
 
-                    let deskripsi = "";
-                    if (guruAktif !== "Semua") {
-                        const item = info.list[0];
-                        deskripsi = `Kelas: ${item.kelas} • Mapel: ${item.mapel}`;
-                    } else if (kelasAktif !== "Semua") {
-                        const item = info.list[0];
-                        deskripsi = `Mapel: ${item.mapel} • Guru: ${item.guru || '-'}`;
-                    } else {
-                        const countKelas = new Set(info.list.map(x => x.kelas)).size;
-                        deskripsi = `Pelajaran Dimulai untuk ${countKelas} Kelas`;
-                    }
-
-                    tampilkanBannerBel("🔔 BEL JAM PELAJARAN DIMULAI!", deskripsi, info.jamStr);
+                    const item = info.list[0];
+                    const deskripsi = `Waktunya Mengajar: Kelas ${item.kelas} • Mapel: ${item.mapel}`;
+                    tampilkanBannerBel(`🔔 ALARM JADWAL MENGAJAR (${info.jamStr})`, deskripsi, info.jamStr);
 
                     if ("Notification" in window && Notification.permission === "granted") {
-                        const notif = new Notification(`🔔 Bel Sekolah: Jam ${info.jamStr}`, {
-                            body: deskripsi,
+                        const notif = new Notification(`🔔 Waktunya Mengajar: Jam ${info.jamStr}`, {
+                            body: `${deskripsi}\nBpk/Ibu ${guruAktif}`,
                             icon: "logo1.png",
                             requireInteraction: true
                         });
@@ -1027,6 +1181,27 @@
                 }
             });
         }
+
+        // Tangani saat layar HP dihidupkan kembali atau tab kembali dibuka
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && isAlarmAktif) {
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                cekWaktuPelajaran();
+            }
+        });
+        window.addEventListener('focus', () => {
+            if (isAlarmAktif) {
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                cekWaktuPelajaran();
+            }
+        });
+
+        // Inisialisasi status tombol alarm saat pertama kali buka
+        setTimeout(updateStatusTombolAlarm, 100);
     </script>
 </body>
 </html>

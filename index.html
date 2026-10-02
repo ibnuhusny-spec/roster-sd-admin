@@ -50,7 +50,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         let firebaseConfig = {
             apiKey: "API_KEY_ANDA",
@@ -70,6 +70,17 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // Pre-warm (panaskan) cache seluruh jadwal pelajaran di background tanpa menunggu
+        try {
+            getDocs(collection(db, "jadwal_pelajaran")).then(snap => {
+                const list = [];
+                snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+                if (list.length > 0) {
+                    localStorage.setItem('cache_semua_jadwal', JSON.stringify(list));
+                }
+            }).catch(() => {});
+        } catch(e) {}
 
         async function muatSplashScreen() {
             const teksNamaSekolah = document.getElementById('teksNamaSekolah');
