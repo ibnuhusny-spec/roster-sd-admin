@@ -1,15 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Input Jadwal - ROSTERKU Pro</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    <meta name="color-scheme" content="dark">
+    <title>Panel Admin Jadwal - RosterKu Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -17,70 +12,112 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f8fafc;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(224, 231, 255, 0.4) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(241, 245, 249, 0.6) 0px, transparent 50%);
-            background-attachment: fixed;
+        :root {
+            color-scheme: dark;
         }
-        .font-heading {
+        html, body {
+            background-color: #07090E !important;
+            color: #F3F4F6 !important;
             font-family: 'Outfit', sans-serif;
         }
-        .select2-container .select2-selection--single {
-            height: 44px !important; border-radius: 0.85rem !important; border: 1px solid #e2e8f0 !important;
-            background-color: #f8fafc !important; display: flex !important; align-items: center !important;
-            padding-left: 0.5rem; font-size: 0.875rem !important;
+        input, select, textarea {
+            color-scheme: dark;
+            -webkit-user-select: text !important;
+            user-select: text !important;
         }
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 42px !important; right: 10px !important;
+        ::selection {
+            background-color: #F59E0B !important;
+            color: #020617 !important;
+        }
+        ::-moz-selection {
+            background-color: #F59E0B !important;
+            color: #020617 !important;
+        }
+        .font-cinzel {
+            font-family: 'Cinzel', serif;
+        }
+        .text-gold-gradient {
+            background: linear-gradient(135deg, #FFF7D6 0%, #F59E0B 35%, #D97706 70%, #FDE047 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Select2 High Contrast Dark Gold Styling Kebal Dark Mode */
+        .select2-container .select2-selection--single {
+            height: 48px !important; 
+            border-radius: 0.75rem !important; 
+            border: 2px solid #F59E0B !important;
+            background-color: #1E293B !important; 
+            display: flex !important; 
+            align-items: center !important;
+            padding-left: 0.5rem; 
+            color: #FDE047 !important; 
+            font-weight: 700 !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #FDE047 !important; 
+            font-weight: 700 !important; 
+            font-size: 15px !important;
+        }
+        .select2-dropdown {
+            background-color: #0F172A !important; 
+            border: 2px solid #F59E0B !important; 
+            border-radius: 0.75rem !important;
+            color: #FFFFFF !important; 
+            overflow: hidden !important; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8) !important;
+        }
+        .select2-results__option {
+            background-color: #0F172A !important; 
+            color: #FFFFFF !important; 
+            font-weight: 700 !important; 
+            padding: 10px 14px !important;
+        }
+        .select2-results__option--highlighted[aria-selected] {
+            background-color: #D97706 !important; 
+            color: #020617 !important;
+        }
+        .select2-results__option[aria-selected="true"] {
+            background-color: #F59E0B !important; 
+            color: #020617 !important;
+        }
+        .select2-search__field {
+            background-color: #1E293B !important; 
+            color: #FDE047 !important; 
+            border: 1px solid #F59E0B !important; 
+            border-radius: 0.5rem !important;
         }
     </style>
 </head>
-<body style="display: none;" class="min-h-screen text-slate-800">
+<body class="bg-[#07090E] min-h-screen font-sans text-gray-100">
 
-    <!-- Modern Dark Navbar -->
-    <header class="bg-slate-900/95 backdrop-blur-xl border-b border-slate-800 text-white sticky top-0 z-30 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3">
-            <div class="flex items-center gap-3">
-                <a href="index.html" class="flex items-center gap-2 group">
-                    <span class="p-2 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 text-base">⚙️</span>
-                    <div>
-                        <span class="font-heading font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">ROSTERKU</span>
-                        <span class="text-[10px] font-bold uppercase tracking-wider bg-blue-500/30 text-blue-300 px-2 py-0.5 rounded-full ml-1 border border-blue-400/20">Input Jadwal</span>
-                    </div>
-                </a>
-                <span class="text-slate-600 hidden sm:inline">&bull;</span>
-                <span class="text-xs text-slate-400 font-medium hidden sm:inline">Panel Manajemen Jadwal Roster</span>
-            </div>
-            
-            <div class="flex items-center gap-2">
-                <a href="lihat_jadwal.html" class="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold py-2 px-3 rounded-xl border border-slate-700 text-xs sm:text-sm transition-all duration-150">
-                    <span>👁️</span>
-                    <span>Lihat Roster</span>
-                </a>
-                <a href="kelola_data.html" class="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold py-2 px-3.5 rounded-xl border border-slate-700 text-xs sm:text-sm transition-all duration-150">
-                    <span>📁</span>
-                    <span>Kelola Master</span>
-                </a>
-                <button id="btnKeluar" class="inline-flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-3.5 rounded-xl text-xs sm:text-sm transition-all duration-150 shadow-sm shadow-red-900/30">
-                    <span>🚪</span>
-                    <span>Keluar</span>
-                </button>
+    <nav class="bg-slate-900/90 backdrop-blur-md border-b border-amber-500/30 shadow-xl sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">⚙️</span>
+                    <span class="font-cinzel font-bold text-gold-gradient text-lg tracking-wide">Panel Admin Jadwal</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="kelola_data.html" class="text-amber-300 hover:text-amber-200 font-bold flex items-center gap-1 transition text-sm bg-slate-800 px-3 py-1.5 rounded-xl border border-amber-500/30">
+                        <span>📁</span> Kelola Data Master
+                    </a>
+                    <button id="btnKeluar" class="bg-red-700 hover:bg-red-600 text-white px-3.5 py-1.5 rounded-xl font-extrabold flex items-center gap-1 transition text-sm shadow-md">
+                        <span>🚪</span> Keluar
+                    </button>
+                </div>
             </div>
         </div>
-    </header>
+    </nav>
 
-    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <div class="lg:col-span-1 bg-white p-6 rounded-3xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80 h-fit lg:sticky lg:top-24 z-0">
-                <h2 id="judulForm" class="font-heading text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <div class="lg:col-span-1 bg-slate-900/90 p-6 rounded-2xl shadow-2xl border-2 border-amber-500/40 h-fit lg:sticky lg:top-24 z-0 backdrop-blur-md">
+                <h2 id="judulForm" class="text-xl font-extrabold text-gold-gradient mb-4 flex items-center gap-2">
                     <span>➕</span> Tambah Jadwal Baru
                 </h2>
                 
@@ -88,7 +125,7 @@
                     <input type="hidden" id="editId">
                     
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Hari</label>
+                        <label class="block text-sm font-bold text-amber-300 mb-1">Hari</label>
                         <select id="inputHari" class="w-full searchable" required>
                             <option value="">-- Pilih Hari --</option>
                             <option value="Senin">Senin</option><option value="Selasa">Selasa</option>
@@ -98,36 +135,36 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Waktu</label>
+                        <label class="block text-sm font-bold text-amber-300 mb-1">Waktu</label>
                         <select id="inputWaktu" class="w-full searchable" required>
                             <option value="">-- Pilih Waktu --</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Kelas</label>
+                        <label class="block text-sm font-bold text-amber-300 mb-1">Kelas</label>
                         <select id="inputKelas" class="w-full searchable" required>
                             <option value="">-- Pilih Kelas --</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Mata Pelajaran</label>
+                        <label class="block text-sm font-bold text-amber-300 mb-1">Mata Pelajaran</label>
                         <select id="inputMapel" class="w-full searchable" required>
                             <option value="">-- Pilih Mapel --</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Guru Pengajar</label>
+                        <label class="block text-sm font-bold text-amber-300 mb-1">Guru Pengajar</label>
                         <select id="inputGuru" class="w-full searchable" required>
                             <option value="">-- Pilih Guru --</option>
                         </select>
                     </div>
 
                     <div class="pt-4 flex gap-2">
-                        <button type="button" id="btnBatal" onclick="resetForm()" class="hidden w-1/3 px-4 py-3 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition">Batal</button>
-                        <button type="submit" id="btnSimpan" class="w-full px-4 py-3 text-white bg-blue-600 hover:bg-blue-700 shadow-lg rounded-xl font-bold transition flex justify-center items-center gap-2">
+                        <button type="button" id="btnBatal" onclick="resetForm()" class="hidden w-1/3 px-4 py-3 text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold transition">Batal</button>
+                        <button type="submit" id="btnSimpan" class="w-full px-4 py-3 text-slate-950 bg-amber-500 hover:bg-amber-400 shadow-lg rounded-xl font-extrabold transition flex justify-center items-center gap-2">
                             💾 Simpan Jadwal
                         </button>
                     </div>
@@ -135,56 +172,59 @@
             </div>
 
             <div class="lg:col-span-2">
-                <div class="bg-white rounded-3xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80 flex flex-col h-auto lg:h-[80vh] overflow-hidden">
-                    
-                    <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 shrink-0 bg-white z-0">
-                        <div>
-                            <h2 class="font-heading text-lg font-bold text-slate-900 mb-1">Daftar Jadwal</h2>
-                            <select id="filterKelasTable" class="p-2 border border-slate-200 rounded-xl bg-slate-50 text-xs font-semibold text-blue-700 searchable">
-                                <option value="Semua">Semua Kelas</option>
-                            </select>
-                        </div>
-                        
-                        <div class="flex flex-wrap gap-2 items-center">
-                            <button onclick="bukaModalTerapkanGuru()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5">
-                                <span>👨‍🏫</span> Terapkan Guru
-                            </button>
-                            <button onclick="bukaModalSalinKelas()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5">
-                                <span>📑</span> Salin Kelas
-                            </button>
-                            <button onclick="bukaModalExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5">
-                                <span>🖨️</span> Cetak / Unduh
-                            </button>
-                            <button onclick="document.getElementById('fileImportExcel').click()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5">
-                                <span>📥</span> Import Excel
-                            </button>
-                            <input type="file" id="fileImportExcel" accept=".xlsx, .xls" class="hidden" onchange="prosesImportExcel(event)">
-                            <button onclick="downloadTemplateExcel()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5" title="Download format Excel untuk import data">
-                                <span>📄</span> Template
-                            </button>
-                            <div class="h-6 w-px bg-slate-200 hidden md:block mx-1"></div>
-                            <button onclick="hapusJadwalPerKelas()" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 border border-rose-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5" title="Hapus seluruh jadwal dari kelas yang sedang difilter">
-                                <span>🧹</span> Hapus Kelas
-                            </button>
-                            <button onclick="hapusSemuaJadwal()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5" title="Hapus seluruh database jadwal">
-                                <span>🚨</span> Hapus Semua
-                            </button>
-                        </div>
-                    </div>
+        <div class="bg-slate-900 rounded-2xl shadow-2xl border-2 border-amber-500/30 flex flex-col h-auto lg:h-[80vh]">
+            
+            <div class="p-6 border-b border-amber-500/30 flex flex-col md:flex-row justify-between items-center gap-4 shrink-0 bg-slate-900 rounded-t-2xl z-0">
+                <div>
+                    <h2 class="text-xl font-extrabold text-gold-gradient mb-1">Daftar Jadwal</h2>
+                    <select id="filterKelasTable" class="p-2 border-2 border-amber-500/40 rounded-xl bg-slate-800 text-sm font-bold text-amber-300 searchable">
+                        <option value="Semua">Semua Kelas</option>
+                    </select>
+                </div>
+                
+                <div class="flex flex-wrap gap-2 items-center">
+                    <button onclick="bukaModalTerapkanGuru()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 px-3 py-2 rounded-xl text-sm font-extrabold shadow transition flex items-center gap-1">
+                        <span>👨‍🏫</span> Terapkan Guru
+                    </button>
+                    <button onclick="bukaModalSalinKelas()" class="bg-indigo-700 hover:bg-indigo-600 text-white px-3 py-2 rounded-xl text-sm font-bold shadow transition flex items-center gap-1">
+                        <span>📑</span> Salin Kelas
+                    </button>
+                    <button onclick="bukaModalExcel()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-2 rounded-xl text-sm font-bold shadow transition flex items-center gap-1">
+                        <span>🖨️</span> Cetak / Unduh
+                    </button>
+                    <button onclick="document.getElementById('fileImportExcel').click()" class="bg-blue-700 hover:bg-blue-600 text-white px-3 py-2 rounded-xl text-sm font-bold shadow transition flex items-center gap-1">
+                        <span>📥</span> Import Excel
+                    </button>
+                    <input type="file" id="fileImportExcel" accept=".xlsx, .xls" class="hidden" onchange="prosesImportExcel(event)">
+                    <button onclick="downloadTemplateExcel()" class="bg-amber-700 hover:bg-amber-600 text-white px-3 py-2 rounded-xl text-sm font-bold shadow transition flex items-center gap-1" title="Download format Excel untuk import data">
+                        <span>📄</span> Template Excel
+                    </button>
+                    <button onclick="rapikanNamaGuruGanda()" class="bg-teal-700 hover:bg-teal-600 text-white px-3 py-2 rounded-xl text-sm font-bold shadow transition flex items-center gap-1" title="Rapikan nama guru ganda di database">
+                        <span>✨</span> Rapikan Guru
+                    </button>
+                    <div class="h-6 w-px bg-slate-700 hidden md:block mx-1"></div>
+                    <button onclick="hapusJadwalPerKelas()" class="bg-red-700 hover:bg-red-600 text-white px-3 py-2 rounded-xl text-sm font-bold shadow transition flex items-center gap-1" title="Hapus seluruh jadwal dari kelas yang sedang difilter">
+                        <span>🧹</span> Hapus Kelas
+                    </button>
+                    <button onclick="hapusSemuaJadwal()" class="bg-red-900 hover:bg-red-800 text-white px-3 py-2 rounded-xl text-sm font-bold shadow transition flex items-center gap-1" title="Hapus seluruh database jadwal">
+                        <span>🚨</span> Hapus Semua
+                    </button>
+                </div>
+            </div>
 
-                    <div class="overflow-auto flex-1">
-                        <table class="min-w-full text-sm text-left">
-                            <thead class="bg-slate-900 text-slate-200 font-heading text-xs tracking-wider uppercase sticky top-0 z-10 shadow-sm">
-                                <tr>
-                                    <th class="py-3 px-4">Hari</th>
-                                    <th class="py-3 px-4">Waktu</th>
+            <div class="overflow-auto flex-1">
+                <table class="min-w-full text-sm text-left">
+                    <thead class="bg-slate-800 text-amber-300 uppercase font-extrabold text-xs sticky top-0 z-10 shadow-sm border-b border-amber-500/30">
+                        <tr>
+                            <th class="py-3 px-4">Hari</th>
+                            <th class="py-3 px-4">Waktu</th>
                             <th class="py-3 px-4">Kelas</th>
                             <th class="py-3 px-4">Mapel & Guru</th>
                             <th class="py-3 px-4 text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="tabelJadwal" class="divide-y divide-gray-100">
-                        <tr><td colspan="5" class="text-center py-6 text-gray-400 italic">Memuat data...</td></tr>
+                    <tbody id="tabelJadwal" class="divide-y divide-slate-800 bg-slate-900 text-slate-100">
+                        <tr><td colspan="5" class="text-center py-6 text-amber-400 font-bold italic">Memuat data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -302,17 +342,38 @@
                 </button>
             </div>
         </div>
-    <div id="modalLoadingImport" class="fixed inset-0 bg-black bg-opacity-60 hidden flex flex-col justify-center items-center z-50 p-4 text-white">
-        <div class="bg-gray-900 border border-gray-700 p-6 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full text-center">
-            <div class="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <h3 class="font-bold text-lg text-white mb-1">Sedang Mengimport Data...</h3>
-            <p id="teksStatusImport" class="text-xs text-blue-200">Menyelaraskan Data Master & Jadwal</p>
+    </div>
+
+    <!-- UNIVERSAL CUSTOM GOLD ALERT MODAL (SOLUSI MUTLAK BEBAS ALERT HITAM NATIVE ANDROID) -->
+    <div id="modalCustomAlertUniversal" class="fixed inset-0 z-[9999] hidden bg-black/85 flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-slate-900 border-2 border-amber-400 p-6 rounded-3xl shadow-2xl w-full max-w-sm text-center animate-fade-in-up" style="background-color: #0F172A !important; border-color: #F59E0B !important;">
+            <div class="w-14 h-14 bg-amber-500/20 border border-amber-500/50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+                ✨
+            </div>
+            <h3 id="judulAlertCustomUniversal" class="text-lg font-extrabold text-amber-300 mb-2" style="color: #FDE047 !important;">Informasi RosterKu</h3>
+            <p id="pesanAlertCustomUniversal" class="text-sm font-bold text-white whitespace-pre-line leading-relaxed mb-6" style="color: #FFFFFF !important;"></p>
+            <button type="button" onclick="document.getElementById('modalCustomAlertUniversal').classList.add('hidden')" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-xl text-base shadow-lg transition" style="background-color: #F59E0B !important; color: #020617 !important;">
+                OK, Saya Mengerti
+            </button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // Override Native Alert untuk Menghindari Dialog Hitam Android OS
+        const originalNativeAlert = window.alert;
+        window.alert = function(pesan) {
+            const modal = document.getElementById('modalCustomAlertUniversal');
+            const p = document.getElementById('pesanAlertCustomUniversal');
+            if (modal && p) {
+                p.innerText = pesan;
+                modal.classList.remove('hidden');
+            } else {
+                originalNativeAlert(pesan);
+            }
+        };
 
         let firebaseConfig = null;
         try {
@@ -324,6 +385,7 @@
         if (firebaseConfig && firebaseConfig.projectId) {
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
+            enableIndexedDbPersistence(db).catch(err => console.log("Firestore persistence info:", err.code));
         } else {
             console.warn("Mode Offline/Demo: Konfigurasi Firebase tidak lengkap atau 'projectId' tidak ditemukan.");
         }
@@ -334,6 +396,30 @@
             $('.searchable').select2();
             $('#filterKelasTable').on('change', function() { window.renderTabel(); });
         });
+
+        let daftarMasterGuru = [];
+
+        function formatNamaBaku(str) {
+            if (!str) return "";
+            let s = str.trim();
+            if (s === s.toUpperCase() || s === s.toLowerCase()) {
+                return s.toLowerCase().split(' ').map(word => {
+                    if (!word) return '';
+                    return word.split('.').map(part => {
+                        if (!part) return '';
+                        const lower = part.toLowerCase();
+                        if (['spd', 'mpd', 'spdi', 'st', 'sh', 'ss', 'pd'].includes(lower)) {
+                            if (lower === 'spd') return 'Pd';
+                            if (lower === 'mpd') return 'Pd';
+                            if (lower === 'spdi') return 'Pd.I';
+                            return part.toUpperCase();
+                        }
+                        return part.charAt(0).toUpperCase() + part.slice(1);
+                    }).join('.');
+                }).join(' ');
+            }
+            return s;
+        }
 
         function muatDataMaster() {
             if (!db) return;
@@ -397,6 +483,7 @@
                 if(terapkanGr) terapkanGr.innerHTML = '<option value="">-- Pilih Guru --</option>';
 
                 let arr = []; snapshot.forEach(d => arr.push(d.data().nama));
+                daftarMasterGuru = arr;
                 arr.sort().forEach(nama => {
                     sel.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                     if(terapkanGr) terapkanGr.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
@@ -453,39 +540,40 @@
             });
 
             if (data.length === 0) {
-                tabel.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-500">Belum ada data jadwal.</td></tr>`;
+                tabel.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400 font-bold">Belum ada data jadwal.</td></tr>`;
                 return;
             }
 
             data.forEach(j => {
                 // Bersihkan teks hari khusus untuk tampilan warna label
                 let hariWarna = (j.hari || "").trim().toLowerCase();
-                let bgHari = "bg-gray-100 text-gray-700"; // default jika tidak cocok
+                let bgHari = "bg-slate-700 text-slate-200 border border-slate-600"; // default jika tidak cocok
                 
-                if(hariWarna === "senin") bgHari = "bg-red-100 text-red-700";
-                else if(hariWarna === "selasa") bgHari = "bg-orange-100 text-orange-700";
-                else if(hariWarna === "rabu") bgHari = "bg-yellow-100 text-yellow-700";
-                else if(hariWarna === "kamis") bgHari = "bg-green-100 text-green-700";
-                else if(hariWarna === "jumat") bgHari = "bg-blue-100 text-blue-700";
-                else if(hariWarna === "sabtu") bgHari = "bg-purple-100 text-purple-700";
+                if(hariWarna === "senin") bgHari = "bg-red-500/20 text-red-300 border border-red-500/40";
+                else if(hariWarna === "selasa") bgHari = "bg-amber-500/20 text-amber-300 border border-amber-500/40";
+                else if(hariWarna === "rabu") bgHari = "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40";
+                else if(hariWarna === "kamis") bgHari = "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+                else if(hariWarna === "jumat") bgHari = "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40";
+                else if(hariWarna === "sabtu") bgHari = "bg-purple-500/20 text-purple-300 border border-purple-500/40";
+                else if(hariWarna === "minggu") bgHari = "bg-rose-500/20 text-rose-300 border border-rose-500/40";
 
                 // Format teks hari agar selalu Rapi (KAPITAL di awal saja) saat ditampilkan
                 let teksHariTampil = hariWarna.charAt(0).toUpperCase() + hariWarna.slice(1);
 
                 tabel.insertAdjacentHTML('beforeend', `
-                    <tr class="hover:bg-blue-50 transition border-b border-gray-50">
-                        <td class="py-3 px-4"><span class="px-2 py-1 rounded text-xs font-bold ${bgHari}">${teksHariTampil}</span></td>
-                        <td class="py-3 px-4 font-medium text-gray-700">${j.waktu}</td>
-                        <td class="py-3 px-4 font-bold text-blue-600">${j.kelas}</td>
+                    <tr class="hover:bg-slate-800/80 transition border-b border-slate-800/80">
+                        <td class="py-3 px-4"><span class="px-2.5 py-1 rounded-lg text-xs font-bold ${bgHari}">${teksHariTampil}</span></td>
+                        <td class="py-3 px-4 font-semibold text-amber-200">${j.waktu}</td>
+                        <td class="py-3 px-4"><span class="px-2.5 py-1 bg-indigo-900/60 text-indigo-200 border border-indigo-500/40 rounded-lg text-xs font-extrabold">${j.kelas}</span></td>
                         <td class="py-3 px-4">
-                            <div class="font-bold text-gray-800">${j.mapel}</div>
-                            <div class="text-xs ${j.guru ? 'text-gray-500' : 'text-red-500 font-bold italic'}">👨‍🏫 ${j.guru || "Belum ada guru"}</div>
+                            <div class="font-extrabold text-white text-base leading-tight">${j.mapel}</div>
+                            <div class="text-xs ${j.guru ? 'text-amber-300/90' : 'text-rose-400 font-bold italic'} mt-0.5">👨‍🏫 ${j.guru || "Belum ada guru"}</div>
                         </td>
                         <td class="py-3 px-4 text-center">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="duplikatJadwal('${j.id}')" class="p-1.5 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded-lg transition" title="Salin / Duplikat Baris Ini">📄</button>
-                                <button onclick="editJadwal('${j.id}')" class="p-1.5 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 rounded-lg transition" title="Edit">✏️</button>
-                                <button onclick="hapusJadwal('${j.id}')" class="p-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg transition" title="Hapus">🗑️</button>
+                                <button onclick="duplikatJadwal('${j.id}')" class="p-1.5 bg-indigo-900/60 text-indigo-300 hover:bg-indigo-800 border border-indigo-500/30 rounded-lg transition" title="Salin / Duplikat Baris Ini">📄</button>
+                                <button onclick="editJadwal('${j.id}')" class="p-1.5 bg-amber-900/60 text-amber-300 hover:bg-amber-800 border border-amber-500/30 rounded-lg transition" title="Edit">✏️</button>
+                                <button onclick="hapusJadwal('${j.id}')" class="p-1.5 bg-rose-900/60 text-rose-300 hover:bg-rose-800 border border-rose-500/30 rounded-lg transition" title="Hapus">🗑️</button>
                             </div>
                         </td>
                     </tr>
@@ -634,52 +722,17 @@
 
         window.hapusSemuaJadwal = async function() {
             if (!confirm(`🚨 AWAS! TINDAKAN BERBAHAYA!\n\nAnda akan menghapus SEMUA JADWAL DARI SELURUH KELAS! Apakah Anda 100% yakin?`)) return;
-            const ketik = prompt("Untuk melanjutkan, ketik kata 'HAPUS' di bawah ini:");
-            if (!ketik || ketik.trim().toUpperCase() !== "HAPUS") {
-                return alert("❌ Aksi dibatalkan. Kata kunci tidak cocok (ketik 'HAPUS').");
-            }
+            const ketik = prompt("Untuk melanjutkan, ketik kata 'HAPUS' di bawah ini (huruf besar semua):");
+            if (ketik !== "HAPUS") return alert("❌ Aksi dibatalkan. Kata kunci tidak cocok.");
 
-            const modalLoading = document.getElementById('modalLoadingImport');
-            const teksStatus = document.getElementById('teksStatusImport');
-            if (modalLoading) {
-                if (teksStatus) teksStatus.innerText = "Mengambil data seluruh jadwal...";
-                modalLoading.classList.remove('hidden');
-            }
-
-            try {
-                const snapshot = await getDocs(collection(db, "jadwal_pelajaran"));
-                if (snapshot.empty) {
-                    if (modalLoading) modalLoading.classList.add('hidden');
-                    return alert("Database jadwal memang sudah kosong.");
-                }
-
-                if (teksStatus) teksStatus.innerText = `Menghapus ${snapshot.size} baris jadwal...`;
-
-                let batch = writeBatch(db);
-                let count = 0;
-                let terhapus = 0;
-
-                for (const docSnap of snapshot.docs) {
-                    batch.delete(docSnap.ref);
-                    count++;
+            let terhapus = 0;
+            for(const j of semuaJadwal) {
+                try {
+                    await deleteDoc(doc(db, "jadwal_pelajaran", j.id));
                     terhapus++;
-                    if (count === 400) {
-                        await batch.commit();
-                        batch = writeBatch(db);
-                        count = 0;
-                    }
-                }
-                if (count > 0) {
-                    await batch.commit();
-                }
-
-                if (modalLoading) modalLoading.classList.add('hidden');
-                alert(`✅ SELURUH JADWAL BERHASIL DIKOSONGKAN!\nTotal ${terhapus} baris data jadwal telah dibersihkan.`);
-            } catch (err) {
-                console.error("Gagal mengosongkan jadwal:", err);
-                if (modalLoading) modalLoading.classList.add('hidden');
-                alert("❌ Terjadi kendala saat menghapus jadwal: " + err.message);
+                } catch(e) { console.error("Gagal hapus", e); }
             }
+            alert(`✅ SELURUH JADWAL BERHASIL DIKOSONGKAN. Total ${terhapus} baris data dihapus.`);
         };
 
         window.resetForm = function() {
@@ -797,412 +850,117 @@
         window.bukaModalExcel = function() { document.getElementById('modalExcel').classList.remove('hidden'); }
         window.tutupModalExcel = function() { document.getElementById('modalExcel').classList.add('hidden'); }
 
-        // --- HELPER NORMALISASI & SINKRONISASI DATA CERDAS ---
-        function formatHari(hari) {
-            if (!hari) return "";
-            let str = String(hari).trim().toLowerCase();
-            const mapHari = {
-                "senin": "Senin", "selasa": "Selasa", "rabu": "Rabu",
-                "kamis": "Kamis", "jumat": "Jumat", "jum'at": "Jumat",
-                "sabtu": "Sabtu", "minggu": "Minggu", "ahad": "Ahad"
-            };
-            return mapHari[str] || (str.charAt(0).toUpperCase() + str.slice(1));
-        }
-
-        function formatWaktu(waktu) {
-            if (!waktu) return "";
-            let str = String(waktu).trim();
-            // Menyeragamkan pemisah titik menjadi titik dua (contoh: 07.30 - 08.15 -> 07:30 - 08:15)
-            str = str.replace(/(\d{1,2})\.(\d{2})/g, '$1:$2');
-            str = str.replace(/\s*-\s*/g, ' - ');
-            return str;
-        }
-
-        function formatNamaKelas(kelas) {
-            if (!kelas) return "";
-            let str = String(kelas).trim().replace(/\s+/g, ' ');
-            return str.split(' ').map(w => {
-                if (/^\d+[a-zA-Z]?$/.test(w)) return w.toUpperCase();
-                return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
-            }).join(' ');
-        }
-
-        function formatNamaMapel(mapel) {
-            if (!mapel) return "";
-            let str = String(mapel).trim().replace(/\s+/g, ' ');
-            if (!str || str === "-" || str === "--") return "";
-
-            const mapelKhusus = {
-                "pai": "PAI",
-                "pjok": "PJOK",
-                "ppkn": "PPKn",
-                "ppk": "PPKn",
-                "ipa": "IPA",
-                "ips": "IPS",
-                "sbdp": "SBdP",
-                "tik": "TIK",
-                "btq": "BTQ",
-                "bk": "BK",
-                "pancasila": "Pancasila"
-            };
-
-            return str.split(' ').map(w => {
-                let low = w.toLowerCase().replace(/[\(\)]/g, '');
-                if (mapelKhusus[low]) {
-                    return w.replace(new RegExp(low, 'i'), mapelKhusus[low]);
-                }
-                if (w.toLowerCase().startsWith('b.') || w.toLowerCase().startsWith('b-')) {
-                    return 'B.' + (w.length > 2 ? ' ' + w.slice(2).charAt(0).toUpperCase() + w.slice(3).toLowerCase() : '');
-                }
-                return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
-            }).join(' ');
-        }
-
-        function formatNamaGuru(nama) {
-            if (!nama) return "";
-            let str = String(nama).trim().replace(/\s+/g, ' ');
-            if (!str || str === "-" || str === "--") return "";
-
-            const gelarMap = {
-                "s.pd": "S.Pd.", "s.pd.": "S.Pd.", "spd": "S.Pd.", "spd.": "S.Pd.",
-                "s.pd.i": "S.Pd.I.", "s.pd.i.": "S.Pd.I.", "spdi": "S.Pd.I.", "spdi.": "S.Pd.I.",
-                "m.pd": "M.Pd.", "m.pd.": "M.Pd.", "mpd": "M.Pd.", "mpd.": "M.Pd.",
-                "m.pd.i": "M.Pd.I.", "m.pd.i.": "M.Pd.I.", "mpdi": "M.Pd.I.", "mpdi.": "M.Pd.I.",
-                "s.ag": "S.Ag.", "s.ag.": "S.Ag.", "sag": "S.Ag.", "sag.": "S.Ag.",
-                "s.si": "S.Si.", "s.si.": "S.Si.", "ssi": "S.Si.", "ssi.": "S.Si.",
-                "s.kom": "S.Kom.", "s.kom.": "S.Kom.", "skom": "S.Kom.", "skom.": "S.Kom.",
-                "s.t": "S.T.", "s.t.": "S.T.", "st": "S.T.", "st.": "S.T.",
-                "s.sos": "S.Sos.", "s.sos.": "S.Sos.", "ssos": "S.Sos.", "ssos.": "S.Sos.",
-                "s.e": "S.E.", "s.e.": "S.E.", "se": "S.E.", "se.": "S.E.",
-                "s.h": "S.H.", "s.h.": "S.H.", "sh": "S.H.", "sh.": "S.H.",
-                "m.si": "M.Si.", "m.si.": "M.Si.", "msi": "M.Si.",
-                "m.ag": "M.Ag.", "m.ag.": "M.Ag.",
-                "m.kom": "M.Kom.", "m.kom.": "M.Kom.",
-                "lc": "Lc.", "lc.": "Lc.",
-                "dr": "Dr.", "dr.": "Dr.",
-                "drs": "Drs.", "drs.": "Drs.",
-                "dra": "Dra.", "dra.": "Dra.",
-                "h": "H.", "h.": "H.",
-                "hj": "Hj.", "hj.": "Hj.",
-                "a.ma": "A.Ma.", "a.ma.": "A.Ma.",
-                "gr": "Gr.", "gr.": "Gr."
-            };
-
-            const parts = str.split(',');
-            const formatWord = (w) => {
-                if (!w) return "";
-                let low = w.toLowerCase().replace(/,/g, '');
-                if (gelarMap[low]) return gelarMap[low];
-                return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
-            };
-
-            let namaDepan = parts[0].trim().split(' ').map(formatWord).join(' ');
-            if (parts.length > 1) {
-                let gelar = parts.slice(1).join(',').trim().split(/\s+/).map(formatWord).join(' ');
-                return `${namaDepan}, ${gelar}`;
-            }
-            return namaDepan;
-        }
-
-        function isKegiatanNonPelajaran(mapel, guru) {
-            const textMapel = String(mapel || "").trim().toLowerCase();
-            const textGuru = String(guru || "").trim().toLowerCase();
-
-            // Kata kunci kegiatan rutin / non-pelajaran yang harus dilewati
-            const kataKunciSkip = [
-                "apel", "upacara", "istirahat", "rehat", 
-                "snack time", "sholat", "shalat", "dzuhur", "dhuha"
-            ];
-
-            for (const kata of kataKunciSkip) {
-                if (textMapel.includes(kata)) return true;
-            }
-
-            // Jika mapel kosong atau hanya karakter simbol
-            if (!textMapel || textMapel === "-" || textMapel === "--" || textMapel === ".") {
-                return true;
-            }
-
-            return false;
-        }
-
-        // --- HELPER MEMBACA KOLOM FLEKSIBEL (CASE-INSENSITIVE & VARIASI HEADER) ---
-        function getNilaiKolom(row, ...variasiNama) {
-            for (const nama of variasiNama) {
-                if (row[nama] !== undefined && row[nama] !== null && String(row[nama]).trim() !== "") {
-                    return String(row[nama]).trim();
-                }
-            }
-            const keys = Object.keys(row);
-            for (const nama of variasiNama) {
-                const target = nama.toLowerCase().replace(/[\s_\/-]/g, '');
-                const foundKey = keys.find(k => k.toLowerCase().replace(/[\s_\/-]/g, '') === target);
-                if (foundKey && row[foundKey] !== undefined && row[foundKey] !== null && String(row[foundKey]).trim() !== "") {
-                    return String(row[foundKey]).trim();
-                }
-            }
-            return "";
-        }
-
-        // --- FUNGSI IMPORT EXCEL KILAT & CERDAS (BATCH WRITE) ---
+// --- FUNGSI IMPORT EXCEL CERDAS ---
         window.prosesImportExcel = function(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = async function(e) {
-                let workbook;
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    workbook = XLSX.read(data, {type: 'array'});
-                } catch (err) {
-                    alert("❌ Format file Excel tidak valid atau rusak!");
-                    document.getElementById('fileImportExcel').value = "";
-                    return;
-                }
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
                 
-                // 1. Kumpulkan seluruh data dari semua sheet yang memuat jadwal
-                let daftarBaris = [];
-                for (const sheetName of workbook.SheetNames) {
-                    const ws = workbook.Sheets[sheetName];
-                    if (!ws || !ws['!ref']) continue;
-                    const sheetRows = XLSX.utils.sheet_to_json(ws, {raw: false, defval: ""});
-                    if (sheetRows && sheetRows.length > 0) {
-                        const sample = sheetRows[0];
-                        const sampleKeys = Object.keys(sample).map(k => k.toLowerCase());
-                        const isSchedule = sampleKeys.some(k => 
-                            k.includes('hari') || k.includes('waktu') || k.includes('jam') || 
-                            k.includes('mapel') || k.includes('kelas') || k.includes('guru') || k.includes('pelajaran')
-                        );
-                        if (isSchedule) {
-                            daftarBaris = daftarBaris.concat(sheetRows);
-                        }
-                    }
-                }
-
-                // Fallback jika hanya 1 sheet biasa
-                if (daftarBaris.length === 0 && workbook.SheetNames.length > 0) {
-                    daftarBaris = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {raw: false, defval: ""});
-                }
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
                 
-                if (daftarBaris.length === 0) {
-                    alert("❌ File Excel kosong atau tidak ditemukan data jadwal!");
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, {raw: false});
+                
+                if(jsonData.length === 0) {
+                    alert("❌ File Excel kosong atau format tidak sesuai!");
+                    return;
+                }
+
+                if(!confirm(`Ditemukan ${jsonData.length} baris jadwal. Mulai proses import ke database?`)) {
                     document.getElementById('fileImportExcel').value = "";
                     return;
                 }
 
-                if (!confirm(`Ditemukan ${daftarBaris.length} baris data pada Excel.\n\nSistem Kilat akan:\n1. Memproses seluruh hari & sheet dengan super cepat (Batch Write)\n2. Menangani sel gabungan (merged cells) otomatis\n3. Melewati jadwal Apel / Istirahat secara otomatis\n4. Menyeragamkan format huruf (Title Case)\n5. Mengisi Data Master & Jadwal secara serempak\n\nMulai proses import ke database?`)) {
-                    document.getElementById('fileImportExcel').value = "";
-                    return;
-                }
+                let berhasil = 0;
+                let gagal = 0;
 
-                const modalLoading = document.getElementById('modalLoadingImport');
-                const teksStatus = document.getElementById('teksStatusImport');
-                if (modalLoading) {
-                    if (teksStatus) teksStatus.innerText = "Membaca data master yang ada...";
-                    modalLoading.classList.remove('hidden');
-                }
+                for(const baris of jsonData) {
+                    try {
+                        let hariRaw = String(baris.Hari || "").trim();
+                        let hariClean = hariRaw ? (hariRaw.charAt(0).toUpperCase() + hariRaw.slice(1).toLowerCase()) : "";
 
-                try {
-                    // 2. Ambil referensi Data Master yang sudah ada untuk pencocokan anti-duplikat
-                    const mapKelas = new Map();
-                    const mapGuru = new Map();
-                    const mapMapel = new Map();
-                    const mapWaktu = new Map();
+                        let guruRaw = String(baris.Guru || "").trim();
+                        let guruMatched = guruRaw;
 
-                    const snapKelas = await getDocs(collection(db, "master_kelas"));
-                    snapKelas.forEach(d => {
-                        const n = d.data().nama;
-                        if (n) mapKelas.set(String(n).trim().toLowerCase(), String(n).trim());
-                    });
-
-                    const snapGuru = await getDocs(collection(db, "master_guru"));
-                    snapGuru.forEach(d => {
-                        const n = d.data().nama;
-                        if (n) mapGuru.set(String(n).trim().toLowerCase(), String(n).trim());
-                    });
-
-                    const snapMapel = await getDocs(collection(db, "master_mapel"));
-                    snapMapel.forEach(d => {
-                        const n = d.data().nama;
-                        if (n) mapMapel.set(String(n).trim().toLowerCase(), String(n).trim());
-                    });
-
-                    const snapWaktu = await getDocs(collection(db, "master_waktu"));
-                    snapWaktu.forEach(d => {
-                        const w = d.data().waktu || d.data().nama;
-                        if (w) mapWaktu.set(formatWaktu(w).toLowerCase(), formatWaktu(w));
-                    });
-
-                    // 3. Olah data di memori secara kilat dengan pewarisan sel gabungan (merged cells)
-                    const masterWaktuBaru = new Set();
-                    const masterKelasBaru = new Map();
-                    const masterMapelBaru = new Map();
-                    const masterGuruBaru = new Map();
-                    const daftarJadwalFinal = [];
-
-                    let dilewati = 0;
-                    let lastHari = "";
-                    let lastKelas = "";
-
-                    for (const baris of daftarBaris) {
-                        let rawHari = getNilaiKolom(baris, "Hari", "HARI", "Hari/Tanggal", "Hari / Tanggal", "Hari_Tanggal");
-                        if (rawHari) {
-                            lastHari = formatHari(rawHari);
-                        }
-                        const finalHari = rawHari ? formatHari(rawHari) : lastHari;
-
-                        let rawKelas = getNilaiKolom(baris, "Kelas", "KELAS", "Rombel", "Ruang", "Tingkat");
-                        if (rawKelas) {
-                            lastKelas = formatNamaKelas(rawKelas);
-                        }
-                        const finalKelasRaw = rawKelas ? formatNamaKelas(rawKelas) : lastKelas;
-
-                        let rawWaktu = getNilaiKolom(baris, "Waktu", "WAKTU", "Jam", "JAM", "Pukul", "Waktu Belajar", "Jam Ke", "Jam_Ke");
-                        let rawMapel = getNilaiKolom(baris, "Mapel", "MAPEL", "Mata Pelajaran", "Mata_Pelajaran", "Pelajaran", "Bidang Studi");
-                        let rawGuru = getNilaiKolom(baris, "Guru", "GURU", "Nama Guru", "Nama_Guru", "Pengajar", "Ustadz", "Ustadzah");
-
-                        // Lewati baris jika data esensial kosong
-                        if (!finalHari || !rawWaktu || !finalKelasRaw || !rawMapel) {
-                            dilewati++;
-                            continue;
-                        }
-
-                        // Lewati Apel, Istirahat, Sholat, dll.
-                        if (isKegiatanNonPelajaran(rawMapel, rawGuru)) {
-                            dilewati++;
-                            continue;
-                        }
-
-                        // Normalisasi Waktu
-                        const finalWaktu = formatWaktu(rawWaktu);
-                        const keyWaktu = finalWaktu.toLowerCase();
-                        if (!mapWaktu.has(keyWaktu) && !masterWaktuBaru.has(finalWaktu)) {
-                            masterWaktuBaru.add(finalWaktu);
-                            mapWaktu.set(keyWaktu, finalWaktu);
-                        }
-
-                        // Normalisasi Kelas
-                        let finalKelas = "";
-                        const keyKelas = finalKelasRaw.toLowerCase();
-                        if (mapKelas.has(keyKelas)) {
-                            finalKelas = mapKelas.get(keyKelas);
-                        } else {
-                            finalKelas = formatNamaKelas(finalKelasRaw);
-                            masterKelasBaru.set(keyKelas, finalKelas);
-                            mapKelas.set(keyKelas, finalKelas);
-                        }
-
-                        // Normalisasi Mapel
-                        let finalMapel = "";
-                        const keyMapel = rawMapel.toLowerCase();
-                        if (mapMapel.has(keyMapel)) {
-                            finalMapel = mapMapel.get(keyMapel);
-                        } else {
-                            finalMapel = formatNamaMapel(rawMapel);
-                            masterMapelBaru.set(keyMapel, finalMapel);
-                            mapMapel.set(keyMapel, finalMapel);
-                        }
-
-                        // Normalisasi Guru
-                        let finalGuru = "";
-                        if (rawGuru && rawGuru !== "-" && rawGuru !== "--") {
-                            const keyGuru = rawGuru.toLowerCase();
-                            if (mapGuru.has(keyGuru)) {
-                                finalGuru = mapGuru.get(keyGuru);
+                        if (guruRaw) {
+                            // 1. Pencocokan case-insensitive terhadap Master Data Guru
+                            const matchMaster = daftarMasterGuru.find(g => g.trim().toUpperCase() === guruRaw.toUpperCase());
+                            if (matchMaster) {
+                                guruMatched = matchMaster;
                             } else {
-                                finalGuru = formatNamaGuru(rawGuru);
-                                masterGuruBaru.set(keyGuru, finalGuru);
-                                mapGuru.set(keyGuru, finalGuru);
+                                // 2. Pencocokan case-insensitive terhadap jadwal yang sudah ada
+                                const matchSchedule = semuaJadwal.find(j => (j.guru || "").trim().toUpperCase() === guruRaw.toUpperCase());
+                                if (matchSchedule && matchSchedule.guru) {
+                                    guruMatched = matchSchedule.guru;
+                                } else {
+                                    // 3. Format Title Case jika teks kapital semua / kecil semua
+                                    guruMatched = formatNamaBaku(guruRaw);
+                                }
                             }
                         }
 
-                        daftarJadwalFinal.push({
-                            hari: finalHari,
-                            waktu: finalWaktu,
-                            kelas: finalKelas,
-                            mapel: finalMapel,
-                            guru: finalGuru
-                        });
-                    }
+                        const dataBaru = {
+                            hari: hariClean,
+                            waktu: String(baris.Waktu || "").trim(),
+                            kelas: String(baris.Kelas || "").trim(),
+                            mapel: String(baris.Mapel || "").trim(),
+                            guru: guruMatched
+                        };
+                        
+                        if(!dataBaru.hari || !dataBaru.waktu || !dataBaru.kelas) continue;
 
-                    // 4. Batch Write Data Master (Hanya 1 transaksi cepat!)
-                    if (teksStatus) teksStatus.innerText = "Menyimpan Data Master baru ke database...";
-                    let batchMaster = writeBatch(db);
-                    let opsMaster = 0;
-
-                    for (const w of masterWaktuBaru) {
-                        batchMaster.set(doc(collection(db, "master_waktu")), { waktu: w });
-                        opsMaster++;
-                        if (opsMaster === 400) { await batchMaster.commit(); batchMaster = writeBatch(db); opsMaster = 0; }
-                    }
-                    for (const [k, n] of masterKelasBaru) {
-                        batchMaster.set(doc(collection(db, "master_kelas")), { nama: n });
-                        opsMaster++;
-                        if (opsMaster === 400) { await batchMaster.commit(); batchMaster = writeBatch(db); opsMaster = 0; }
-                    }
-                    for (const [k, n] of masterMapelBaru) {
-                        batchMaster.set(doc(collection(db, "master_mapel")), { nama: n });
-                        opsMaster++;
-                        if (opsMaster === 400) { await batchMaster.commit(); batchMaster = writeBatch(db); opsMaster = 0; }
-                    }
-                    for (const [k, n] of masterGuruBaru) {
-                        batchMaster.set(doc(collection(db, "master_guru")), { nama: n });
-                        opsMaster++;
-                        if (opsMaster === 400) { await batchMaster.commit(); batchMaster = writeBatch(db); opsMaster = 0; }
-                    }
-                    if (opsMaster > 0) {
-                        await batchMaster.commit();
-                    }
-
-                    // 5. Batch Write Jadwal Pelajaran (Super cepat!)
-                    if (teksStatus) teksStatus.innerText = `Menyimpan ${daftarJadwalFinal.length} jadwal secara serentak...`;
-                    let batchJadwal = writeBatch(db);
-                    let countOps = 0;
-                    let berhasil = 0;
-
-                    for (const item of daftarJadwalFinal) {
-                        batchJadwal.set(doc(collection(db, "jadwal_pelajaran")), item);
-                        countOps++;
+                        await addDoc(collection(db, "jadwal_pelajaran"), dataBaru);
                         berhasil++;
-                        if (countOps === 400) {
-                            await batchJadwal.commit();
-                            batchJadwal = writeBatch(db);
-                            countOps = 0;
-                        }
+                    } catch (error) {
+                        console.error("Gagal import baris:", baris, error);
+                        gagal++;
                     }
-                    if (countOps > 0) {
-                        await batchJadwal.commit();
-                    }
-
-                    if (modalLoading) modalLoading.classList.add('hidden');
-
-                    const rincianMaster = [];
-                    if (masterGuruBaru.size > 0) rincianMaster.push(`${masterGuruBaru.size} Guru`);
-                    if (masterMapelBaru.size > 0) rincianMaster.push(`${masterMapelBaru.size} Mapel`);
-                    if (masterKelasBaru.size > 0) rincianMaster.push(`${masterKelasBaru.size} Kelas`);
-                    if (masterWaktuBaru.size > 0) rincianMaster.push(`${masterWaktuBaru.size} Jam/Waktu`);
-
-                    let pesanMaster = rincianMaster.length > 0 
-                        ? `\n✨ Data Master Baru yang otomatis ditambahkan:\n• ${rincianMaster.join('\n• ')}`
-                        : `\n✨ Seluruh Data Master sudah cocok dengan data yang ada.`;
-
-                    alert(`⚡ IMPORT KILAT SELESAI!\n\n` +
-                          `• Berhasil diimport ke Jadwal: ${berhasil} jadwal\n` +
-                          `• Dilewati (Apel/Istirahat/Kosong): ${dilewati} baris` +
-                          pesanMaster);
-
-                } catch (error) {
-                    console.error("Terjadi kesalahan saat import:", error);
-                    if (modalLoading) modalLoading.classList.add('hidden');
-                    alert("❌ Terjadi kendala saat memproses import: " + error.message);
-                } finally {
-                    document.getElementById('fileImportExcel').value = ""; 
                 }
+
+                alert(`✅ IMPORT SELESAI!\nBerhasil: ${berhasil} jadwal\nGagal/Dilewati: ${gagal} jadwal`);
+                document.getElementById('fileImportExcel').value = ""; 
             };
             reader.readAsArrayBuffer(file);
         };
         // --- BATAS AKHIR FUNGSI IMPORT EXCEL ---
+
+        // --- FUNGSI MERAPIKAN NAMA GURU GANDA DI DATABASE ---
+        window.rapikanNamaGuruGanda = async function() {
+            if (!semuaJadwal || semuaJadwal.length === 0) {
+                return alert("⚠️ Tidak ada data jadwal yang perlu dirapikan.");
+            }
+
+            if (!confirm("✨ Apakah Anda ingin merapikan nama-nama guru yang terlanjur ganda (karena beda huruf besar/kecil) di database?\n\nSistem akan menyatukan penulisan nama guru berdasarkan Master Data atau format baku.")) return;
+
+            let countUpdated = 0;
+            for (const j of semuaJadwal) {
+                if (!j.guru) continue;
+                const rawGuru = j.guru.trim();
+                let canonicalGuru = rawGuru;
+
+                const matchMaster = daftarMasterGuru.find(g => g.trim().toUpperCase() === rawGuru.toUpperCase());
+                if (matchMaster) {
+                    canonicalGuru = matchMaster;
+                } else {
+                    canonicalGuru = formatNamaBaku(rawGuru);
+                }
+
+                if (canonicalGuru !== rawGuru && j.id) {
+                    try {
+                        await updateDoc(doc(db, "jadwal_pelajaran", j.id), { guru: canonicalGuru });
+                        countUpdated++;
+                    } catch (e) {
+                        console.error("Gagal update guru ganda ID: " + j.id, e);
+                    }
+                }
+            }
+
+            alert(`✅ PROSES SELESAI!\nBerhasil merapikan ${countUpdated} baris jadwal yang penulisan nama gurunya tidak seragam.`);
+        };
 
 
         // --- FUNGSI DOWNLOAD TEMPLATE EXCEL AUTOMATIS ---
@@ -1405,7 +1163,6 @@
                 window.location.replace("index.html");
             } else if (user) {
                 console.log("Admin terverifikasi:", user.email);
-                document.body.style.display = "block"; 
             }
         });
 

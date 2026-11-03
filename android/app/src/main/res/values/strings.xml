@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ROSTERKU Pro</string>
+    <string name="title_activity_main">ROSTERKU Pro</string>
+    <string name="package_name">com.ibnuhusny.rosterku</string>
+    <string name="custom_url_scheme">com.ibnuhusny.rosterku</string>
+</resources>

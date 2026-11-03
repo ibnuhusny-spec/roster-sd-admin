@@ -1,207 +1,191 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Kelola Data Master | ROSTERKU</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Tailwind CSS -->
+    <meta name="color-scheme" content="dark">
+    <title>Admin - Kelola Data Master - RosterKu Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f8fafc;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(224, 231, 255, 0.4) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(241, 245, 249, 0.6) 0px, transparent 50%);
-            background-attachment: fixed;
+        :root {
+            color-scheme: dark;
         }
-        .font-heading {
+        html, body {
+            background-color: #07090E !important;
+            color: #F3F4F6 !important;
             font-family: 'Outfit', sans-serif;
         }
-        /* Custom scrollbar */
-        .custom-scroll::-webkit-scrollbar {
-            width: 5px;
+        input, select, textarea {
+            color-scheme: dark;
+            -webkit-user-select: text !important;
+            user-select: text !important;
         }
-        .custom-scroll::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 8px;
+        .font-cinzel {
+            font-family: 'Cinzel', serif;
         }
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 8px;
-        }
-        .custom-scroll::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+        .text-gold-gradient {
+            background: linear-gradient(135deg, #FFF7D6 0%, #F59E0B 35%, #D97706 70%, #FDE047 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
     </style>
 </head>
-<body style="display: none;" class="min-h-screen text-slate-800">
+<body class="bg-[#07090E] min-h-screen p-4 md:p-8 font-sans text-gray-100">
 
-    <!-- Navbar -->
-    <header class="bg-slate-900/95 backdrop-blur-xl border-b border-slate-800 text-white sticky top-0 z-30 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-3">
-            <div class="flex items-center gap-3">
-                <a href="index.html" class="flex items-center gap-2 group">
-                    <span class="p-2 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 text-base">⚙️</span>
-                    <div>
-                        <span class="font-heading font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">ROSTERKU</span>
-                        <span class="text-[10px] font-bold uppercase tracking-wider bg-blue-500/30 text-blue-300 px-2 py-0.5 rounded-full ml-1 border border-blue-400/20">Admin</span>
-                    </div>
-                </a>
-                <span class="text-slate-600 hidden sm:inline">&bull;</span>
-                <span class="text-xs text-slate-400 font-medium hidden sm:inline">Kelola Data Master Sekolah</span>
-            </div>
-            
-            <div class="flex items-center gap-2">
-                <button onclick="kembaliKeJadwal()" class="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold py-2 px-3.5 rounded-xl border border-slate-700 text-xs sm:text-sm transition-all duration-150 shadow-sm">
-                    <span>⬅️</span>
-                    <span>Input Jadwal</span>
-                </button>
-                
-                <button onclick="kosongkanSemuaDataMaster()" class="inline-flex items-center gap-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 hover:text-rose-200 border border-rose-500/30 font-semibold py-2 px-3 rounded-xl text-xs sm:text-sm transition-all duration-150" title="Hapus seluruh data kelas, guru, mapel, dan waktu master">
-                    <span>🧹</span>
-                    <span class="hidden md:inline">Kosongkan Master</span>
-                </button>
-                
-                <button id="btnKeluar" class="inline-flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-3.5 rounded-xl text-xs sm:text-sm transition-all duration-150 shadow-sm shadow-red-900/30">
-                    <span>🚪</span>
-                    <span>Keluar</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <div class="max-w-6xl mx-auto mb-6 flex justify-between items-center flex-wrap gap-3">
+        <button onclick="kembaliKeJadwal()" class="inline-block bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold py-2.5 px-5 rounded-xl border border-amber-500/40 transition duration-200 shadow-lg cursor-pointer text-center flex items-center gap-2 text-sm">
+            <span>⬅️</span> Kembali ke Input Jadwal
+        </button>
         
-        <!-- School Settings Card -->
-        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80 relative overflow-hidden">
-            <div class="flex items-center gap-3 mb-4">
-                <span class="p-2.5 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 text-xl">🏢</span>
-                <div>
-                    <h2 class="font-heading text-lg sm:text-xl font-bold text-slate-900">Pengaturan Identitas Sekolah</h2>
-                    <p class="text-xs text-slate-500">Nama sekolah akan ditampilkan di kop jadwal, cetak PDF, dan halaman utama</p>
-                </div>
-            </div>
+        <div class="flex items-center gap-2">
+            <button onclick="bukaModalGantiPassword()" class="bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold py-2.5 px-4 rounded-xl border border-amber-500/40 transition duration-200 shadow-lg cursor-pointer flex items-center gap-2 text-sm">
+                <span>🔑</span> Ganti Password
+            </button>
+            <button id="btnKeluar" class="bg-red-700 hover:bg-red-600 text-white font-extrabold py-2.5 px-5 rounded-xl transition duration-200 shadow-md cursor-pointer flex items-center gap-2 text-sm">
+                🚪 Keluar
+            </button>
+        </div>
+    </div>
 
-            <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end mt-2">
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <div class="bg-slate-900/90 rounded-2xl shadow-2xl p-6 border-2 border-amber-500/40 backdrop-blur-md">
+            <h2 class="text-2xl font-extrabold text-gold-gradient mb-4 border-b border-amber-500/30 pb-2 flex items-center gap-2">🏢 Pengaturan Sekolah</h2>
+            <div class="flex flex-col sm:flex-row gap-4 items-end">
                 <div class="flex-1 w-full">
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nama Sekolah Lengkap</label>
-                    <input type="text" id="inputNamaSekolah" placeholder="Contoh: UPT SPF SD Negeri 1 Makassar" 
-                        class="w-full px-4 py-3 border border-slate-200 rounded-2xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-slate-800 text-sm font-semibold transition outline-none uppercase">
+                    <label class="block text-sm font-bold text-amber-300 mb-2">Nama Sekolah</label>
+                    <input type="text" id="inputNamaSekolah" placeholder="Contoh: SD Negeri 1 Jakarta" class="w-full p-3 border-2 border-amber-500/40 rounded-xl bg-slate-800 text-white font-bold focus:outline-none focus:border-amber-400">
                 </div>
-                <button onclick="simpanInfoSekolah()" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-2xl shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300 transition-all text-sm shrink-0 flex items-center justify-center gap-2">
-                    <span>💾</span>
-                    <span>Simpan Nama</span>
+                <button onclick="simpanInfoSekolah()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-3 px-6 rounded-xl shadow-lg transition">
+                    Simpan Nama
                 </button>
             </div>
-            <p class="text-[11px] text-slate-400 mt-2.5 flex items-center gap-1">
-                <span>💡</span> Catatan: Logo sekolah disematkan dari file aset aplikasi (<code class="bg-slate-100 px-1 py-0.5 rounded text-slate-600">logo1.png</code>).
-            </p>
+            <p class="text-xs text-slate-400 mt-2">*Catatan: Logo sekolah disetting secara otomatis dari tampilan depan.</p>
         </div>
 
-        <!-- Master Data 4-Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
-            <!-- Master Waktu -->
-            <div class="bg-white rounded-3xl p-5 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80 flex flex-col">
-                <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-                    <div class="flex items-center gap-2">
-                        <span class="p-1.5 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 text-base">⏰</span>
-                        <h3 class="font-heading font-bold text-slate-900 text-base">Master Waktu</h3>
-                    </div>
-                    <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/60">Jam Bel</span>
+            <div class="bg-slate-900 rounded-2xl shadow-xl p-6 border-2 border-amber-500/30">
+                <h2 class="text-xl font-bold text-amber-300 mb-4 border-b border-amber-500/30 pb-2">⏰ Master Waktu</h2>
+                <div class="flex flex-col gap-2 mb-4">
+                    <input type="text" id="inputMasterWaktu" placeholder="Waktu (Misal: 07:30 - 08:00)" class="w-full p-2.5 border-2 border-slate-700 bg-slate-800 text-white rounded-xl font-bold focus:outline-none focus:border-amber-400">
+                    <button onclick="tambahWaktu()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 px-4 py-2.5 rounded-xl font-extrabold w-full transition shadow">Tambah Waktu</button>
                 </div>
-                
-                <div class="flex gap-2 mb-3">
-                    <input type="text" id="inputMasterWaktu" placeholder="07:30 - 08:05" 
-                        class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition font-mono">
-                    <button onclick="tambahWaktu()" 
-                        class="w-9 h-9 shrink-0 flex items-center justify-center bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-lg shadow-sm transition" title="Tambah Waktu">+</button>
-                </div>
-
-                <ul id="listWaktu" class="space-y-1.5 max-h-64 overflow-y-auto pr-1 custom-scroll flex-1"></ul>
+                <ul id="listWaktu" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
             </div>
 
-            <!-- Master Kelas -->
-            <div class="bg-white rounded-3xl p-5 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80 flex flex-col">
-                <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-                    <div class="flex items-center gap-2">
-                        <span class="p-1.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 text-base">🏫</span>
-                        <h3 class="font-heading font-bold text-slate-900 text-base">Master Kelas</h3>
-                    </div>
-                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">Kelas</span>
+            <div class="bg-slate-900 rounded-2xl shadow-xl p-6 border-2 border-amber-500/30">
+                <h2 class="text-xl font-bold text-emerald-400 mb-4 border-b border-slate-700 pb-2">🏫 Master Kelas</h2>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="inputKelas" placeholder="Nama Kelas..." class="w-full p-2.5 border-2 border-slate-700 bg-slate-800 text-white rounded-xl font-bold focus:outline-none focus:border-emerald-400">
+                    <button onclick="tambahData('master_kelas', 'inputKelas')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 rounded-xl font-extrabold transition shadow">+</button>
                 </div>
-                
-                <div class="flex gap-2 mb-3">
-                    <input type="text" id="inputKelas" placeholder="Misal: 1A, 2B..." 
-                        class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition">
-                    <button onclick="tambahData('master_kelas', 'inputKelas')" 
-                        class="w-9 h-9 shrink-0 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-lg shadow-sm transition" title="Tambah Kelas">+</button>
-                </div>
-
-                <ul id="listKelas" class="space-y-1.5 max-h-64 overflow-y-auto pr-1 custom-scroll flex-1"></ul>
+                <ul id="listKelas" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
             </div>
 
-            <!-- Master Guru -->
-            <div class="bg-white rounded-3xl p-5 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80 flex flex-col">
-                <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-                    <div class="flex items-center gap-2">
-                        <span class="p-1.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 text-base">👨‍🏫</span>
-                        <h3 class="font-heading font-bold text-slate-900 text-base">Master Guru</h3>
-                    </div>
-                    <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200/60">Pengajar</span>
+            <div class="bg-slate-900 rounded-2xl shadow-xl p-6 border-2 border-amber-500/30">
+                <h2 class="text-xl font-bold text-blue-400 mb-4 border-b border-slate-700 pb-2">👨‍🏫 Master Guru</h2>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="inputGuru" placeholder="Nama Guru..." class="w-full p-2.5 border-2 border-slate-700 bg-slate-800 text-white rounded-xl font-bold focus:outline-none focus:border-blue-400">
+                    <button onclick="tambahData('master_guru', 'inputGuru')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded font-bold transition">+</button>
                 </div>
-                
-                <div class="flex gap-2 mb-3">
-                    <input type="text" id="inputGuru" placeholder="Nama Guru Lengkap..." 
-                        class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition">
-                    <button onclick="tambahData('master_guru', 'inputGuru')" 
-                        class="w-9 h-9 shrink-0 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg shadow-sm transition" title="Tambah Guru">+</button>
-                </div>
-
-                <ul id="listGuru" class="space-y-1.5 max-h-64 overflow-y-auto pr-1 custom-scroll flex-1"></ul>
+                <ul id="listGuru" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
             </div>
 
-            <!-- Master Mapel -->
-            <div class="bg-white rounded-3xl p-5 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80 flex flex-col">
-                <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-                    <div class="flex items-center gap-2">
-                        <span class="p-1.5 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 text-base">📚</span>
-                        <h3 class="font-heading font-bold text-slate-900 text-base">Master Mapel</h3>
-                    </div>
-                    <span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200/60">Pelajaran</span>
+            <div class="bg-slate-900 rounded-2xl shadow-xl p-6 border-2 border-amber-500/30">
+                <h2 class="text-xl font-bold text-purple-400 mb-4 border-b border-slate-700 pb-2">📚 Master Mapel</h2>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="inputMapel" placeholder="Mata Pelajaran..." class="w-full p-2.5 border-2 border-slate-700 bg-slate-800 text-white rounded-xl font-bold focus:outline-none focus:border-purple-400">
+                    <button onclick="tambahData('master_mapel', 'inputMapel')" class="bg-purple-600 hover:bg-purple-500 text-white px-4 rounded-xl font-extrabold transition shadow">+</button>
                 </div>
-                
-                <div class="flex gap-2 mb-3">
-                    <input type="text" id="inputMapel" placeholder="Nama Mapel..." 
-                        class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition">
-                    <button onclick="tambahData('master_mapel', 'inputMapel')" 
-                        class="w-9 h-9 shrink-0 flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-lg shadow-sm transition" title="Tambah Mapel">+</button>
-                </div>
-
-                <ul id="listMapel" class="space-y-1.5 max-h-64 overflow-y-auto pr-1 custom-scroll flex-1"></ul>
+                <ul id="listMapel" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
             </div>
             
         </div>
-    </main>
+    </div>
+
+    <!-- MODAL GANTI PASSWORD ADMIN (LUXURY DARK GOLD) -->
+    <div id="modalGantiPassword" class="fixed inset-0 z-50 hidden bg-black/85 flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-slate-900 border-2 border-amber-500/50 p-6 rounded-3xl shadow-2xl w-full max-w-md text-left backdrop-blur-md my-auto">
+            <div class="flex justify-between items-center border-b border-amber-500/30 pb-3 mb-4">
+                <h3 class="text-lg font-cinzel font-extrabold text-gold-gradient flex items-center gap-2">
+                    <span>🔑</span> Ganti Password Admin
+                </h3>
+                <button type="button" onclick="tutupModalGantiPassword()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white font-bold flex items-center justify-center border border-slate-700">
+                    &times;
+                </button>
+            </div>
+            
+            <p class="text-xs text-slate-300 mb-4">
+                Akun Admin Aktif: <strong id="labelEmailAdminAktif" class="text-amber-300 font-mono">Memuat...</strong>
+            </p>
+
+            <form id="formGantiPassword" onsubmit="prosesGantiPassword(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-amber-300 mb-1">Password Baru (Min. 6 Karakter):</label>
+                    <input type="password" id="inputPasswordBaru" placeholder="Masukkan password baru" class="w-full p-3 border-2 border-amber-500/40 rounded-xl bg-slate-800 text-white font-bold text-sm placeholder-slate-500 focus:outline-none focus:border-amber-400" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-amber-300 mb-1">Ulangi Password Baru:</label>
+                    <input type="password" id="inputPasswordBaruUlang" placeholder="Ketik ulang password baru" class="w-full p-3 border-2 border-amber-500/40 rounded-xl bg-slate-800 text-white font-bold text-sm placeholder-slate-500 focus:outline-none focus:border-amber-400" required>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="tutupModalGantiPassword()" class="w-1/3 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-sm transition">
+                        Batal
+                    </button>
+                    <button type="submit" id="btnSimpanPasswordBaru" class="w-2/3 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-xl text-sm shadow-lg transition flex items-center justify-center gap-2">
+                        <span>💾</span> Simpan Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- UNIVERSAL CUSTOM GOLD ALERT MODAL -->
+    <div id="modalCustomAlertUniversal" class="fixed inset-0 z-[9999] hidden bg-black/85 flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-slate-900 border-2 border-amber-400 p-6 rounded-3xl shadow-2xl w-full max-w-sm text-center animate-fade-in-up" style="background-color: #0F172A !important; border-color: #F59E0B !important;">
+            <div class="w-14 h-14 bg-amber-500/20 border border-amber-500/50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+                ✨
+            </div>
+            <h3 id="judulAlertCustomUniversal" class="text-lg font-extrabold text-amber-300 mb-2" style="color: #FDE047 !important;">Informasi RosterKu</h3>
+            <p id="pesanAlertCustomUniversal" class="text-sm font-bold text-white whitespace-pre-line leading-relaxed mb-6" style="color: #FFFFFF !important;"></p>
+            <button type="button" onclick="document.getElementById('modalCustomAlertUniversal').classList.add('hidden')" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-xl text-base shadow-lg transition" style="background-color: #F59E0B !important; color: #020617 !important;">
+                OK, Saya Mengerti
+            </button>
+        </div>
+    </div>
 
     <script>
+        // Override Native Alert untuk Menghindari Dialog Hitam Android OS
+        const originalNativeAlert = window.alert;
+        window.alert = function(pesan) {
+            const modal = document.getElementById('modalCustomAlertUniversal');
+            const p = document.getElementById('pesanAlertCustomUniversal');
+            if (modal && p) {
+                p.innerText = pesan;
+                modal.classList.remove('hidden');
+            } else {
+                originalNativeAlert(pesan);
+            }
+        };
+
         function kembaliKeJadwal() {
             window.location.href = "input_jadwal.html";
         }
+
+        window.bukaModalGantiPassword = function() {
+            document.getElementById('modalGantiPassword').classList.remove('hidden');
+        };
+
+        window.tutupModalGantiPassword = function() {
+            document.getElementById('modalGantiPassword').classList.add('hidden');
+        };
     </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, setDoc, getDoc, onSnapshot, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         // KONFIGURASI FIREBASE
         let firebaseConfig = { 
@@ -240,14 +224,16 @@
             const nama = document.getElementById('inputNamaSekolah').value;
             try {
                 await setDoc(doc(db, "pengaturan", "info_sekolah"), { nama_sekolah: nama }, { merge: true });
-                alert("✅ Nama Sekolah Berhasil Disimpan!");
+                alert("Nama Sekolah Berhasil Disimpan!");
             } catch (e) {
                 console.error("Gagal menyimpan info sekolah", e);
-                alert("❌ Gagal menyimpan info sekolah.");
+                alert("Gagal menyimpan info sekolah.");
             }
         };
 
         // --- KELOLA DATA MASTER (CRUD & SORTING ABJAD) ---
+        let cacheMasterData = {};
+
         function muatList(koleksi, idList) {
             if (firebaseConfig.apiKey === "API_KEY_ANDA") return;
             onSnapshot(collection(db, koleksi), (snapshot) => {
@@ -259,23 +245,14 @@
                     dataArr.push({ id: docSnap.id, nama: docSnap.data().nama });
                 });
 
+                cacheMasterData[koleksi] = dataArr.map(d => d.nama);
                 dataArr.sort((a, b) => (a.nama || "").localeCompare(b.nama || ""));
-
-                if (dataArr.length === 0) {
-                    ul.innerHTML = `<li class="text-center py-4 text-xs text-slate-400 italic">Belum ada data</li>`;
-                    return;
-                }
 
                 dataArr.forEach(data => {
                     ul.insertAdjacentHTML('beforeend', `
-                        <li class="group flex justify-between items-center bg-slate-50 hover:bg-slate-100/90 p-2.5 rounded-xl border border-slate-200/60 transition-all text-xs">
-                            <span class="font-medium text-slate-700">${data.nama}</span>
-                            <button onclick="hapusData('${koleksi}', '${data.id}')" 
-                                class="text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg p-1 transition" title="Hapus">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
+                        <li class="flex justify-between items-center bg-slate-800/80 p-2.5 border border-slate-700 rounded-xl text-sm hover:bg-slate-700/80 transition">
+                            <span class="font-bold text-white">${data.nama}</span>
+                            <button onclick="hapusData('${koleksi}', '${data.id}')" class="text-rose-400 hover:text-rose-300 font-bold px-2.5 py-1 bg-rose-900/40 border border-rose-500/30 rounded-lg transition" title="Hapus">✕</button>
                         </li>
                     `);
                 });
@@ -291,6 +268,12 @@
             const inputEl = document.getElementById(idInput);
             const nama = inputEl.value.trim();
             if(!nama) return;
+
+            const existingList = cacheMasterData[koleksi] || [];
+            const duplikat = existingList.find(n => (n || "").trim().toUpperCase() === nama.toUpperCase());
+            if (duplikat) {
+                return alert(`⚠️ Data "${nama}" sudah terdaftar sebagai "${duplikat}". Penambahan dibatalkan untuk mencegah duplikasi.`);
+            }
             
             try {
                 await addDoc(collection(db, koleksi), { nama: nama });
@@ -339,22 +322,12 @@
                     return String(a.waktu || a.nama || "").localeCompare(String(b.waktu || b.nama || ""));
                 });
                 
-                if (arr.length === 0) {
-                    ul.innerHTML = `<li class="text-center py-4 text-xs text-slate-400 italic">Belum ada waktu</li>`;
-                    return;
-                }
-
                 arr.forEach(data => {
                     const nilaiWaktu = data.waktu || data.nama || "-";
                     ul.insertAdjacentHTML('beforeend', `
-                        <li class="group flex justify-between items-center bg-slate-50 hover:bg-slate-100/90 p-2.5 rounded-xl border border-slate-200/60 transition-all text-xs">
-                            <span class="font-mono font-bold text-amber-800 bg-amber-100/80 px-2.5 py-1 rounded-lg border border-amber-200/70 text-[11px]">${nilaiWaktu}</span>
-                            <button onclick="hapusData('master_waktu', '${data.id}')" 
-                                class="text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg p-1 transition" title="Hapus">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
+                        <li class="flex justify-between items-center bg-slate-800/80 p-2.5 border border-slate-700 rounded-xl text-sm hover:bg-slate-700/80 transition">
+                            <span class="font-bold text-amber-300 bg-amber-500/20 px-3 py-1 rounded-lg border border-amber-500/40">${nilaiWaktu}</span>
+                            <button onclick="hapusData('master_waktu', '${data.id}')" class="text-rose-400 hover:text-rose-300 font-bold px-2.5 py-1 bg-rose-900/40 border border-rose-500/30 rounded-lg transition" title="Hapus">✕</button>
                         </li>
                     `);
                 });
@@ -375,67 +348,28 @@
                 alert("Gagal menambahkan waktu.");
             }
         };
-
-        window.kosongkanSemuaDataMaster = async function() {
-            if (firebaseConfig.apiKey === "API_KEY_ANDA") return alert("Isi config Firebase dahulu!");
-            
-            if (!confirm("🚨 PERINGATAN BESAR!\n\nApakah Anda yakin ingin MENGOSONGKAN SELURUH DATA MASTER?\n(Semua Kelas, Guru, Mapel, dan Jam/Waktu akan dihapus bersih).\n\n*Catatan: Nama & Info Sekolah tidak akan terhapus.")) return;
-
-            const ketik = prompt("Untuk melanjutkan, ketik kata 'HAPUS' di bawah ini:");
-            if (!ketik || ketik.trim().toUpperCase() !== "HAPUS") {
-                return alert("❌ Aksi dibatalkan. Kata kunci tidak cocok (ketik 'HAPUS').");
-            }
-
-            try {
-                const daftarKoleksi = ["master_kelas", "master_guru", "master_mapel", "master_waktu"];
-                let totalTerhapus = 0;
-
-                for (const colName of daftarKoleksi) {
-                    const snap = await getDocs(collection(db, colName));
-                    if (!snap.empty) {
-                        let batch = writeBatch(db);
-                        let count = 0;
-                        for (const docSnap of snap.docs) {
-                            batch.delete(docSnap.ref);
-                            count++;
-                            totalTerhapus++;
-                            if (count === 400) {
-                                await batch.commit();
-                                batch = writeBatch(db);
-                                count = 0;
-                            }
-                        }
-                        if (count > 0) {
-                            await batch.commit();
-                        }
-                    }
-                }
-
-                alert(`✅ SELURUH DATA MASTER TELAH DIKOSONGKAN!\nTotal ${totalTerhapus} data master telah dibersihkan.`);
-            } catch (err) {
-                console.error("Gagal mengosongkan data master:", err);
-                alert("❌ Terjadi kesalahan saat menghapus data master: " + err.message);
-            }
-        };
     </script>
 
     <script type="module">
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { app } from "./firebase-config.js"; 
 
         const auth = getAuth(app);
         let sedangLogout = false;
 
+        // Satpam memeriksa login
         onAuthStateChanged(auth, (user) => {
             if (!user && !sedangLogout) { 
                 alert("Akses Ditolak! Anda harus login sebagai Admin.");
                 window.location.replace("index.html");
             } else if (user) {
                 console.log("Admin terverifikasi:", user.email);
-                document.body.style.display = "block"; 
+                const el = document.getElementById("labelEmailAdminAktif");
+                if (el) el.innerText = user.email || "Admin";
             }
         });
 
+        // Proses tombol keluar
         const btnKeluar = document.getElementById("btnKeluar");
         if (btnKeluar) {
             btnKeluar.addEventListener("click", () => {
@@ -451,6 +385,49 @@
                 }
             });
         }
+
+        // Proses Ganti Password Admin
+        window.prosesGantiPassword = async function(event) {
+            event.preventDefault();
+            const p1 = document.getElementById("inputPasswordBaru").value;
+            const p2 = document.getElementById("inputPasswordBaruUlang").value;
+
+            if (p1.length < 6) {
+                alert("⚠️ Password baru minimal 6 karakter!");
+                return;
+            }
+            if (p1 !== p2) {
+                alert("❌ Konfirmasi password tidak cocok! Harap ketikkan password yang sama pada kedua kolom.");
+                return;
+            }
+
+            if (!auth.currentUser) {
+                alert("⚠️ Sesi login tidak ditemukan. Harap login kembali.");
+                return;
+            }
+
+            const btn = document.getElementById("btnSimpanPasswordBaru");
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = "⏳ Menyimpan...";
+
+            try {
+                await updatePassword(auth.currentUser, p1);
+                alert("✅ BERHASIL!\n\nPassword admin telah berhasil diganti. Silakan gunakan password baru ini saat Anda login berikutnya.");
+                tutupModalGantiPassword();
+                document.getElementById("formGantiPassword").reset();
+            } catch (err) {
+                console.error("Gagal update password:", err);
+                if (err.code === "auth/requires-recent-login") {
+                    alert("⚠️ Demi keamanan, sesi login Anda sudah berlangsung terlalu lama.\n\nSilakan keluar (Logout) dan login kembali, lalu ulangi penggantian password. Atau gunakan fitur 'Lupa Password' di halaman login.");
+                } else {
+                    alert("❌ Gagal mengganti password: " + (err.message || err.code));
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        };
     </script>    
 </body>
 </html>

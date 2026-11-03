@@ -1,210 +1,138 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lihat Jadwal Pelajaran - ROSTERKU</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1d4ed8">
-    <link rel="apple-touch-icon" href="logo1.png">
-    
-    <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
-    <!-- Google Fonts: Plus Jakarta Sans, Outfit, & Fredoka -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+    <meta name="color-scheme" content="dark">
+    <title>Lihat Jadwal Pelajaran - RosterKu Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        heading: ['"Outfit"', 'sans-serif'],
-                        playful: ['"Fredoka"', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.default.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.13/dist/html-to-image.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        .canva-scroll-box::-webkit-scrollbar {
-            width: 4px;
+        :root {
+            color-scheme: dark;
         }
-        .canva-scroll-box::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .canva-scroll-box::-webkit-scrollbar-thumb {
-            background: rgba(148, 163, 184, 0.4);
-            border-radius: 99px;
-        }
-
-        body {
-            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-            background-color: #f8fafc;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(244, 63, 94, 0.02) 0px, transparent 50%);
-            background-attachment: fixed;
-        }
-
-        .font-heading {
+        html, body {
+            background-color: #07090E !important;
+            color: #F3F4F6 !important;
             font-family: 'Outfit', sans-serif;
         }
-
-        /* TomSelect Modern Styling */
-        .ts-control {
-            border-radius: 0.875rem !important; 
-            padding: 0.65rem 0.875rem !important; 
-            border-color: #e2e8f0 !important; 
-            background-color: #f8fafc !important; 
-            font-weight: 600 !important; 
-            color: #1e40af !important; 
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04) !important; 
-            transition: all 0.2s ease !important;
+        input, select, textarea {
+            color-scheme: dark;
+            -webkit-user-select: text !important;
+            user-select: text !important;
         }
-        .ts-control.focus {
-            border-color: #6366f1 !important;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
-            background-color: #ffffff !important;
+        .font-cinzel {
+            font-family: 'Cinzel', serif;
+        }
+        .text-gold-gradient {
+            background: linear-gradient(135deg, #FFF7D6 0%, #F59E0B 35%, #D97706 70%, #FDE047 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Style Kontras Tinggi Tom-Select Kebal Dark Mode */
+        .ts-control {
+            border-radius: 0.75rem !important; 
+            padding: 0.625rem 0.75rem !important; 
+            border: 2px solid #F59E0B !important; 
+            background-color: #1E293B !important; 
+            font-weight: 700 !important; 
+            color: #FDE047 !important; 
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important; 
+        }
+        .ts-control input {
+            color: #FDE047 !important;
+        }
+        .ts-control .item {
+            color: #FDE047 !important;
+            font-weight: 700 !important;
         }
         .ts-dropdown {
-            border-radius: 1rem !important;
-            font-weight: 600;
-            color: #334155;
-            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.1) !important;
-            border: 1px solid #e2e8f0 !important;
+            border-radius: 0.75rem !important;
+            font-weight: 700 !important;
+            background-color: #0F172A !important;
+            border: 2px solid #F59E0B !important;
+            color: #FFFFFF !important;
             overflow: hidden;
-            padding: 0.25rem !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8) !important;
         }
         .ts-dropdown .option {
-            border-radius: 0.5rem;
-            padding: 0.5rem 0.75rem;
-            margin: 0.1rem 0;
+            background-color: #0F172A !important;
+            color: #FFFFFF !important;
+            font-weight: 700 !important;
+            padding: 12px 16px !important;
         }
-        .ts-dropdown .active { 
-            background-color: #eff6ff !important; 
-            color: #1d4ed8 !important; 
+        .ts-dropdown .active, .ts-dropdown .option:hover {
+            background-color: #D97706 !important;
+            color: #020617 !important;
         }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 7px; height: 7px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .ts-dropdown .option.selected {
+            background-color: #F59E0B !important;
+            color: #020617 !important;
+        }
     </style>
 </head>
-<body class="min-h-screen text-slate-800 antialiased selection:bg-blue-500 selection:text-white">
+<body class="bg-[#07090E] min-h-screen font-sans text-gray-100">
 
-    <!-- Banner Notifikasi Bel Lonceng Sekolah (Modern Dynamic Island Style) -->
-    <div id="bannerNotifBel" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 hidden max-w-lg w-full px-4">
-        <div class="bg-slate-900/95 backdrop-blur-2xl text-white p-4 sm:p-5 rounded-2xl shadow-2xl border border-amber-400/50 ring-4 ring-amber-400/10 flex items-center justify-between gap-4 animate-bounce">
-            <div class="flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-2xl flex-shrink-0 animate-pulse">
-                    🔔
-                </div>
-                <div>
-                    <h4 id="judulBannerBel" class="font-heading font-extrabold text-sm sm:text-base text-amber-400 tracking-wide">WAKTU PELAJARAN DIMULAI!</h4>
-                    <p id="pesanBannerBel" class="text-xs sm:text-sm text-slate-300 font-medium mt-0.5"></p>
-                </div>
-            </div>
-            <button onclick="hentikanSuaraBel()" class="bg-rose-500 hover:bg-rose-600 active:bg-rose-700 text-white font-bold py-2 px-3.5 rounded-xl text-xs shadow-md transition-all flex-shrink-0">
-                Matikan
-            </button>
-        </div>
-    </div>
-
-    <!-- Modern Dark Glass Navbar -->
-    <nav class="bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/80 sticky top-0 z-40 text-white shadow-sm">
+    <nav class="bg-slate-900/90 backdrop-blur-md border-b border-amber-500/30 shadow-xl sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16 sm:h-20">
-                <div class="flex items-center gap-3.5">
-                    <div class="relative w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/10 p-1.5 flex items-center justify-center border border-white/20 shadow-inner">
-                        <img src="logo1.png" alt="Logo Sekolah" class="max-w-full max-h-full object-contain" onerror="this.src='https://ui-avatars.com/api/?name=JS&background=fff&color=1d4ed8&rounded=true'">
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="font-heading font-extrabold text-white text-base sm:text-lg tracking-wide" id="teksNamaSekolah">Jadwal Pelajaran</span>
-                            <span class="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">Portal Roster</span>
-                        </div>
-                        <p class="text-xs text-slate-400 font-medium hidden sm:block">Sistem Roster & Bel Pelajaran Otomatis</p>
-                    </div>
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <img src="logo1.png" alt="Logo Sekolah" class="h-10 w-auto object-contain bg-amber-400 p-0.5 rounded-full shadow-md shadow-amber-500/20" onerror="this.src='https://ui-avatars.com/api/?name=JS&background=fff&color=1d4ed8&rounded=true'">
+                    <span class="font-cinzel font-bold text-gold-gradient text-lg tracking-wide" id="teksNamaSekolah">Jadwal Pelajaran</span>
                 </div>
                 <div>
-                    <a href="index.html" class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-300 hover:text-white bg-white/10 hover:bg-white/15 px-4 py-2 rounded-xl border border-white/10 transition-all duration-150 backdrop-blur-sm shadow-sm">
-                        <span>🏠</span>
-                        <span>Beranda</span>
+                    <a href="index.html" class="text-amber-300 hover:text-amber-200 font-bold flex items-center gap-1.5 transition text-sm bg-slate-800/80 px-3.5 py-1.5 rounded-xl border border-amber-500/30">
+                        <span>🏠</span> Kembali
                     </a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
         
-        <!-- Modern Floating Filter Bar -->
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-6 bg-white/90 backdrop-blur-xl p-6 sm:p-7 rounded-3xl shadow-[0_10px_35px_-10px_rgba(0,0,0,0.05)] border border-slate-200/80 lg:sticky lg:top-24 z-20">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-6 gap-4 bg-slate-900/90 p-6 rounded-2xl shadow-2xl border-2 border-amber-500/40 lg:sticky lg:top-20 z-10 backdrop-blur-md">
             <div>
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/60 text-indigo-700 text-xs font-bold tracking-wide mb-2 shadow-sm">
-                    <span>📅</span>
-                    <span>Tahun Ajaran Aktif</span>
-                </div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 tracking-tight">Roster Pelajaran</h1>
-                <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Filter jadwal berdasarkan Hari, Kelas, atau Guru pengajar.</p>
+                <h1 class="text-3xl font-extrabold text-gold-gradient mb-1 flex items-center gap-2">📅 Jadwal Pelajaran</h1>
+                <p class="text-slate-300 text-sm font-medium">Pilih kelas atau guru untuk melihat jadwal secara spesifik.</p>
             </div>
             
-            <div class="flex flex-wrap items-end gap-3 w-full lg:w-auto">
-                <div class="flex-grow sm:flex-grow-0" style="min-width: 140px;">
-                    <label class="block text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1.5">
-                        <span>📅</span> Hari
-                    </label>
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <div class="flex-grow md:flex-grow-0" style="min-width: 140px;">
+                    <label class="block text-xs font-bold text-amber-300 mb-1 uppercase tracking-wider">Hari:</label>
                     <select id="filterHari" onchange="tampilkanJadwal('hari')" class="w-full">
                         <option value="Semua">Semua Hari</option>
                     </select>
                 </div>
 
-                <div class="flex-grow sm:flex-grow-0" style="min-width: 140px;">
-                    <label class="block text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1.5">
-                        <span>🏫</span> Kelas
-                    </label>
+                <div class="flex-grow md:flex-grow-0" style="min-width: 140px;">
+                    <label class="block text-xs font-bold text-amber-300 mb-1 uppercase tracking-wider">Kelas:</label>
                     <select id="filterKelas" onchange="tampilkanJadwal('kelas')" class="w-full">
                         <option value="Semua">Semua Kelas</option>
                     </select>
                 </div>
 
-                <div class="flex-grow sm:flex-grow-0" style="min-width: 210px;">
-                    <label class="block text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1.5">
-                        <span>👨‍🏫</span> Guru Pengajar
-                    </label>
+                <div class="flex-grow md:flex-grow-0" style="min-width: 200px;">
+                    <label class="block text-xs font-bold text-amber-300 mb-1 uppercase tracking-wider">Guru:</label>
                     <select id="filterGuru" onchange="tampilkanJadwal('guru')" class="w-full">
                         <option value="Semua">Semua Guru</option>
                     </select>
                 </div>
                 
-                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                    <button onclick="bukaModalExport()" class="h-[46px] bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-emerald-200/50 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 flex-1 sm:flex-none text-xs sm:text-sm">
-                        <span>🖨️</span> Cetak / Unduh
-                    </button>
+                <button onclick="bukaModalExport()" class="mt-auto h-[46px] bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold py-2 px-4 rounded-xl shadow-lg border border-emerald-400/30 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto text-sm">
+                    <span>🖨️</span> Cetak / Unduh
+                </button>
 
-                    <button onclick="toggleAlarm()" id="btnNotif" class="h-[46px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-blue-200/50 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 flex-1 sm:flex-none text-xs sm:text-sm">
-                        <span>🔔</span> Aktifkan Alarm Guru
-                    </button>
-
-                    <button onclick="tesBunyiBel()" id="btnTesBel" class="h-[46px] bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-2 px-3.5 rounded-xl shadow-md shadow-amber-200/50 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-1.5 text-xs sm:text-sm" title="Uji coba nada bel agar terdengar jelas">
-                        <span>🔊</span> Tes Bel
-                    </button>
-                </div>
+                <button onclick="bukaModalAlarm()" id="btnNotif" class="mt-auto h-[46px] bg-amber-600 hover:bg-amber-500 text-slate-950 font-extrabold py-2 px-4 rounded-xl shadow-lg border border-amber-300/40 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto text-sm">
+                    <span>🔔</span> Pengaturan Alarm
+                </button>
                 
                 <audio id="suaraAlarm" preload="auto">
                     <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
@@ -213,348 +141,261 @@
         </div>
 
         <div id="infoJamMengajar" class="hidden mb-6 transition-all duration-300 transform origin-top scale-95 opacity-0">
-            <div class="inline-flex items-center p-5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl shadow-xl shadow-indigo-100 border border-white/20 w-full sm:w-auto">
-                <div class="p-3 bg-white/20 rounded-2xl backdrop-blur-md mr-4 text-white shadow-inner">
+            <div class="inline-flex items-center p-4 bg-gradient-to-r from-amber-600 to-amber-800 rounded-2xl shadow-xl border-2 border-amber-400 w-full md:w-auto">
+                <div class="p-3 bg-slate-950/40 rounded-xl backdrop-blur-sm mr-4 text-amber-300 shadow-inner">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
                 <div>
-                    <p class="text-blue-100 text-xs font-semibold uppercase tracking-wider mb-0.5">Total Jam Mengajar <span id="namaGuruInfo" class="font-bold text-white normal-case"></span></p>
-                    <div class="flex items-baseline gap-2">
-                        <span id="angkaJamMengajar" class="font-heading text-4xl font-extrabold text-white leading-none tracking-tight">0</span>
-                        <span class="text-blue-200 font-bold text-xs uppercase tracking-wider">Jam Pelajaran (JP)</span>
+                    <p class="text-amber-100 text-sm font-medium mb-0.5">Total Jam Mengajar <span id="namaGuruInfo" class="font-extrabold text-amber-300 ml-1"></span></p>
+                    <div class="flex items-baseline gap-1.5">
+                        <span id="angkaJamMengajar" class="text-3xl font-extrabold text-white leading-none tracking-tight">0</span>
+                        <span class="text-amber-200 font-bold text-sm uppercase tracking-wider">Jam Pelajaran (JP)</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-[0_15px_40px_-15px_rgba(0,0,0,0.05)] border border-slate-200/80 overflow-hidden mb-10">
+        <div class="bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border-2 border-amber-500/30">
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm text-left border-collapse">
-                    <thead class="bg-slate-900 text-slate-200 font-heading text-xs tracking-wider uppercase">
+                    <thead class="bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 text-amber-300 uppercase font-extrabold text-xs tracking-wider border-b-2 border-amber-500/40">
                         <tr>
-                            <th class="py-4 px-6 w-28 font-bold">Hari</th>
-                            <th class="py-4 px-6 w-36 font-bold">Waktu</th>
-                            <th class="py-4 px-6 w-28 font-bold">Kelas</th>
-                            <th class="py-4 px-6 font-bold">Mata Pelajaran</th>
-                            <th class="py-4 px-6 font-bold">Guru Pengajar</th>
+                            <th class="py-4 px-5 w-24">Hari</th>
+                            <th class="py-4 px-5 w-32">Waktu</th>
+                            <th class="py-4 px-5 w-24">Kelas</th>
+                            <th class="py-4 px-5">Mata Pelajaran</th>
+                            <th class="py-4 px-5">Guru Pengajar</th>
                         </tr>
                     </thead>
-                    <tbody id="tabelJadwal" class="bg-white divide-y divide-slate-100">
-                        <tr><td colspan="5" class="text-center py-12 text-slate-400 font-medium animate-pulse">Memuat data jadwal pelajaran...</td></tr>
+                    <tbody id="tabelJadwal" class="divide-y divide-slate-800 bg-slate-900/90 text-slate-100">
+                        <tr><td colspan="5" class="text-center py-8 text-amber-400 font-bold animate-pulse">Memuat data jadwal pelajaran...</td></tr>
                     </tbody>
                 </table>
             </div>
-            <!-- Render Instan Sinkron (0 ms Loading langsung dari cache) -->
-            <script>
-                (function() {
-                    try {
-                        var cached = localStorage.getItem('cache_semua_jadwal');
-                        var savedGuru = localStorage.getItem('guru_terpilih') || 'Semua';
-                        if (cached) {
-                            var list = JSON.parse(cached);
-                            if (Array.isArray(list) && list.length > 0) {
-                                var tbody = document.getElementById('tabelJadwal');
-                                if (tbody) {
-                                    var filtered = list;
-                                    if (savedGuru !== 'Semua') {
-                                        filtered = list.filter(function(j) {
-                                            return (j.guru || '').trim().toUpperCase() === savedGuru.trim().toUpperCase();
-                                        });
-                                        if (filtered.length === 0) filtered = list;
-                                    }
-                                    var html = '';
-                                    filtered.slice(0, 100).forEach(function(j, idx) {
-                                        var rowBg = (idx % 2 === 0) ? 'bg-white' : 'bg-slate-50/60';
-                                        var h = (j.hari || '').trim().toLowerCase().replace(/['`’]/g, '');
-                                        var bgH = "bg-slate-100 text-slate-700 border border-slate-200/70";
-                                        if(h === "senin") bgH = "bg-rose-50 text-rose-700 border border-rose-200/80";
-                                        else if(h === "selasa") bgH = "bg-amber-50 text-amber-700 border border-amber-200/80";
-                                        else if(h === "rabu") bgH = "bg-yellow-50 text-yellow-800 border border-yellow-200/80";
-                                        else if(h === "kamis") bgH = "bg-emerald-50 text-emerald-700 border border-emerald-200/80";
-                                        else if(h === "jumat") bgH = "bg-sky-50 text-sky-700 border border-sky-200/80";
-                                        else if(h === "sabtu") bgH = "bg-indigo-50 text-indigo-700 border border-indigo-200/80";
-                                        var hTeks = j.hari ? j.hari.trim() : (h ? (h.charAt(0).toUpperCase() + h.slice(1)) : '-');
-                                        var gCell = j.guru 
-                                            ? '<div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200 flex-shrink-0"></span><span class="font-semibold text-slate-800">' + j.guru + '</span></div>'
-                                            : '<span class="text-rose-400 italic text-xs font-medium">Belum ditentukan</span>';
-                                        html += '<tr class="hover:bg-blue-50/50 transition-colors duration-150 ' + rowBg + '">' +
-                                            '<td class="py-4 px-6 align-middle"><span class="inline-block px-3 py-1 rounded-lg font-bold text-xs shadow-sm ' + bgH + '">' + hTeks + '</span></td>' +
-                                            '<td class="py-4 px-6 align-middle font-mono font-semibold text-slate-600 text-xs whitespace-nowrap"><span class="bg-slate-100/90 text-slate-700 px-2.5 py-1 rounded-md border border-slate-200/60">' + (j.waktu || j.jam_ke || '-') + '</span></td>' +
-                                            '<td class="py-4 px-6 align-middle"><span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-md border border-indigo-200/70 shadow-sm">' + (j.kelas || '-') + '</span></td>' +
-                                            '<td class="py-4 px-6 align-middle font-semibold text-slate-800">' + (j.mapel || '-') + '</td>' +
-                                            '<td class="py-4 px-6 align-middle">' + gCell + '</td>' +
-                                        '</tr>';
-                                    });
-                                    tbody.innerHTML = html;
-                                }
-                            }
-                        }
-                    } catch(e) {}
-                })();
-            </script>
         </div>
     </div>
 
-    <!-- MODAL STUDIO CETAK & DOWNLOAD ROSTER (CANVA EDITION & RESMI) -->
-    <div id="modalExportExcel" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 transition-all duration-200 overflow-y-auto">
-        <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 w-full max-w-5xl my-2 sm:my-6 overflow-hidden max-h-[94vh] flex flex-col">
+    <!-- MODAL DOWNLOAD ROSTER (DARK GOLD STYLING) -->
+    <div id="modalExportExcel" class="fixed inset-0 z-50 hidden bg-black/85 flex items-center justify-center p-4 backdrop-blur-md transition-opacity overflow-y-auto" style="background-color: rgba(0,0,0,0.85) !important;">
+        <div class="rounded-3xl shadow-2xl w-full max-w-2xl transform scale-100 transition-transform my-8 overflow-y-auto max-h-[90vh] border-2 border-amber-400" style="background-color: #0F172A !important; color: #FFFFFF !important;">
+            <div class="p-4 flex justify-between items-center text-white sticky top-0 z-10 border-b border-amber-500/30" style="background: linear-gradient(135deg, #059669 0%, #064E3B 100%) !important;">
+                <h3 class="text-xl font-extrabold flex items-center gap-2" style="color: #FFFFFF !important;"><span>🖨️</span> Download Roster Siap Cetak</h3>
+                <button onclick="tutupModal('modalExportExcel')" class="w-8 h-8 rounded-full bg-red-600 hover:bg-red-700 text-white font-bold text-lg flex items-center justify-center shadow" style="color: #FFFFFF !important; background-color: #DC2626 !important;">&times;</button>
+            </div>
             
-            <!-- Top Header -->
-            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-5 sm:px-6 py-4 flex justify-between items-center text-white shrink-0">
-                <div class="flex items-center gap-3">
-                    <span class="p-2.5 bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 text-white rounded-2xl text-lg shadow-md">🎨</span>
-                    <div>
-                        <h3 class="font-heading font-bold text-lg sm:text-xl flex items-center gap-2">
-                            <span>Studio Download Roster Pelajaran</span>
-                            <span class="text-[10px] font-extrabold bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Canva Edition</span>
-                        </h3>
-                        <p class="text-xs text-slate-300">Pilih template kreatif ala Canva siap cetak atau format dokumen resmi kedinasan</p>
-                    </div>
-                </div>
-                <button onclick="tutupModal('modalExportExcel')" class="w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors text-xl font-bold">&times;</button>
-            </div>
-
-            <!-- Tab Switcher -->
-            <div class="bg-slate-100/90 border-b border-slate-200 px-4 sm:px-6 py-2.5 flex flex-wrap items-center gap-2 shrink-0">
-                <button type="button" id="tabBtnCanva" onclick="gantiTabStudio('canva')" 
-                    class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-indigo-700 shadow-sm border border-slate-200 transition-all">
-                    <span>🎨</span>
-                    <span>Template Kreatif Canva (5 Pilihan)</span>
-                    <span class="bg-indigo-100 text-indigo-700 text-[10px] px-1.5 py-0.5 rounded-full font-extrabold">Favorit</span>
-                </button>
-                <button type="button" id="tabBtnResmi" onclick="gantiTabStudio('resmi')" 
-                    class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition-all">
-                    <span>🏛️</span>
-                    <span>Format Resmi Kedinasan (KOP & TTD)</span>
-                </button>
-            </div>
-
-            <!-- TAB 1: TEMPLATE KREATIF CANVA -->
-            <div id="panelStudioCanva" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+            <form id="formExport" class="p-6 md:p-8 space-y-4" style="background-color: #0F172A !important;">
+                <p class="text-sm font-medium" style="color: #94A3B8 !important;">Lengkapi data di bawah ini untuk mengisi KOP dan Tanda Tangan pada file.</p>
                 
-                <!-- Target Filter Selection Bar -->
-                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-2.5">
-                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-                        <div class="sm:col-span-4">
-                            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1">
-                                <span>🏫</span> Target Kelas:
-                            </label>
-                            <select id="selModalKelas" onchange="updateStudioFilter('kelas')" class="w-full text-xs font-semibold px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none">
-                                <option value="Semua">Semua Kelas</option>
-                            </select>
-                        </div>
-                        <div class="sm:col-span-4">
-                            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1">
-                                <span>👨‍🏫</span> Target Guru:
-                            </label>
-                            <select id="selModalGuru" onchange="updateStudioFilter('guru')" class="w-full text-xs font-semibold px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none">
-                                <option value="Semua">Semua Guru (Jadwal Kelas)</option>
-                            </select>
-                        </div>
-                        <div class="sm:col-span-4 flex flex-col justify-center">
-                            <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Status Target Cetak:</span>
-                            <div class="text-xs font-bold text-indigo-900 bg-indigo-50/90 px-3 py-2 rounded-xl border border-indigo-200/80 truncate shadow-xs" id="keteranganTargetRoster">
-                                Memuat...
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Toggle Opsi Tampilan Canva -->
-                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-slate-200/70 text-xs">
-                        <div class="flex flex-wrap items-center gap-4">
-                            <label class="inline-flex items-center gap-2 cursor-pointer select-none font-semibold text-slate-700 hover:text-indigo-700 transition-colors">
-                                <input type="checkbox" id="chkGabungJam" checked onchange="renderLivePreview()" 
-                                    class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer">
-                                <span>⚡ Gabungkan Jam Kembar (JP)</span>
-                            </label>
-
-                            <label class="inline-flex items-center gap-2 cursor-pointer select-none font-semibold text-slate-700 hover:text-indigo-700 transition-colors">
-                                <input type="checkbox" id="chkTampilkanGuru" onchange="renderLivePreview()" 
-                                    class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer">
-                                <span>👤 Tampilkan Nama Guru di Kotak Jadwal</span>
-                            </label>
-                        </div>
-                        <span class="text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
-                            ✓ Format HD Anti Terpotong
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Template Picker Buttons Carousel -->
                 <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                            <span>✨</span> Pilih Desain Template Roster Canva:
-                        </label>
-                        <span class="text-[11px] text-slate-400 font-medium">Klik untuk ganti tema secara instan</span>
-                    </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
-                        
-                        <!-- Template 1: Galaxy -->
-                        <button type="button" onclick="pilihTemplateCanva('galaxy')" id="btnTpl-galaxy" 
-                            class="tpl-btn group relative p-3 rounded-2xl border-2 transition-all text-left flex flex-col gap-1.5 bg-gradient-to-b from-slate-900 to-indigo-950 text-white border-purple-500 shadow-md ring-2 ring-purple-500/30">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xl">🚀</span>
-                                <span class="text-[9px] font-bold bg-purple-500/40 text-purple-200 px-1.5 py-0.5 rounded-full border border-purple-400/30">Luar Angkasa</span>
-                            </div>
-                            <span class="font-bold text-xs">Galaxy Space</span>
-                            <span class="text-[10px] text-slate-400 leading-tight">Astronot & Bintang</span>
-                        </button>
-
-                        <!-- Template 2: Notebook -->
-                        <button type="button" onclick="pilihTemplateCanva('notebook')" id="btnTpl-notebook" 
-                            class="tpl-btn group relative p-3 rounded-2xl border-2 transition-all text-left flex flex-col gap-1.5 bg-[#fdfaf3] text-amber-950 border-slate-200 hover:border-amber-400 hover:shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xl">📝</span>
-                                <span class="text-[9px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">Kertas Grid</span>
-                            </div>
-                            <span class="font-bold text-xs">Aesthetic Notes</span>
-                            <span class="text-[10px] text-amber-800/70 leading-tight">Washi Tape & Siswa</span>
-                        </button>
-
-                        <!-- Template 3: Sage Green -->
-                        <button type="button" onclick="pilihTemplateCanva('sage')" id="btnTpl-sage" 
-                            class="tpl-btn group relative p-3 rounded-2xl border-2 transition-all text-left flex flex-col gap-1.5 bg-[#eef4ee] text-emerald-950 border-slate-200 hover:border-emerald-400 hover:shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xl">🌿</span>
-                                <span class="text-[9px] font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full">Botanical</span>
-                            </div>
-                            <span class="font-bold text-xs">Sage Green</span>
-                            <span class="text-[10px] text-emerald-800/70 leading-tight">Tanaman Minimalis</span>
-                        </button>
-
-                        <!-- Template 4: Ocean -->
-                        <button type="button" onclick="pilihTemplateCanva('ocean')" id="btnTpl-ocean" 
-                            class="tpl-btn group relative p-3 rounded-2xl border-2 transition-all text-left flex flex-col gap-1.5 bg-gradient-to-b from-sky-600 to-blue-700 text-white border-slate-200 hover:border-sky-300 hover:shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xl">🌊</span>
-                                <span class="text-[9px] font-bold bg-white/20 text-white px-1.5 py-0.5 rounded-full">Bawah Laut</span>
-                            </div>
-                            <span class="font-bold text-xs">Ocean Marine</span>
-                            <span class="text-[10px] text-sky-100 leading-tight">Paus & Lumba-lumba</span>
-                        </button>
-
-                        <!-- Template 5: Pastel Floral -->
-                        <button type="button" onclick="pilihTemplateCanva('pastel')" id="btnTpl-pastel" 
-                            class="tpl-btn group relative p-3 rounded-2xl border-2 transition-all text-left flex flex-col gap-1.5 bg-[#fff1f2] text-rose-950 border-slate-200 hover:border-rose-400 hover:shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xl">🌸</span>
-                                <span class="text-[9px] font-bold bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded-full">Sweet Pink</span>
-                            </div>
-                            <span class="font-bold text-xs">Pastel Floral</span>
-                            <span class="text-[10px] text-rose-800/70 leading-tight">Bunga & Ceria</span>
-                        </button>
-
-                    </div>
+                    <label class="block text-sm font-bold mb-1" style="color: #FDE047 !important;">Nama Sekolah</label>
+                    <input type="text" id="exNamaSekolah" placeholder="Contoh: SD Negeri 1 Jakarta" class="w-full p-3 border-2 rounded-xl font-bold uppercase focus:outline-none" style="background-color: #1E293B !important; color: #FFFFFF !important; border-color: #F59E0B !important;" required>
                 </div>
 
-                <!-- Live Preview Viewport -->
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                            <span>👁️</span> Pratinjau Desain Live (Canva Poster):
-                        </span>
-                        <span class="text-[11px] text-slate-400 font-medium">Ukuran standar cetak: A4 Landscape HD</span>
-                    </div>
-
-                    <div id="previewViewport" class="w-full bg-slate-200/90 rounded-2xl p-2.5 overflow-hidden flex items-start justify-center border border-slate-300 shadow-inner relative transition-all" style="height: 380px;">
-                        <div id="previewScaleWrapper" style="transform-origin: top center; width: 1120px; height: 790px; flex-shrink: 0;">
-                            <!-- Injected poster live preview -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Download Buttons for Canva -->
-                <div class="flex flex-col-reverse sm:flex-row gap-3 pt-3 border-t border-slate-200">
-                    <button type="button" onclick="tutupModal('modalExportExcel')" class="w-full sm:w-1/4 px-4 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-xs sm:text-sm transition-colors">Tutup</button>
-                    
-                    <button type="button" onclick="unduhRosterCanvaPNG()" id="btnUnduhPNG" 
-                        class="w-full sm:w-1/3 px-4 py-2.5 text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-md shadow-emerald-200 rounded-xl font-bold text-xs sm:text-sm transition-all flex justify-center items-center gap-2">
-                        <span>🖼️</span>
-                        <span>Download Gambar HD (PNG)</span>
-                    </button>
-
-                    <button type="button" onclick="unduhRosterCanvaPDF()" id="btnUnduhCanvaPDF" 
-                        class="w-full sm:w-5/12 px-4 py-2.5 text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:to-purple-700 shadow-md shadow-indigo-200 rounded-xl font-bold text-xs sm:text-sm transition-all flex justify-center items-center gap-2">
-                        <span>📄</span>
-                        <span>Download PDF (A4 Landscape)</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- TAB 2: FORMAT RESMI KEDINASAN -->
-            <div id="panelStudioResmi" class="hidden flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-                <form id="formExport" class="space-y-4">
-                    <p class="text-xs text-slate-500 mb-2">Lengkapi data di bawah ini untuk mengisi KOP Surat dan Tanda Tangan resmi kedinasan pada file cetak.</p>
-                    
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nama Sekolah</label>
-                        <input type="text" id="exNamaSekolah" placeholder="Contoh: SD Negeri 1 Jakarta" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-blue-900 font-bold uppercase transition text-sm" required>
+                        <label class="block text-sm font-bold mb-1" style="color: #FDE047 !important;">Tahun Pelajaran</label>
+                        <input type="text" id="exTahun" placeholder="Contoh: 2024/2025" class="w-full p-3 border-2 rounded-xl font-bold focus:outline-none" style="background-color: #1E293B !important; color: #FFFFFF !important; border-color: #F59E0B !important;" required>
                     </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-1" style="color: #FDE047 !important;">Tempat, Tanggal Pembuatan</label>
+                        <input type="text" id="exTempatTgl" placeholder="Contoh: Makassar, 15 Juli 2024" class="w-full p-3 border-2 rounded-xl font-bold focus:outline-none" style="background-color: #1E293B !important; color: #FFFFFF !important; border-color: #F59E0B !important;" required>
+                    </div>
+                </div>
 
+                <div class="p-4 rounded-xl border mt-2" style="background-color: #1E293B !important; border-color: #334155 !important;">
+                    <h4 class="font-extrabold mb-3 text-sm flex items-center gap-2" style="color: #FDE047 !important;">👨‍💼 Data Kepala Sekolah</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tahun Pelajaran</label>
-                            <input type="text" id="exTahun" placeholder="Contoh: 2024/2025" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm transition" required>
+                            <label class="block text-xs font-bold mb-1" style="color: #CBD5E1 !important;">Nama Kepala Sekolah</label>
+                            <input type="text" id="exNamaKepsek" placeholder="Nama Lengkap beserta gelar" class="w-full p-2.5 border rounded-lg font-semibold focus:outline-none" style="background-color: #0F172A !important; color: #FFFFFF !important; border-color: #475569 !important;" required>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tempat, Tanggal Pembuatan</label>
-                            <input type="text" id="exTempatTgl" placeholder="Contoh: Makassar, 15 Juli 2024" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm transition" required>
+                            <label class="block text-xs font-bold mb-1" style="color: #CBD5E1 !important;">NIP Kepala Sekolah</label>
+                            <input type="text" id="exNipKepsek" placeholder="Nomor Induk Pegawai" class="w-full p-2.5 border rounded-lg font-semibold focus:outline-none" style="background-color: #0F172A !important; color: #FFFFFF !important; border-color: #475569 !important;" required>
                         </div>
                     </div>
+                </div>
 
-                    <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100/80">
-                        <h4 class="font-bold text-blue-900 mb-3 text-xs uppercase tracking-wider flex items-center gap-2">👨‍💼 Data Kepala Sekolah</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Kepala Sekolah</label>
-                                <input type="text" id="exNamaKepsek" placeholder="Nama Lengkap beserta gelar" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm" required>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-600 mb-1">NIP Kepala Sekolah</label>
-                                <input type="text" id="exNipKepsek" placeholder="Nomor Induk Pegawai" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm" required>
-                            </div>
+                <div class="p-4 rounded-xl border mt-2" style="background-color: #1E293B !important; border-color: #334155 !important;">
+                    <h4 class="font-extrabold mb-3 text-sm flex items-center gap-2" style="color: #34D399 !important;">👩‍🏫 Data Wali Kelas / Guru <span id="labelWaliKelas" class="font-semibold text-xs px-2 py-0.5 rounded" style="background-color: #064E3B !important; color: #6EE7B7 !important;"></span></h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold mb-1" style="color: #CBD5E1 !important;">Nama Wali / Guru</label>
+                            <input type="text" id="exNamaWali" class="w-full p-2.5 border rounded-lg font-semibold focus:outline-none" style="background-color: #0F172A !important; color: #FFFFFF !important; border-color: #475569 !important;">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-1" style="color: #CBD5E1 !important;">NIP Wali / Guru</label>
+                            <input type="text" id="exNipWali" placeholder="Kosongkan jika tidak ada" class="w-full p-2.5 border rounded-lg font-semibold focus:outline-none" style="background-color: #0F172A !important; color: #FFFFFF !important; border-color: #475569 !important;">
                         </div>
                     </div>
-
-                    <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100/80">
-                        <h4 class="font-bold text-emerald-900 mb-3 text-xs uppercase tracking-wider flex items-center gap-2">
-                            <span>👩‍🏫</span> Data Wali Kelas / Guru <span id="labelWaliKelas" class="font-semibold text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md normal-case"></span>
-                        </h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Wali / Guru</label>
-                                <input type="text" id="exNamaWali" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-600 mb-1">NIP Wali / Guru</label>
-                                <input type="text" id="exNipWali" placeholder="Kosongkan jika tidak ada" class="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t border-slate-100">
-                        <button type="button" onclick="tutupModal('modalExportExcel')" class="w-full sm:w-1/4 px-4 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-sm transition-colors">Batal</button>
-                        <button type="button" onclick="prosesDownloadPDF()" class="w-full sm:w-1/3 px-4 py-2.5 text-white bg-rose-600 hover:bg-rose-700 shadow-md shadow-rose-200 rounded-xl font-bold text-sm transition-all flex justify-center items-center gap-2">
-                            <span>📄</span> Cetak PDF Resmi
-                        </button>
-                        <button type="button" onclick="prosesExportExcel()" id="btnProsesExport" class="w-full sm:w-5/12 px-4 py-2.5 text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-200 rounded-xl font-bold text-sm transition-all flex justify-center items-center gap-2">
-                            <span>📊</span> Download Excel
-                        </button>
-                    </div>
-                </form>
-            </div>
-
+                </div>
+                
+                <div class="flex flex-col-reverse sm:flex-row gap-3 mt-6 pt-4 border-t sticky bottom-0 z-10 pb-2 border-slate-700" style="background-color: #0F172A !important;">
+                    <button type="button" onclick="tutupModal('modalExportExcel')" class="w-full sm:w-1/4 px-4 py-3 font-bold rounded-xl transition-colors" style="background-color: #334155 !important; color: #FFFFFF !important;">Batal</button>
+                    <button type="button" onclick="prosesDownloadPDF()" class="w-full sm:w-1/3 px-4 py-3 font-extrabold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2" style="background-color: #DC2626 !important; color: #FFFFFF !important;">
+                        <span>📄</span> Cetak PDF
+                    </button>
+                    <button type="button" onclick="prosesExportExcel()" id="btnProsesExport" class="w-full sm:w-5/12 px-4 py-3 font-extrabold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2" style="background-color: #059669 !important; color: #FFFFFF !important;">
+                        <span>📊</span> Download Excel
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Hidden Host for Rendering High-Definition Canva Poster Export -->
-    <div id="posterExportHost" style="position: fixed; left: -9999px; top: -9999px; width: 1120px; height: 790px; overflow: hidden; z-index: -999; pointer-events: none;"></div>
+    <!-- MODAL PENGATURAN ALARM GURU (UI KUSTOM PRO BEBAS SPINNER NATIVE ANDROID) -->
+    <div id="modalPengaturanAlarm" class="fixed inset-0 z-50 hidden bg-black/85 flex items-center justify-center p-4 backdrop-blur-md overflow-y-auto" style="background-color: rgba(0,0,0,0.85) !important;">
+        <div class="rounded-3xl shadow-2xl w-full max-w-lg my-6 overflow-hidden border-2 border-amber-400" style="background-color: #0F172A !important; color: #FFFFFF !important;">
+            <div class="p-4 flex justify-between items-center border-b border-amber-500/30" style="background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%) !important;">
+                <h3 class="text-xl font-extrabold flex items-center gap-2" style="color: #FDE047 !important;"><span>🔔</span> Pengaturan Alarm Guru</h3>
+                <button onclick="tutupModal('modalPengaturanAlarm')" class="w-8 h-8 rounded-full bg-red-600 hover:bg-red-700 text-white font-bold text-lg flex items-center justify-center shadow" style="color: #FFFFFF !important; background-color: #DC2626 !important;">&times;</button>
+            </div>
+            
+            <div class="p-5 space-y-4 max-h-[80vh] overflow-y-auto" style="background-color: #0F172A !important;">
+                <p class="text-xs font-medium" style="color: #94A3B8 !important;">Pilih nama Anda, nada bel, dan waktu pengingat mengajar.</p>
+
+                <!-- 1. SELEKSI GURU KUSTOM (BEBAS BUG POPUP SPINNER ANDROID) -->
+                <div>
+                    <label class="block text-sm font-bold mb-1.5" style="color: #FDE047 !important;">👨‍🏫 Pilih Nama Guru</label>
+                    
+                    <div id="guruDipilihBadge" class="p-3 border-2 border-amber-400 rounded-xl text-amber-300 font-extrabold text-sm flex items-center justify-between mb-2" style="background-color: rgba(245, 158, 11, 0.15) !important;">
+                        <span>Guru Aktif: <strong id="teksGuruDipilihStr" class="text-white ml-1">Belum Dipilih</strong></span>
+                        <span class="text-amber-400">✅</span>
+                    </div>
+
+                    <input type="text" id="cariGuruAlarm" oninput="filterListGuruAlarm()" placeholder="🔍 Cari nama guru di sini..." class="w-full p-2.5 border-2 rounded-xl text-sm font-bold focus:outline-none mb-2" style="background-color: #1E293B !important; color: #FDE047 !important; border-color: #F59E0B !important;">
+
+                    <div id="containerListGuruCustom" class="max-h-40 overflow-y-auto space-y-1 p-1 border-2 rounded-xl" style="background-color: #020617 !important; border-color: #334155 !important;">
+                        <p class="text-center py-4 text-slate-400 text-xs font-bold">Memuat daftar guru...</p>
+                    </div>
+                </div>
+
+                <!-- 2. SELEKSI NADA ALARM KUSTOM -->
+                <div>
+                    <label class="block text-sm font-bold mb-1.5" style="color: #FDE047 !important;">🎵 Pilihan Nada Alarm</label>
+                    <div class="space-y-1.5">
+                        <div onclick="pilihNadaAlarm('bel_sekolah_panjang')" id="card_nada_bel_sekolah_panjang" class="card-nada-item p-3 border-2 rounded-xl cursor-pointer flex items-center justify-between transition" style="background-color: #1E293B !important; border-color: #F59E0B !important;">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg">🔔</span>
+                                <span class="font-bold text-sm text-white">Bel Sekolah Panjang (8 Detik)</span>
+                            </div>
+                            <button type="button" onclick="event.stopPropagation(); tesSuaraSpesifik('bel_sekolah_panjang')" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-lg shadow">🔊 Tes</button>
+                        </div>
+
+                        <div onclick="pilihNadaAlarm('chime_melodis_panjang')" id="card_nada_chime_melodis_panjang" class="card-nada-item p-3 border-2 rounded-xl cursor-pointer flex items-center justify-between transition" style="background-color: #1E293B !important; border-color: #334155 !important;">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg">🎶</span>
+                                <span class="font-bold text-sm text-white">Chime Melodis Panjang (6 Detik)</span>
+                            </div>
+                            <button type="button" onclick="event.stopPropagation(); tesSuaraSpesifik('chime_melodis_panjang')" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-lg shadow">🔊 Tes</button>
+                        </div>
+
+                        <div onclick="pilihNadaAlarm('bel_sekolah')" id="card_nada_bel_sekolah" class="card-nada-item p-3 border-2 rounded-xl cursor-pointer flex items-center justify-between transition" style="background-color: #1E293B !important; border-color: #334155 !important;">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg">🔔</span>
+                                <span class="font-bold text-sm text-white">Bel Sekolah Standar (3 Detik)</span>
+                            </div>
+                            <button type="button" onclick="event.stopPropagation(); tesSuaraSpesifik('bel_sekolah')" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-lg shadow">🔊 Tes</button>
+                        </div>
+
+                        <div onclick="pilihNadaAlarm('digital_beep')" id="card_nada_digital_beep" class="card-nada-item p-3 border-2 rounded-xl cursor-pointer flex items-center justify-between transition" style="background-color: #1E293B !important; border-color: #334155 !important;">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg">⏰</span>
+                                <span class="font-bold text-sm text-white">Digital Alarm Beep</span>
+                            </div>
+                            <button type="button" onclick="event.stopPropagation(); tesSuaraSpesifik('digital_beep')" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-lg shadow">🔊 Tes</button>
+                        </div>
+
+                        <div onclick="pilihNadaAlarm('siren_soft')" id="card_nada_siren_soft" class="card-nada-item p-3 border-2 rounded-xl cursor-pointer flex items-center justify-between transition" style="background-color: #1E293B !important; border-color: #334155 !important;">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg">🚨</span>
+                                <span class="font-bold text-sm text-white">Peluit / Whistle Alert</span>
+                            </div>
+                            <button type="button" onclick="event.stopPropagation(); tesSuaraSpesifik('siren_soft')" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-lg shadow">🔊 Tes</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. SELEKSI WAKTU PENGINGAT (PILL KUSTOM) -->
+                <div>
+                    <label class="block text-sm font-bold mb-1.5" style="color: #FDE047 !important;">⏱️ Waktu Pengingat</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="pilihWaktuPill(5)" id="pill_waktu_5" class="pill-waktu-btn p-3 rounded-xl border-2 font-extrabold text-xs transition" style="background-color: #F59E0B !important; color: #020617 !important; border-color: #FDE047 !important;">
+                            ⏱️ 5 Menit (Standar)
+                        </button>
+                        <button type="button" onclick="pilihWaktuPill(10)" id="pill_waktu_10" class="pill-waktu-btn p-3 rounded-xl border-2 font-bold text-xs transition" style="background-color: #1E293B !important; color: #FFFFFF !important; border-color: #334155 !important;">
+                            ⏱️ 10 Menit
+                        </button>
+                        <button type="button" onclick="pilihWaktuPill(15)" id="pill_waktu_15" class="pill-waktu-btn p-3 rounded-xl border-2 font-bold text-xs transition" style="background-color: #1E293B !important; color: #FFFFFF !important; border-color: #334155 !important;">
+                            ⏱️ 15 Menit
+                        </button>
+                        <button type="button" onclick="pilihWaktuPill(0)" id="pill_waktu_0" class="pill-waktu-btn p-3 rounded-xl border-2 font-bold text-xs transition" style="background-color: #1E293B !important; color: #FFFFFF !important; border-color: #334155 !important;">
+                            ⏱️ Tepat Jam Dimulai
+                        </button>
+                    </div>
+                </div>
+
+                <div id="statusAlarmInfo" class="p-3 border rounded-xl text-xs flex items-center gap-2 font-semibold" style="background-color: #1E293B !important; border-color: #334155 !important; color: #E2E8F0 !important;">
+                    <span>💡</span> Status saat ini: <strong id="teksStatusAlarm" style="color: #94A3B8 !important;">Belum Aktif</strong>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-2 pt-3 border-t border-slate-700">
+                    <button type="button" onclick="matikanAlarmDisini()" id="btnMatikanAlarmModal" class="w-full sm:w-1/3 py-3 px-4 rounded-xl text-sm font-bold shadow transition" style="background-color: #991B1B !important; color: #FFFFFF !important;">
+                        Matikan
+                    </button>
+                    <button type="button" onclick="simpanPengaturanAlarm()" class="w-full sm:w-2/3 py-3 px-4 rounded-xl text-sm font-extrabold shadow-lg transition flex items-center justify-center gap-2" style="background-color: #2563EB !important; color: #FFFFFF !important;">
+                        <span>💾</span> Simpan & Aktifkan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BANNER PENGINGAT ALARM POPUP IN-APP (KONTRAST TINGGI) -->
+    <div id="bannerAlarmPopup" class="fixed bottom-6 right-6 left-6 md:left-auto md:w-96 z-50 hidden p-5 rounded-2xl shadow-2xl border-2 border-amber-400" style="background-color: #0F172A !important; color: #FFFFFF !important;">
+        <div class="flex items-start gap-3">
+            <div class="p-3 rounded-xl font-bold text-2xl shrink-0 shadow" style="background-color: #F59E0B !important; color: #020617 !important;">⏰</div>
+            <div class="flex-1">
+                <h4 class="font-extrabold text-lg" style="color: #FDE047 !important;">Panggilan Mengajar!</h4>
+                <p id="teksPesanBanner" class="text-sm font-semibold mt-1" style="color: #F8FAFC !important;"></p>
+            </div>
+            <button onclick="tutupBannerAlarm()" class="w-8 h-8 rounded-full bg-red-600 text-white font-bold text-lg flex items-center justify-center shadow" style="background-color: #DC2626 !important; color: #FFFFFF !important;">&times;</button>
+        </div>
+        <button onclick="tutupBannerAlarm()" class="mt-4 w-full py-3 font-extrabold rounded-xl text-sm shadow-lg" style="background-color: #F59E0B !important; color: #020617 !important;">
+            OK, Saya Mengerti
+        </button>
+    </div>
+
+    <!-- UNIVERSAL CUSTOM GOLD ALERT MODAL (SOLUSI MUTLAK BEBAS ALERT HITAM NATIVE ANDROID) -->
+    <div id="modalCustomAlertUniversal" class="fixed inset-0 z-[9999] hidden bg-black/85 flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-slate-900 border-2 border-amber-400 p-6 rounded-3xl shadow-2xl w-full max-w-sm text-center animate-fade-in-up" style="background-color: #0F172A !important; border-color: #F59E0B !important;">
+            <div class="w-14 h-14 bg-amber-500/20 border border-amber-500/50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+                ✨
+            </div>
+            <h3 id="judulAlertCustomUniversal" class="text-lg font-extrabold text-amber-300 mb-2" style="color: #FDE047 !important;">Informasi RosterKu</h3>
+            <p id="pesanAlertCustomUniversal" class="text-sm font-bold text-white whitespace-pre-line leading-relaxed mb-6" style="color: #FFFFFF !important;"></p>
+            <button type="button" onclick="document.getElementById('modalCustomAlertUniversal').classList.add('hidden')" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-xl text-base shadow-lg transition" style="background-color: #F59E0B !important; color: #020617 !important;">
+                OK, Saya Mengerti
+            </button>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, getDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, getDoc, doc, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // Override Native Alert untuk Menghindari Dialog Hitam Android OS
+        const originalNativeAlert = window.alert;
+        window.alert = function(pesan) {
+            const modal = document.getElementById('modalCustomAlertUniversal');
+            const p = document.getElementById('pesanAlertCustomUniversal');
+            if (modal && p) {
+                p.innerText = pesan;
+                modal.classList.remove('hidden');
+            } else {
+                originalNativeAlert(pesan);
+            }
+        };
 
         // Konfigurasi Firebase dari file Anda
         const firebaseConfig = { 
@@ -569,26 +410,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Aktifkan Cache Disk Offline Kilat Firestore (Akses Data Super Cepat 0.01 Detik)
+        enableIndexedDbPersistence(db).catch(err => {
+            console.log("Firestore persistence note:", err.code);
+        });
+
         let semuaJadwal = [];
         let namaSekolahSistem = "NAMA SEKOLAH BELUM DISETTING";
-
-        // Memuat Cache Lokal Instan (0 ms Loading)
-        try {
-            const cachedSekolah = localStorage.getItem('cache_info_sekolah');
-            if (cachedSekolah) {
-                namaSekolahSistem = cachedSekolah;
-                document.getElementById('teksNamaSekolah').innerText = namaSekolahSistem;
-            }
-            const cachedJadwal = localStorage.getItem('cache_semua_jadwal');
-            if (cachedJadwal) {
-                semuaJadwal = JSON.parse(cachedJadwal);
-                if (Array.isArray(semuaJadwal) && semuaJadwal.length > 0) {
-                    setTimeout(() => { tampilkanJadwal('cache'); }, 10);
-                }
-            }
-        } catch (e) {
-            console.warn("Belum ada cache jadwal:", e);
-        }
 
         let tomHari = new TomSelect("#filterHari", { create: false, placeholder: "Semua Hari" });
         let tomKelas = new TomSelect("#filterKelas", { create: false, placeholder: "Semua Kelas" });
@@ -600,7 +428,6 @@
                 if (docSnap.exists() && docSnap.data().nama_sekolah) {
                     namaSekolahSistem = docSnap.data().nama_sekolah;
                     document.getElementById('teksNamaSekolah').innerText = namaSekolahSistem;
-                    localStorage.setItem('cache_info_sekolah', namaSekolahSistem);
                 }
             } catch (e) { console.error("Gagal mengambil info sekolah", e); }
         }
@@ -614,9 +441,6 @@
                 snapshot.forEach(docSnap => {
                     semuaJadwal.push({ id: docSnap.id, ...docSnap.data() });
                 });
-                try {
-                    localStorage.setItem('cache_semua_jadwal', JSON.stringify(semuaJadwal));
-                } catch(e) {}
                 tampilkanJadwal('init');
             });
         }
@@ -676,15 +500,6 @@
                             nilaiCocok = val; break;
                         }
                     }
-                } else if (tipe === "Guru" && (sumberTrigger === 'init' || sumberTrigger === 'cache')) {
-                    const savedGuru = localStorage.getItem('guru_terpilih');
-                    if (savedGuru) {
-                        for (let val of mapOpsi.values()) {
-                            if (val.toUpperCase() === savedGuru.toUpperCase()) {
-                                nilaiCocok = val; break;
-                            }
-                        }
-                    }
                 }
                 tom.setValue(nilaiCocok, true); 
             };
@@ -693,24 +508,13 @@
             updateDropdown(tomHari, opsiHari, "Hari", 'hari');
             updateDropdown(tomGuru, opsiGuru, "Guru", 'guru');
 
-            if (sumberTrigger === 'guru') {
-                if (guruDipilih && guruDipilih !== "Semua") {
-                    localStorage.setItem('guru_terpilih', guruDipilih);
-                } else {
-                    localStorage.removeItem('guru_terpilih');
-                }
-            }
-            if (typeof updateStatusTombolAlarm === 'function') {
-                updateStatusTombolAlarm();
-            }
-
             const tabel = document.getElementById('tabelJadwal');
             tabel.innerHTML = '';
 
-            // Filter yang sudah kebal huruf besar/kecil & variasi tanda petik (Jum'at/Jumat)
+            // Filter yang sudah kebal huruf besar/kecil
             let jadwalTerfilter = semuaJadwal.filter(j => {
                 let matchKelas = (kelasDipilih === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasDipilih.trim().toUpperCase());
-                let matchHari = (hariDipilih === "Semua" || normalisasiHari(j.hari) === normalisasiHari(hariDipilih));
+                let matchHari = (hariDipilih === "Semua" || (j.hari || "").trim().toUpperCase() === hariDipilih.trim().toUpperCase());
                 let matchGuru = (guruDipilih === "Semua" || (j.guru || "").trim().toUpperCase() === guruDipilih.trim().toUpperCase());
                 return matchKelas && matchHari && matchGuru;
             });
@@ -734,8 +538,8 @@
             }
 
             jadwalTerfilter.sort((a, b) => {
-                let hariA = normalisasiHari(a.hari);
-                let hariB = normalisasiHari(b.hari);
+                let hariA = (a.hari || "").trim().toLowerCase();
+                let hariB = (b.hari || "").trim().toLowerCase();
                 const urutanHariKu = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
                 
                 let nilaiHariA = urutanHariKu[hariA] || 99; 
@@ -751,800 +555,38 @@
             });
 
             if (jadwalTerfilter.length === 0) {
-                tabel.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-500 text-lg bg-gray-50">📭 Belum ada jadwal yang sesuai dengan filter.</td></tr>`;
+                tabel.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-slate-400 font-bold text-lg">📭 Belum ada jadwal yang sesuai dengan filter.</td></tr>`;
                 return;
             }
 
             jadwalTerfilter.forEach((j, index) => {
-                const isEven = index % 2 === 0;
-                const rowBgClass = isEven ? 'bg-white' : 'bg-slate-50/60';
-
-                let hariWarna = normalisasiHari(j.hari);
-                let bgHari = "bg-slate-100 text-slate-700 border border-slate-200/70";
+                let hariWarna = (j.hari || "").trim().toLowerCase();
+                let bgHari = "bg-slate-700 text-slate-200 border border-slate-600";
                 
-                if(hariWarna === "senin") bgHari = "bg-rose-50 text-rose-700 border border-rose-200/80";
-                else if(hariWarna === "selasa") bgHari = "bg-amber-50 text-amber-700 border border-amber-200/80";
-                else if(hariWarna === "rabu") bgHari = "bg-yellow-50 text-yellow-800 border border-yellow-200/80";
-                else if(hariWarna === "kamis") bgHari = "bg-emerald-50 text-emerald-700 border border-emerald-200/80";
-                else if(hariWarna === "jumat") bgHari = "bg-sky-50 text-sky-700 border border-sky-200/80";
-                else if(hariWarna === "sabtu") bgHari = "bg-indigo-50 text-indigo-700 border border-indigo-200/80";
+                if(hariWarna === "senin") bgHari = "bg-red-500/20 text-red-300 border border-red-500/40";
+                else if(hariWarna === "selasa") bgHari = "bg-amber-500/20 text-amber-300 border border-amber-500/40";
+                else if(hariWarna === "rabu") bgHari = "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40";
+                else if(hariWarna === "kamis") bgHari = "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+                else if(hariWarna === "jumat") bgHari = "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40";
+                else if(hariWarna === "sabtu") bgHari = "bg-purple-500/20 text-purple-300 border border-purple-500/40";
+                else if(hariWarna === "minggu") bgHari = "bg-rose-500/20 text-rose-300 border border-rose-500/40";
 
-                let teksHariTampil = j.hari ? j.hari.trim() : (hariWarna ? (hariWarna.charAt(0).toUpperCase() + hariWarna.slice(1)) : '-');
+                let teksHariTampil = hariWarna.charAt(0).toUpperCase() + hariWarna.slice(1);
 
                 const guruCell = j.guru 
-                    ? `<div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200 flex-shrink-0"></span><span class="font-semibold text-slate-800">${j.guru}</span></div>` 
-                    : `<span class="text-rose-400 italic text-xs font-medium">Belum ditentukan</span>`;
+                    ? `<div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400"></span><span class="font-semibold text-amber-300/90">${j.guru}</span></div>` 
+                    : `<span class="text-rose-400 italic text-sm font-bold">Belum ditentukan</span>`;
 
                 tabel.insertAdjacentHTML('beforeend', `
-                    <tr class="hover:bg-blue-50/50 transition-colors duration-150 ${rowBgClass}">
-                        <td class="py-4 px-6 align-middle"><span class="inline-block px-3 py-1 rounded-lg font-bold text-xs shadow-sm ${bgHari}">${teksHariTampil}</span></td>
-                        <td class="py-4 px-6 align-middle font-mono font-semibold text-slate-600 text-xs whitespace-nowrap"><span class="bg-slate-100/90 text-slate-700 px-2.5 py-1 rounded-md border border-slate-200/60">${j.waktu || j.jam_ke || '-'}</span></td>
-                        <td class="py-4 px-6 align-middle"><span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-md border border-indigo-200/70 shadow-sm">${j.kelas || '-'}</span></td>
-                        <td class="py-4 px-6 align-middle font-semibold text-slate-800">${j.mapel || '-'}</td>
-                        <td class="py-4 px-6 align-middle">${guruCell}</td>
+                    <tr class="hover:bg-slate-800/80 transition-colors duration-200 border-b border-slate-800/80">
+                        <td class="py-4 px-5 align-middle"><span class="inline-block px-3 py-1 rounded-lg font-bold text-xs ${bgHari}">${teksHariTampil}</span></td>
+                        <td class="py-4 px-5 align-middle font-semibold text-amber-200 whitespace-nowrap">${j.waktu || j.jam_ke}</td>
+                        <td class="py-4 px-5 align-middle"><span class="bg-indigo-900/60 text-indigo-200 text-xs font-extrabold px-2.5 py-1 rounded-lg border border-indigo-500/40">${j.kelas}</span></td>
+                        <td class="py-4 px-5 align-middle font-extrabold text-white text-base">${j.mapel}</td>
+                        <td class="py-4 px-5 align-middle">${guruCell}</td>
                     </tr>
                 `);
             });
-        };
-
-        // ========================================================
-        // CANVA EDITION: STUDIO DOWNLOAD ROSTER KREATIF & FORMAL
-        // ========================================================
-        let currentTemplate = 'galaxy';
-        let currentStudioTab = 'canva';
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-
-        window.gantiTabStudio = function(tab) {
-            currentStudioTab = tab;
-            const panelCanva = document.getElementById('panelStudioCanva');
-            const panelResmi = document.getElementById('panelStudioResmi');
-            const btnCanva = document.getElementById('tabBtnCanva');
-            const btnResmi = document.getElementById('tabBtnResmi');
-
-            if (tab === 'canva') {
-                panelCanva.classList.remove('hidden');
-                panelResmi.classList.add('hidden');
-                btnCanva.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-indigo-700 shadow-sm border border-slate-200 transition-all";
-                btnResmi.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition-all";
-                setTimeout(() => { renderLivePreview(); }, 60);
-            } else {
-                panelCanva.classList.add('hidden');
-                panelResmi.classList.remove('hidden');
-                btnResmi.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-indigo-700 shadow-sm border border-slate-200 transition-all";
-                btnCanva.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-white/60 transition-all";
-            }
-        };
-
-        window.pilihTemplateCanva = function(tplId) {
-            currentTemplate = tplId;
-            const daftarTpl = ['galaxy', 'notebook', 'sage', 'ocean', 'pastel'];
-            daftarTpl.forEach(id => {
-                const btn = document.getElementById(`btnTpl-${id}`);
-                if (!btn) return;
-                if (id === tplId) {
-                    btn.classList.add('ring-4', 'ring-indigo-500/40', 'border-indigo-600', 'scale-[1.02]');
-                } else {
-                    btn.classList.remove('ring-4', 'ring-indigo-500/40', 'border-indigo-600', 'scale-[1.02]');
-                }
-            });
-            renderLivePreview();
-        };
-
-        window.updateStudioFilter = function(sumber) {
-            const elKelas = document.getElementById('selModalKelas');
-            const elGuru = document.getElementById('selModalGuru');
-
-            if (sumber === 'guru' && elGuru && elGuru.value !== 'Semua' && elKelas) {
-                elKelas.value = 'Semua';
-            } else if (sumber === 'kelas' && elKelas && elKelas.value !== 'Semua' && elGuru) {
-                elGuru.value = 'Semua';
-            }
-
-            const targetKelas = elKelas ? elKelas.value : 'Semua';
-            const targetGuru = elGuru ? elGuru.value : 'Semua';
-            const ketEl = document.getElementById('keteranganTargetRoster');
-
-            if (ketEl) {
-                if (targetGuru !== "Semua") {
-                    ketEl.innerText = `👨‍🏫 Roster Guru: ${targetGuru}`;
-                } else if (targetKelas !== "Semua") {
-                    ketEl.innerText = `🏫 Roster Kelas: ${targetKelas}`;
-                } else {
-                    ketEl.innerText = `📑 Seluruh Kelas & Guru (${semuaJadwal.length} Jadwal)`;
-                }
-            }
-            renderLivePreview();
-        };
-
-        function normalisasiHari(str) {
-            if (!str) return '';
-            return str.toString().trim().toLowerCase().replace(/['`’]/g, '');
-        }
-
-        function formatRentangWaktu(items) {
-            if (!items || items.length === 0) return '-';
-            if (items.length === 1) return items[0].waktu || items[0].jam_ke || '-';
-
-            const wPertama = (items[0].waktu || '').trim();
-            const wTerakhir = (items[items.length - 1].waktu || '').trim();
-
-            const partAwal = wPertama.split(/\s*-\s*|\s*s\/d\s*/i);
-            const partAkhir = wTerakhir.split(/\s*-\s*|\s*s\/d\s*/i);
-
-            const jamMulai = partAwal[0] ? partAwal[0].trim() : wPertama;
-            const jamSelesai = partAkhir[partAkhir.length - 1] ? partAkhir[partAkhir.length - 1].trim() : wTerakhir;
-
-            if (jamMulai && jamSelesai && jamMulai !== jamSelesai) {
-                return `${jamMulai} - ${jamSelesai}`;
-            }
-
-            const jkAwal = items[0].jam_ke ? String(items[0].jam_ke).trim() : '';
-            const jkAkhir = items[items.length - 1].jam_ke ? String(items[items.length - 1].jam_ke).trim() : '';
-            if (jkAwal && jkAkhir && jkAwal !== jkAkhir) {
-                return `Jam ${jkAwal}-${jkAkhir}`;
-            }
-
-            return wPertama || jkAwal || '-';
-        }
-
-        function ciptakanItemGabungan(kelompok) {
-            if (kelompok.length === 1) {
-                return {
-                    ...kelompok[0],
-                    jumlahJP: 1,
-                    waktuTampil: kelompok[0].waktu || kelompok[0].jam_ke || '-',
-                    mapelTampil: kelompok[0].mapel || '-'
-                };
-            }
-
-            const itemUtama = kelompok[0];
-            const rentangWaktu = formatRentangWaktu(kelompok);
-            return {
-                ...itemUtama,
-                jumlahJP: kelompok.length,
-                waktuTampil: rentangWaktu,
-                mapelTampil: `${itemUtama.mapel} (${kelompok.length} JP)`
-            };
-        }
-
-        function gabungkanJamPelajaranKembar(jadwalList) {
-            if (!jadwalList || jadwalList.length <= 1) return (jadwalList || []).map(j => ciptakanItemGabungan([j]));
-
-            const hasil = [];
-            let kelompokSaatIni = [jadwalList[0]];
-
-            for (let i = 1; i < jadwalList.length; i++) {
-                const item = jadwalList[i];
-                const prev = kelompokSaatIni[kelompokSaatIni.length - 1];
-
-                const mapelSama = (item.mapel || '').trim().toLowerCase() === (prev.mapel || '').trim().toLowerCase();
-                const guruSama = (item.guru || '').trim().toLowerCase() === (prev.guru || '').trim().toLowerCase();
-                const kelasSama = (item.kelas || '').trim().toLowerCase() === (prev.kelas || '').trim().toLowerCase();
-
-                if (mapelSama && guruSama && kelasSama && item.mapel) {
-                    kelompokSaatIni.push(item);
-                } else {
-                    hasil.push(ciptakanItemGabungan(kelompokSaatIni));
-                    kelompokSaatIni = [item];
-                }
-            }
-
-            if (kelompokSaatIni.length > 0) {
-                hasil.push(ciptakanItemGabungan(kelompokSaatIni));
-            }
-
-            return hasil;
-        }
-
-        function dapatkanJadwalPerHari(targetKelas, targetGuru) {
-            let filtered = semuaJadwal.filter(j => {
-                let matchKelas = (targetKelas === "Semua" || (j.kelas || "").trim().toUpperCase() === targetKelas.trim().toUpperCase());
-                let matchGuru = (targetGuru === "Semua" || (j.guru || "").trim().toUpperCase() === targetGuru.trim().toUpperCase());
-                return matchKelas && matchGuru;
-            });
-
-            const urutHari = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
-            filtered.sort((a, b) => {
-                let hA = urutHari[normalisasiHari(a.hari)] || 99;
-                let hB = urutHari[normalisasiHari(b.hari)] || 99;
-                if (hA !== hB) return hA - hB;
-                let m1 = (a.waktu||"").match(/\d+/g); let m2 = (b.waktu||"").match(/\d+/g);
-                let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
-                let val2 = m2 ? parseInt(m2[0])*60 + (m2[1] ? parseInt(m2[1]) : 0) : 9999;
-                return val1 - val2;
-            });
-
-            const hariList = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-            const perHari = {};
-            hariList.forEach(h => perHari[h] = []);
-
-            filtered.forEach(j => {
-                let norm = normalisasiHari(j.hari);
-                let key = hariList.find(x => normalisasiHari(x) === norm);
-                if (key) {
-                    perHari[key].push(j);
-                }
-            });
-
-            const chkGabung = document.getElementById('chkGabungJam');
-            const harusGabung = !chkGabung || chkGabung.checked;
-
-            hariList.forEach(h => {
-                if (harusGabung) {
-                    perHari[h] = gabungkanJamPelajaranKembar(perHari[h]);
-                } else {
-                    perHari[h] = perHari[h].map(j => ciptakanItemGabungan([j]));
-                }
-            });
-
-            return perHari;
-        }
-
-        function potongTeks(str, maxLen = 28) {
-            if (!str) return '';
-            const s = String(str).trim();
-            return s.length > maxLen ? s.slice(0, maxLen - 1) + '…' : s;
-        }
-
-        function renderTemplateHTML(templateId, targetKelas, targetGuru) {
-            const jadwalPerHari = dapatkanJadwalPerHari(targetKelas, targetGuru);
-            const namaSekolah = (namaSekolahSistem !== "NAMA SEKOLAH BELUM DISETTING") 
-                ? namaSekolahSistem : "UPT SPF SD NEGERI 1 MAKASSAR";
-            const dataTersimpan = JSON.parse(localStorage.getItem('savedDataExportExcelPublic') || '{}');
-            const tahunPelajaran = dataTersimpan.tahun || `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`;
-
-            let subJudul = "SEMUA JADWAL KELAS";
-            if (targetGuru !== "Semua") {
-                subJudul = `GURU: ${targetGuru.toUpperCase()}`;
-            } else if (targetKelas !== "Semua") {
-                subJudul = `KELAS ${targetKelas.toUpperCase()}`;
-            }
-
-            const daftarHari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-            const sabtuKosong = (jadwalPerHari["Sabtu"] || []).length === 0;
-
-            // Template Palette Configurations
-            let themeConfig = {};
-
-            if (templateId === 'galaxy') {
-                themeConfig = {
-                    containerBg: "linear-gradient(135deg, #090919 0%, #151035 45%, #2b1055 100%)",
-                    textColor: "#ffffff",
-                    titleColor: "#ffffff",
-                    titleShadow: "0 0 16px rgba(192, 132, 252, 0.8)",
-                    badgeBg: "rgba(168, 85, 247, 0.25)",
-                    badgeBorder: "#a855f7",
-                    badgeColor: "#f3e8ff",
-                    cardBg: "rgba(255, 255, 255, 0.96)",
-                    cardBorder: "2.5px solid #a855f7",
-                    cardShadow: "0 8px 24px rgba(0,0,0,0.35)",
-                    headerPillBg: "linear-gradient(135deg, #7c3aed, #4f46e5)",
-                    headerPillColor: "#ffffff",
-                    itemBg: "#f8fafc",
-                    itemBorder: "#e2e8f0",
-                    itemText: "#0f172a",
-                    itemSub: "#6b21a8",
-                    timeBg: "#f3e8ff",
-                    timeColor: "#7e22ce",
-                    dotColor: "#8b5cf6",
-                    quoteTitle: "🪐 MISI BELAJAR HEBAT",
-                    decorTopLeft: "🪐",
-                    decorTopRight: "🚀",
-                    decorBottomLeft: "🛸",
-                    decorBottomRight: "👨‍🚀"
-                };
-            } else if (templateId === 'notebook') {
-                themeConfig = {
-                    containerBg: "#fdfaf3",
-                    containerPattern: "linear-gradient(#eadaaf 1px, transparent 1px), linear-gradient(90deg, #eadaaf 1px, transparent 1px)",
-                    textColor: "#292524",
-                    titleColor: "#292524",
-                    titleShadow: "2px 2px 0 #fbbf24, 4px 4px 0 #f97316",
-                    badgeBg: "#fef3c7",
-                    badgeBorder: "#f59e0b",
-                    badgeColor: "#92400e",
-                    cardBg: "#ffffff",
-                    cardBorder: "1.5px solid #ebd5b3",
-                    cardShadow: "2px 6px 16px rgba(70,50,20,0.08)",
-                    headerPillBg: "linear-gradient(135deg, #f59e0b, #d97706)",
-                    headerPillColor: "#ffffff",
-                    itemBg: "#fffbeb",
-                    itemBorder: "#fde68a",
-                    itemText: "#292524",
-                    itemSub: "#92400e",
-                    timeBg: "#fef3c7",
-                    timeColor: "#b45309",
-                    dotColor: "#f59e0b",
-                    quoteTitle: "📌 CATATAN SISWA RAJIN",
-                    decorTopLeft: "⭐",
-                    decorTopRight: "📎",
-                    decorBottomLeft: "📐",
-                    decorBottomRight: "👧"
-                };
-            } else if (templateId === 'sage') {
-                themeConfig = {
-                    containerBg: "linear-gradient(135deg, #eef4ee 0%, #e2ece2 100%)",
-                    textColor: "#1e3a29",
-                    titleColor: "#14281b",
-                    titleShadow: "none",
-                    badgeBg: "#ffffff",
-                    badgeBorder: "#a3b899",
-                    badgeColor: "#2d4a34",
-                    cardBg: "#ffffff",
-                    cardBorder: "2px solid #a3b899",
-                    cardShadow: "0 4px 16px rgba(30,58,41,0.06)",
-                    headerPillBg: "linear-gradient(135deg, #588157, #3a5a40)",
-                    headerPillColor: "#ffffff",
-                    itemBg: "#f4f8f4",
-                    itemBorder: "#dce7dc",
-                    itemText: "#14281b",
-                    itemSub: "#3a5a40",
-                    timeBg: "#e9f1e9",
-                    timeColor: "#2d4a34",
-                    dotColor: "#588157",
-                    quoteTitle: "🌱 MOTIVASI HARIAN",
-                    decorTopLeft: "🌿",
-                    decorTopRight: "🍃",
-                    decorBottomLeft: "🪴",
-                    decorBottomRight: "🌱"
-                };
-            } else if (templateId === 'ocean') {
-                themeConfig = {
-                    containerBg: "linear-gradient(180deg, #0284c7 0%, #0369a1 45%, #075985 100%)",
-                    textColor: "#ffffff",
-                    titleColor: "#ffffff",
-                    titleShadow: "0 4px 14px rgba(2,132,199,0.9)",
-                    badgeBg: "rgba(255,255,255,0.22)",
-                    badgeBorder: "#7dd3fc",
-                    badgeColor: "#e0f2fe",
-                    cardBg: "#ffffff",
-                    cardBorder: "2.5px solid #7dd3fc",
-                    cardShadow: "0 8px 24px rgba(7,89,133,0.3)",
-                    headerPillBg: "linear-gradient(135deg, #0284c7, #0369a1)",
-                    headerPillColor: "#ffffff",
-                    itemBg: "#f0f9ff",
-                    itemBorder: "#bae6fd",
-                    itemText: "#082f49",
-                    itemSub: "#0369a1",
-                    timeBg: "#e0f2fe",
-                    timeColor: "#0284c7",
-                    dotColor: "#0ea5e9",
-                    quoteTitle: "🌊 TIPS BELAJAR CERIA",
-                    decorTopLeft: "🫧",
-                    decorTopRight: "🐬",
-                    decorBottomLeft: "🐢",
-                    decorBottomRight: "🐋"
-                };
-            } else { // pastel
-                themeConfig = {
-                    containerBg: "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)",
-                    textColor: "#4c0519",
-                    titleColor: "#be123c",
-                    titleShadow: "0 2px 8px rgba(244,63,94,0.2)",
-                    badgeBg: "#ffffff",
-                    badgeBorder: "#fecdd3",
-                    badgeColor: "#e11d48",
-                    cardBg: "#ffffff",
-                    cardBorder: "2.5px solid #fecdd3",
-                    cardShadow: "0 6px 18px rgba(244,63,94,0.08)",
-                    headerPillBg: "linear-gradient(135deg, #fb7185, #f43f5e)",
-                    headerPillColor: "#ffffff",
-                    itemBg: "#fff1f2",
-                    itemBorder: "#fecdd3",
-                    itemText: "#4c0519",
-                    itemSub: "#e11d48",
-                    timeBg: "#ffe4e6",
-                    timeColor: "#be123c",
-                    dotColor: "#f43f5e",
-                    quoteTitle: "💖 PENGINGAT SENYUM",
-                    decorTopLeft: "🌸",
-                    decorTopRight: "💌",
-                    decorBottomLeft: "🌷",
-                    decorBottomRight: "🌼"
-                };
-            }
-
-            // Build 6 Cards HTML
-            let cardsHtml = '';
-            const washiColors = [
-                "rgba(244, 63, 94, 0.75)",
-                "rgba(245, 158, 11, 0.75)",
-                "rgba(14, 165, 233, 0.75)",
-                "rgba(16, 185, 129, 0.75)",
-                "rgba(139, 92, 246, 0.75)",
-                "rgba(249, 115, 22, 0.75)"
-            ];
-
-            daftarHari.forEach((hari, idx) => {
-                const items = jadwalPerHari[hari] || [];
-                const isSaturdayCard = (hari === "Sabtu");
-                
-                // If Saturday is empty, show creative Notes card!
-                if (isSaturdayCard && sabtuKosong) {
-                    cardsHtml += `
-                        <div style="background: ${themeConfig.cardBg}; border: ${themeConfig.cardBorder}; border-radius: 20px; padding: 12px 14px; box-shadow: ${themeConfig.cardShadow}; height: 275px; box-sizing: border-box; position: relative; display: flex; flex-direction: column;">
-                            ${(templateId === 'notebook') ? `<div style="position: absolute; top: -9px; left: 50%; transform: translateX(-50%) rotate(1deg); width: 85px; height: 16px; background: ${washiColors[idx]}; border-radius: 2px;"></div>` : ''}
-                            
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                                <div style="background: ${themeConfig.headerPillBg}; color: ${themeConfig.headerPillColor}; padding: 3px 12px; border-radius: 12px; font-family: 'Fredoka', cursive; font-size: 13px; font-weight: 700;">
-                                    ${themeConfig.quoteTitle}
-                                </div>
-                                <span style="font-size: 14px;">⭐</span>
-                            </div>
-
-                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-around; padding: 4px 6px; font-size: 11px; line-height: 1.4; color: ${themeConfig.itemText};">
-                                <div style="display: flex; align-items: center; gap: 8px; background: ${themeConfig.itemBg}; padding: 6px 10px; border-radius: 8px; border: 1px dashed ${themeConfig.itemBorder};">
-                                    <span>🎒</span>
-                                    <span>Siapkan buku pelajaran malam hari</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px; background: ${themeConfig.itemBg}; padding: 6px 10px; border-radius: 8px; border: 1px dashed ${themeConfig.itemBorder};">
-                                    <span>⏰</span>
-                                    <span>Hadir tepat waktu sebelum bel masuk</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px; background: ${themeConfig.itemBg}; padding: 6px 10px; border-radius: 8px; border: 1px dashed ${themeConfig.itemBorder};">
-                                    <span>✨</span>
-                                    <span>Jaga kebersihan & kerapian ruang kelas</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px; background: ${themeConfig.itemBg}; padding: 6px 10px; border-radius: 8px; border: 1px dashed ${themeConfig.itemBorder};">
-                                    <span>🤝</span>
-                                    <span>Saling menghargai sesama teman & guru</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Total JP calculation
-                const totalJP = items.reduce((acc, curr) => acc + (curr.jumlahJP || 1), 0);
-
-                // Regular Day Card
-                let itemsListHtml = '';
-                if (items.length === 0) {
-                    itemsListHtml = `
-                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #94a3b8; font-size: 11px; font-style: italic; gap: 4px;">
-                            <span style="font-size: 22px;">☕</span>
-                            <span>Tidak ada jadwal / Libur</span>
-                        </div>
-                    `;
-                } else {
-                    // Cek apakah guru perlu disertakan di kartu (opsi toggle)
-                    const chkGuru = document.getElementById('chkTampilkanGuru');
-                    const sertakanGuru = chkGuru ? chkGuru.checked : false;
-                    // Jika filter target adalah Guru, kita SELALU tampilkan info Kelas agar guru tahu kelas yang dituju
-                    const harusTampilkanSub = (targetGuru !== "Semua") || sertakanGuru;
-
-                    // Dynamic styling based on items count & mode
-                    let padY = "4px 8px";
-                    let gap = "4px";
-                    let mapelFont = "11.5px";
-                    let subFont = "9px";
-                    let timeFont = "9.5px";
-                    let timePad = "2.5px 6px";
-                    
-                    if (!harusTampilkanSub) {
-                        // Mode 1 Baris: Super Lega, Rapih, Bersih & Terpusat Vertikal Presisi
-                        if (items.length >= 7) {
-                            padY = "4.5px 8px 3.5px 8px"; gap = "3px"; mapelFont = "11px"; timeFont = "9px"; timePad = "2.5px 5px 1.5px 5px";
-                        } else if (items.length >= 5) {
-                            padY = "6px 10px 5px 10px"; gap = "5px"; mapelFont = "12px"; timeFont = "9.5px"; timePad = "3px 6px 2px 6px";
-                        } else {
-                            // Untuk 3-4 jadwal (misal hari Jumat): box tetap proporsional & presisi
-                            padY = "6.5px 10px 5.5px 10px"; gap = "8px"; mapelFont = "12.5px"; timeFont = "10px"; timePad = "3.5px 6px 2.5px 6px";
-                        }
-                    } else {
-                        // Mode 2 Baris: Proporsional & Terpusat Vertikal
-                        if (items.length >= 7) {
-                            padY = "2.5px 6px 2px 6px"; gap = "2.5px"; mapelFont = "9.5px"; subFont = "8px"; timeFont = "8.5px"; timePad = "1.5px 4px 1px 4px";
-                        } else if (items.length >= 5) {
-                            padY = "4.5px 8px 3.5px 8px"; gap = "3.5px"; mapelFont = "10.5px"; subFont = "8.5px"; timeFont = "9px"; timePad = "2.5px 5px 2px 5px";
-                        } else {
-                            padY = "6px 10px 5px 10px"; gap = "6px"; mapelFont = "11.5px"; subFont = "9.5px"; timeFont = "9.5px"; timePad = "3px 6px 2px 6px";
-                        }
-                    }
-
-                    itemsListHtml = `<div style="flex: 1; display: flex; flex-direction: column; gap: ${gap}; padding-top: 2px;">`;
-                    
-                    items.forEach(j => {
-                        let jam = j.waktuTampil || j.waktu || j.jam_ke || '-';
-                        let judulMapel = j.mapelTampil || j.mapel || '-';
-                        let sub = '';
-                        if (targetGuru !== "Semua") {
-                            sub = j.kelas ? 'Kelas ' + j.kelas : '';
-                        } else if (sertakanGuru) {
-                            sub = j.guru || '';
-                        }
-                        
-                        if (!harusTampilkanSub || !sub) {
-                            // Render 1 Baris Murni (Terpusat Vertikal Sempurna)
-                            itemsListHtml += `
-                                <div class="canva-item-row" style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder}; box-sizing: border-box;">
-                                    <div style="display: flex; align-items: center; gap: 8px; line-height: 1;">
-                                        <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: ${themeConfig.dotColor}; flex-shrink: 0;"></span>
-                                        <span style="font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-weight: 700; font-size: ${mapelFont}; color: ${themeConfig.itemText}; line-height: 1.15; display: inline-flex; align-items: center; margin-top: 1px;">
-                                            ${escapeHtml(potongTeks(judulMapel, 32))}
-                                        </span>
-                                    </div>
-                                    <span style="font-family: monospace; font-size: ${timeFont}; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: ${timePad}; border-radius: 6px; border: 1px solid ${themeConfig.itemBorder}; flex-shrink: 0; line-height: 1.15; display: inline-flex; align-items: center; justify-content: center; margin-top: 0.5px;">
-                                        ${escapeHtml(jam)}
-                                    </span>
-                                </div>
-                            `;
-                        } else {
-                            // Render 2 Baris Murni (Terpusat Vertikal Sempurna)
-                            itemsListHtml += `
-                                <div class="canva-item-row" style="display: flex; align-items: center; justify-content: space-between; padding: ${padY}; background: ${themeConfig.itemBg}; border-radius: 9px; border: 1px solid ${themeConfig.itemBorder}; box-sizing: border-box;">
-                                    <div style="display: flex; align-items: center; gap: 8px; line-height: 1;">
-                                        <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: ${themeConfig.dotColor}; flex-shrink: 0;"></span>
-                                        <div style="display: flex; flex-direction: column; justify-content: center;">
-                                            <span style="font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-weight: 700; font-size: ${mapelFont}; color: ${themeConfig.itemText}; line-height: 1.25;">
-                                                ${escapeHtml(potongTeks(judulMapel, 30))}
-                                            </span>
-                                            <span style="font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-size: ${subFont}; color: ${themeConfig.itemSub}; opacity: 0.88; line-height: 1.2; margin-top: 2px;">
-                                                ${(targetGuru !== "Semua") ? '🏫 ' : '👤 '}${escapeHtml(potongTeks(sub, 28))}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <span style="font-family: monospace; font-size: ${timeFont}; font-weight: 700; color: ${themeConfig.timeColor}; background: ${themeConfig.timeBg}; padding: ${timePad}; border-radius: 6px; border: 1px solid ${themeConfig.itemBorder}; flex-shrink: 0; line-height: 1.15; display: inline-flex; align-items: center; justify-content: center; margin-top: 0.5px;">
-                                        ${escapeHtml(jam)}
-                                    </span>
-                                </div>
-                            `;
-                        }
-                    });
-                    itemsListHtml += `</div>`;
-                }
-
-                cardsHtml += `
-                    <div style="background: ${themeConfig.cardBg}; border: ${themeConfig.cardBorder}; border-radius: 20px; padding: 12px 14px; box-shadow: ${themeConfig.cardShadow}; height: 275px; box-sizing: border-box; position: relative; display: flex; flex-direction: column;">
-                        ${(templateId === 'notebook') ? `<div style="position: absolute; top: -9px; left: 50%; transform: translateX(-50%) rotate(${idx % 2 === 0 ? '-1.5deg' : '1.5deg'}); width: 85px; height: 16px; background: ${washiColors[idx]}; border-radius: 2px;"></div>` : ''}
-                        
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-                            <div style="background: ${themeConfig.headerPillBg}; color: ${themeConfig.headerPillColor}; padding: 3px 14px; border-radius: 12px; font-family: 'Fredoka', cursive; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">
-                                ${hari.toUpperCase()}
-                            </div>
-                            <span style="font-size: 10.5px; font-weight: 700; color: ${themeConfig.itemSub}; background: ${themeConfig.timeBg}; padding: 2px 7px; border-radius: 6px; font-family: monospace;">${totalJP} JP</span>
-                        </div>
-
-                        ${itemsListHtml}
-                    </div>
-                `;
-            });
-
-            // Assemble Full Poster HTML
-            return `
-                <div style="background: ${themeConfig.containerBg}; ${(themeConfig.containerPattern) ? `background-image: ${themeConfig.containerPattern}; background-size: 24px 24px;` : ''} color: ${themeConfig.textColor}; padding: 22px 28px; width: 1120px; height: 790px; box-sizing: border-box; font-family: 'Outfit', 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
-                    
-                    <!-- Decorative Corner Icons -->
-                    <div style="position: absolute; top: 14px; left: 20px; font-size: 28px; pointer-events: none; opacity: 0.85;">${themeConfig.decorTopLeft}</div>
-                    <div style="position: absolute; top: 14px; right: 20px; font-size: 28px; pointer-events: none; opacity: 0.85;">${themeConfig.decorTopRight}</div>
-                    <div style="position: absolute; bottom: 12px; left: 20px; font-size: 26px; pointer-events: none; opacity: 0.85;">${themeConfig.decorBottomLeft}</div>
-                    <div style="position: absolute; bottom: 12px; right: 20px; font-size: 26px; pointer-events: none; opacity: 0.85;">${themeConfig.decorBottomRight}</div>
-
-                    <!-- Header Section -->
-                    <div style="text-align: center; margin-bottom: 12px;">
-                        <h1 style="font-family: 'Fredoka', cursive; font-size: 34px; font-weight: 800; letter-spacing: 1.5px; color: ${themeConfig.titleColor}; ${(themeConfig.titleShadow !== 'none') ? `text-shadow: ${themeConfig.titleShadow};` : ''} margin: 0 0 6px 0; text-transform: uppercase;">
-                            JADWAL PELAJARAN
-                        </h1>
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
-                            <span style="background: ${themeConfig.badgeBg}; border: 1.5px solid ${themeConfig.badgeBorder}; padding: 4px 16px; border-radius: 999px; font-size: 13px; font-weight: 800; color: ${themeConfig.badgeColor};">
-                                ${escapeHtml(subJudul)}
-                            </span>
-                            <span style="background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.4); padding: 4px 16px; border-radius: 999px; font-size: 13px; font-weight: 700; color: ${themeConfig.textColor};">
-                                ${escapeHtml(namaSekolah)}
-                            </span>
-                            <span style="font-size: 12px; font-weight: 600; opacity: 0.9; padding: 4px 10px;">
-                                TP ${escapeHtml(tahunPelajaran)}
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- 6 Day Cards Grid (3 Columns x 2 Rows) -->
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 12px;">
-                        ${cardsHtml}
-                    </div>
-
-                    <!-- Footer Bar -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 11px; opacity: 0.85;">
-                        <span>🔔 Bel Otomatis &bull; ROSTERKU Smart School</span>
-                        <span>Dibuat dengan ❤️ untuk Guru & Siswa Hebat Indonesia</span>
-                    </div>
-
-                </div>
-            `;
-        }
-
-        window.renderLivePreview = function() {
-            const targetKelas = document.getElementById('selModalKelas') ? document.getElementById('selModalKelas').value : 'Semua';
-            const targetGuru = document.getElementById('selModalGuru') ? document.getElementById('selModalGuru').value : 'Semua';
-            const wrapper = document.getElementById('previewScaleWrapper');
-            const viewport = document.getElementById('previewViewport');
-            if (!wrapper || !viewport) return;
-
-            wrapper.innerHTML = renderTemplateHTML(currentTemplate, targetKelas, targetGuru);
-
-            const vpWidth = viewport.offsetWidth || 700;
-            const targetWidth = 1120;
-            const scale = Math.min(1, Math.max(0.28, (vpWidth - 24) / targetWidth));
-            wrapper.style.transform = `scale(${scale})`;
-            viewport.style.height = `${Math.round(790 * scale) + 24}px`;
-        };
-
-        window.addEventListener('resize', () => {
-            const modal = document.getElementById('modalExportExcel');
-            if (modal && !modal.classList.contains('hidden') && currentStudioTab === 'canva') {
-                renderLivePreview();
-            }
-        });
-
-        async function buatCanvasPosterHD(targetKelas, targetGuru) {
-            const host = document.getElementById('posterExportHost');
-            if (!host) throw new Error("Host render tidak ditemukan.");
-
-            host.innerHTML = renderTemplateHTML(currentTemplate, targetKelas, targetGuru);
-
-            // Letakkan host di posisi (0,0) di balik modal (z-index 40, modal z-index 50)
-            // agar browser me-render seluruh teks & font secara sempurna tanpa terkena bug koordinat negatif
-            host.style.position = 'fixed';
-            host.style.left = '0px';
-            host.style.top = '0px';
-            host.style.width = '1120px';
-            host.style.height = '790px';
-            host.style.zIndex = '40';
-            host.style.visibility = 'visible';
-            host.style.opacity = '1';
-            host.style.pointerEvents = 'none';
-
-            if (document.fonts) { await document.fonts.ready; }
-            await new Promise(r => setTimeout(r, 200));
-
-            let canvas = null;
-
-            // Engine 1: html-to-image (Render asli mesin browser SVG foreignObject pixel-perfect 1:1 persis seperti preview layar)
-            if (window.htmlToImage && typeof window.htmlToImage.toCanvas === 'function') {
-                try {
-                    canvas = await window.htmlToImage.toCanvas(host.firstElementChild, {
-                        pixelRatio: 2,
-                        width: 1120,
-                        height: 790,
-                        backgroundColor: null
-                    });
-                } catch (errHtmlToImage) {
-                    console.warn("htmlToImage toCanvas gagal, beralih ke engine html2canvas:", errHtmlToImage);
-                }
-            }
-
-            // Engine 2: html2canvas (Fallback dengan kompensasi padding optik agar teks terpusat vertikal)
-            if (!canvas && window.html2canvas) {
-                canvas = await html2canvas(host.firstElementChild, {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: null,
-                    scrollX: 0,
-                    scrollY: 0,
-                    x: 0,
-                    y: 0,
-                    width: 1120,
-                    height: 790,
-                    windowWidth: 1200,
-                    windowHeight: 900,
-                    onclone: (clonedDoc) => {
-                        if (document.fonts) {
-                            try {
-                                document.fonts.forEach(font => clonedDoc.fonts.add(font));
-                            } catch(e) {}
-                        }
-                        // Kompensasi pergeseran vertikal html2canvas agar turun 2.5px tepat di tengah
-                        clonedDoc.querySelectorAll('.canva-item-row').forEach(row => {
-                            row.style.paddingTop = '8px';
-                            row.style.paddingBottom = '3.5px';
-                        });
-                    }
-                });
-            }
-
-            // Kembalikan host ke posisi tersembunyi
-            host.innerHTML = '';
-            host.style.left = '-9999px';
-            host.style.top = '-9999px';
-            host.style.visibility = 'hidden';
-
-            if (!canvas) throw new Error("Gagal memproses render kanvas poster.");
-            return canvas;
-        }
-
-        window.unduhRosterCanvaPNG = async function() {
-            const btn = document.getElementById('btnUnduhPNG');
-            const oldTeks = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = `<span>⏳</span><span>Membuat Gambar HD...</span>`;
-
-            try {
-                const targetKelas = document.getElementById('selModalKelas').value;
-                const targetGuru = document.getElementById('selModalGuru').value;
-
-                const canvas = await buatCanvasPosterHD(targetKelas, targetGuru);
-
-                let namaFile = `Roster_${currentTemplate}`;
-                if (targetKelas !== "Semua") namaFile += `_Kls_${targetKelas}`;
-                if (targetGuru !== "Semua") namaFile += `_Guru_${targetGuru.replace(/[^a-zA-Z0-9]/g, '_')}`;
-                namaFile += ".png";
-
-                const link = document.createElement('a');
-                link.download = namaFile;
-                link.href = canvas.toDataURL('image/png');
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } catch (err) {
-                console.error("Gagal export PNG:", err);
-                alert("❌ Gagal membuat gambar PNG: " + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = oldTeks;
-            }
-        };
-
-        window.unduhRosterCanvaPDF = async function() {
-            const btn = document.getElementById('btnUnduhCanvaPDF');
-            const oldTeks = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = `<span>⏳</span><span>Membuat PDF A4...</span>`;
-
-            try {
-                const targetKelas = document.getElementById('selModalKelas').value;
-                const targetGuru = document.getElementById('selModalGuru').value;
-
-                const canvas = await buatCanvasPosterHD(targetKelas, targetGuru);
-
-                let namaFile = `Roster_${currentTemplate}`;
-                if (targetKelas !== "Semua") namaFile += `_Kls_${targetKelas}`;
-                if (targetGuru !== "Semua") namaFile += `_Guru_${targetGuru.replace(/[^a-zA-Z0-9]/g, '_')}`;
-                namaFile += ".pdf";
-
-                const jsPDFClass = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
-
-                if (jsPDFClass) {
-                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
-                    const pdf = new jsPDFClass({
-                        orientation: 'landscape',
-                        unit: 'mm',
-                        format: 'a4'
-                    });
-                    // A4 landscape standar: 297mm x 210mm
-                    pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
-                    pdf.save(namaFile);
-                } else if (window.html2pdf) {
-                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
-                    const imgEl = document.createElement('img');
-                    imgEl.src = imgData;
-                    imgEl.style.width = '100%';
-                    await html2pdf().set({
-                        margin: 0,
-                        filename: namaFile,
-                        image: { type: 'jpeg', quality: 0.98 },
-                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-                    }).from(imgEl).save();
-                } else {
-                    throw new Error("Library PDF tidak ditemukan.");
-                }
-            } catch (err) {
-                console.error("Gagal export PDF Canva:", err);
-                alert("❌ Gagal membuat file PDF: " + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = oldTeks;
-            }
         };
 
         window.tutupModal = function(idModal) { document.getElementById(idModal).classList.add('hidden'); };
@@ -1554,55 +596,8 @@
             const kelasAktif = document.getElementById('filterKelas').value;
             const guruAktif = document.getElementById('filterGuru').value;
             
-            // Dapatkan daftar unik kelas dan guru dari semuaJadwal
-            const daftarKelasUnik = [...new Set(semuaJadwal.map(j => (j.kelas || '').trim()).filter(Boolean))]
-                .sort((a,b) => a.localeCompare(b, undefined, {numeric: true}));
-            const daftarGuruUnik = [...new Set(semuaJadwal.map(j => (j.guru || '').trim()).filter(Boolean))].sort();
-
-            // Populate Dropdown Kelas di Modal Canva
-            const selKelas = document.getElementById('selModalKelas');
-            if (selKelas) {
-                selKelas.innerHTML = `<option value="Semua">Semua Kelas</option>`;
-                daftarKelasUnik.forEach(k => {
-                    selKelas.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(k)}">Kelas ${escapeHtml(k)}</option>`);
-                });
-            }
-
-            // Populate Dropdown Guru di Modal Canva
-            const selGuru = document.getElementById('selModalGuru');
-            if (selGuru) {
-                selGuru.innerHTML = `<option value="Semua">Semua Guru (Jadwal Kelas)</option>`;
-                daftarGuruUnik.forEach(g => {
-                    selGuru.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`);
-                });
-            }
-
-            // Tentukan pilihan target awal yang paling ideal:
-            // 1. Jika guru aktif dipilih di filter utama -> fokus ke guru tersebut
-            // 2. Jika kelas aktif dipilih di filter utama -> fokus ke kelas tersebut
-            // 3. Jika keduanya "Semua" -> pilih kelas pertama yang ada agar poster rapi, lengkap, dan tidak bertumpuk seluruh sekolah!
-            if (guruAktif !== "Semua") {
-                if (selGuru) selGuru.value = guruAktif;
-                if (selKelas) selKelas.value = "Semua";
-            } else if (kelasAktif !== "Semua") {
-                if (selKelas) selKelas.value = kelasAktif;
-                if (selGuru) selGuru.value = "Semua";
-            } else {
-                if (daftarKelasUnik.length > 0 && selKelas) {
-                    selKelas.value = daftarKelasUnik[0];
-                } else if (selKelas) {
-                    selKelas.value = "Semua";
-                }
-                if (selGuru) selGuru.value = "Semua";
-            }
-
-            // Default ke tab Canva dan render preview
-            gantiTabStudio('canva');
-            pilihTemplateCanva(currentTemplate || 'galaxy');
-            updateStudioFilter();
-
-            // Populate form resmi
             const dataTersimpan = JSON.parse(localStorage.getItem('savedDataExportExcelPublic') || '{}');
+
             document.getElementById('exNamaSekolah').value = (namaSekolahSistem !== "NAMA SEKOLAH BELUM DISETTING") 
                 ? namaSekolahSistem : (dataTersimpan.sekolah || "");
             
@@ -1631,9 +626,7 @@
                 document.getElementById('exNamaWali').value = ""; 
                 document.getElementById('exNipWali').value = "";
             }
-
             document.getElementById('modalExportExcel').classList.remove('hidden');
-            setTimeout(() => { renderLivePreview(); }, 80);
         };
 
         window.prosesExportExcel = async function() {
@@ -1664,14 +657,14 @@
                 
                 let dataExport = semuaJadwal.filter(j => {
                     let matchKelas = (kelasAktif === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasAktif.trim().toUpperCase());
-                    let matchHari = (hariAktif === "Semua" || normalisasiHari(j.hari) === normalisasiHari(hariAktif));
+                    let matchHari = (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase());
                     let matchGuru = (guruAktif === "Semua" || (j.guru || "").trim().toUpperCase() === guruAktif.trim().toUpperCase());
                     return matchKelas && matchHari && matchGuru;
                 });
 
                 dataExport.sort((a, b) => {
-                    let hariA = normalisasiHari(a.hari);
-                    let hariB = normalisasiHari(b.hari);
+                    let hariA = (a.hari || "").trim().toLowerCase();
+                    let hariB = (b.hari || "").trim().toLowerCase();
                     const urut = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
                     let nilaiHariA = urut[hariA] || 99; let nilaiHariB = urut[hariB] || 99;
                     if (nilaiHariA !== nilaiHariB) return nilaiHariA - nilaiHariB;
@@ -1786,7 +779,7 @@
 
             let dataExport = semuaJadwal.filter(j => {
                 let matchKelas = (kelasAktif === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasAktif.trim().toUpperCase());
-                let matchHari = (hariAktif === "Semua" || normalisasiHari(j.hari) === normalisasiHari(hariAktif));
+                let matchHari = (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase());
                 let matchGuru = (guruAktif === "Semua" || (j.guru || "").trim().toUpperCase() === guruAktif.trim().toUpperCase());
                 return matchKelas && matchHari && matchGuru;
             });
@@ -1794,8 +787,8 @@
             if(dataExport.length === 0) return alert("⚠️ Data kosong, tidak ada yang bisa diunduh.");
 
             dataExport.sort((a, b) => {
-                let hariA = normalisasiHari(a.hari);
-                let hariB = normalisasiHari(b.hari);
+                let hariA = (a.hari || "").trim().toLowerCase();
+                let hariB = (b.hari || "").trim().toLowerCase();
                 const urut = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
                 let nilaiHariA = urut[hariA] || 99; let nilaiHariB = urut[hariB] || 99;
                 
@@ -1936,447 +929,443 @@
         };
 
         // ========================================================
-        // FITUR BEL & ALARM CERDAS KHUSUS GURU (LOUD, ANDAL & TEPAT)
+        // FITUR ALARM PENGINGAT (FLEXIBLE & INTERAKTIF)
         // ========================================================
-        let audioCtx = null;
-        let activeNodes = [];
         let intervalAlarm = null;
-        let isAlarmAktif = false;
-        const riwayatBelHariIni = new Set(); // Mencegah bunyi berulang di jam & guru yang sama
+        let audioCtx = null;
 
-        function updateStatusTombolAlarm() {
-            const btn = document.getElementById('btnNotif');
-            if (!btn) return;
-            const guruAktif = document.getElementById('filterGuru') ? document.getElementById('filterGuru').value : "Semua";
-
-            if (isAlarmAktif) {
-                if (!guruAktif || guruAktif === "Semua") {
-                    btn.innerHTML = "<span>⚠️</span> Alarm Dijeda (Pilih Guru)";
-                    btn.className = "mt-auto h-[46px] bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-amber-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto";
-                } else {
-                    const namaPanggilan = guruAktif.split(',')[0].trim();
-                    btn.innerHTML = `<span>✅</span> Alarm Aktif (${namaPanggilan})`;
-                    btn.className = "mt-auto h-[46px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-emerald-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto animate-pulse";
-                }
-            } else {
-                if (guruAktif && guruAktif !== "Semua") {
-                    const namaPanggilan = guruAktif.split(',')[0].trim();
-                    btn.innerHTML = `<span>🔔</span> Aktifkan Alarm (${namaPanggilan})`;
-                } else {
-                    btn.innerHTML = `<span>🔔</span> Aktifkan Alarm Guru`;
-                }
-                btn.className = "mt-auto h-[46px] bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-blue-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto";
-            }
-        }
-        window.updateStatusTombolAlarm = updateStatusTombolAlarm;
-
-        async function getAudioContextReady() {
+        function getAudioContext() {
             if (!audioCtx) {
-                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContextClass();
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
             if (audioCtx.state === 'suspended') {
-                try {
-                    await audioCtx.resume();
-                } catch(e) {}
+                audioCtx.resume();
             }
             return audioCtx;
         }
 
-        window.hentikanSuaraBel = function() {
-            activeNodes.forEach(node => {
-                try { node.stop(); } catch(e) {}
-            });
-            activeNodes = [];
-            const audio = document.getElementById('suaraAlarm');
-            if (audio) { audio.pause(); audio.currentTime = 0; }
-            const banner = document.getElementById('bannerNotifBel');
-            if (banner) banner.classList.add('hidden');
-        };
-
-        // Nada Bel Lonceng Sekolah Keras, Tebal & Bergema (Westminster Chimes 8 Nada)
-        async function putarBelSekolahKeras() {
-            window.hentikanSuaraBel();
+        window.bunyikanAlarm = function(soundKey = "bel_sekolah") {
             try {
-                const ctx = await getAudioContextReady();
+                const ctx = getAudioContext();
+                if (soundKey === "mixkit_default") {
+                    const audio = document.getElementById('suaraAlarm');
+                    if (audio) {
+                        audio.currentTime = 0;
+                        audio.play().catch(e => console.log("Audio MP3 error:", e));
+                    }
+                    return;
+                }
+
                 const now = ctx.currentTime;
 
-                // Compressor Dinamis: Memaksimalkan kenyaringan (loudness) tanpa distorsi/pecah
-                const compressor = ctx.createDynamicsCompressor();
-                compressor.threshold.setValueAtTime(-24, now);
-                compressor.knee.setValueAtTime(30, now);
-                compressor.ratio.setValueAtTime(12, now);
-                compressor.attack.setValueAtTime(0.003, now);
-                compressor.release.setValueAtTime(0.25, now);
-                compressor.connect(ctx.destination);
-
-                // Master Gain Keras (1.8x Volume Bertenaga)
-                const masterGain = ctx.createGain();
-                masterGain.gain.setValueAtTime(1.8, now);
-                masterGain.connect(compressor);
-
-                // Melodi Westminster Chimes 8 Nada:
-                // Bagian 1: E5 (Mi), C5 (Do), D5 (Re), G4 (Sol)
-                // Bagian 2: C5 (Do), D5 (Re), E5 (Mi), C5 (Do panjang)
-                const notes = [
-                    { freq: 659.25, time: 0.00, dur: 0.60 }, // E5 (Mi)
-                    { freq: 523.25, time: 0.60, dur: 0.60 }, // C5 (Do)
-                    { freq: 587.33, time: 1.20, dur: 0.60 }, // D5 (Re)
-                    { freq: 392.00, time: 1.80, dur: 1.00 }, // G4 (Sol)
-                    
-                    { freq: 523.25, time: 2.90, dur: 0.60 }, // C5 (Do)
-                    { freq: 587.33, time: 3.50, dur: 0.60 }, // D5 (Re)
-                    { freq: 659.25, time: 4.10, dur: 0.60 }, // E5 (Mi)
-                    { freq: 523.25, time: 4.70, dur: 1.60 }  // C5 (Do panjang & bergema)
-                ];
-
-                notes.forEach(n => {
-                    const start = now + n.time;
-                    const duration = n.dur;
-
-                    // 1. Nada Utama (Sine wave: bersih dan bulat tebal)
-                    const osc1 = ctx.createOscillator();
-                    osc1.type = 'sine';
-                    osc1.frequency.setValueAtTime(n.freq, start);
-
-                    const g1 = ctx.createGain();
-                    g1.gain.setValueAtTime(0, start);
-                    g1.gain.linearRampToValueAtTime(0.95, start + 0.015);
-                    g1.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-
-                    // 2. Harmonis Oktaf (Sine wave 2x freq: membuat suara terdengar nyaring dan tembus kebisingan)
-                    const osc2 = ctx.createOscillator();
-                    osc2.type = 'sine';
-                    osc2.frequency.setValueAtTime(n.freq * 2, start);
-
-                    const g2 = ctx.createGain();
-                    g2.gain.setValueAtTime(0, start);
-                    g2.gain.linearRampToValueAtTime(0.60, start + 0.012);
-                    g2.gain.exponentialRampToValueAtTime(0.0001, start + (duration * 0.8));
-
-                    // 3. Denting Lonceng Logam (Triangle wave: efek denting lonceng sekolah asli)
-                    const osc3 = ctx.createOscillator();
-                    osc3.type = 'triangle';
-                    osc3.frequency.setValueAtTime(n.freq * 3, start);
-
-                    const g3 = ctx.createGain();
-                    g3.gain.setValueAtTime(0, start);
-                    g3.gain.linearRampToValueAtTime(0.35, start + 0.01);
-                    g3.gain.exponentialRampToValueAtTime(0.0001, start + (duration * 0.5));
-
-                    // 4. Dentuman Pukulan Lonceng (Short strike transient)
-                    const oscStrike = ctx.createOscillator();
-                    oscStrike.type = 'sine';
-                    oscStrike.frequency.setValueAtTime(n.freq * 4, start);
-
-                    const gStrike = ctx.createGain();
-                    gStrike.gain.setValueAtTime(0, start);
-                    gStrike.gain.linearRampToValueAtTime(0.25, start + 0.005);
-                    gStrike.gain.exponentialRampToValueAtTime(0.0001, start + 0.08);
-
-                    osc1.connect(g1); g1.connect(masterGain);
-                    osc2.connect(g2); g2.connect(masterGain);
-                    osc3.connect(g3); g3.connect(masterGain);
-                    oscStrike.connect(gStrike); gStrike.connect(masterGain);
-
-                    osc1.start(start); osc1.stop(start + duration + 0.1);
-                    osc2.start(start); osc2.stop(start + duration + 0.1);
-                    osc3.start(start); osc3.stop(start + duration + 0.1);
-                    oscStrike.start(start); oscStrike.stop(start + 0.1);
-
-                    activeNodes.push(osc1, osc2, osc3, oscStrike);
-                });
-
-            } catch (err) {
-                console.warn("Web Audio API fallback ke audio tag:", err);
+                if (soundKey === "bel_sekolah_panjang") {
+                    // Bel Sekolah Panjang Dual Tone (8 Detik)
+                    [0, 0.4, 0.8, 1.2, 2.0, 2.4, 2.8, 3.2, 4.0, 4.4, 4.8, 5.2, 6.0, 6.4, 6.8, 7.2].forEach((offset, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(idx % 2 === 0 ? 659.25 : 523.25, now + offset);
+                        gain.gain.setValueAtTime(0.45, now + offset);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.38);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + offset);
+                        osc.stop(now + offset + 0.4);
+                    });
+                } else if (soundKey === "chime_melodis_panjang") {
+                    // Chime Melodis 8-Note Panjang (6 Detik)
+                    [523.25, 659.25, 783.99, 1046.50, 783.99, 659.25, 523.25, 1046.50, 523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const offset = idx * 0.35;
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + offset);
+                        gain.gain.setValueAtTime(0.45, now + offset);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.55);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + offset);
+                        osc.stop(now + offset + 0.6);
+                    });
+                } else if (soundKey === "bel_sekolah") {
+                    [0, 0.4, 0.8, 1.2].forEach((offset, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(idx % 2 === 0 ? 659.25 : 523.25, now + offset);
+                        gain.gain.setValueAtTime(0.4, now + offset);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.35);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + offset);
+                        osc.stop(now + offset + 0.4);
+                    });
+                } else if (soundKey === "digital_beep") {
+                    [0, 0.2, 0.4].forEach(offset => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(880, now + offset);
+                        gain.gain.setValueAtTime(0.2, now + offset);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.12);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + offset);
+                        osc.stop(now + offset + 0.15);
+                    });
+                } else if (soundKey === "chime_melodis") {
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const offset = idx * 0.15;
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + offset);
+                        gain.gain.setValueAtTime(0.4, now + offset);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.5);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now + offset);
+                        osc.stop(now + offset + 0.5);
+                    });
+                } else if (soundKey === "siren_soft") {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.5);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.6);
+                }
+            } catch (e) {
+                console.warn("Synthesizer audio error, fallback to element", e);
+                const audio = document.getElementById('suaraAlarm');
+                if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
             }
+        };
 
-            // Putar audio tag cadangan
-            const audioEl = document.getElementById('suaraAlarm');
-            if (audioEl) {
-                audioEl.currentTime = 0;
-                audioEl.volume = 1.0;
-                audioEl.play().catch(() => {});
-            }
+        let guruDipilihAlarmVal = "";
+        let nadaDipilihAlarmVal = "bel_sekolah_panjang";
+        let waktuDipilihAlarmVal = 5;
+        let listGuruMasterAlarm = [];
 
-            // Getaran HP (jika dibuka dari ponsel pintar)
-            if (navigator.vibrate) {
-                navigator.vibrate([800, 250, 800, 250, 800, 250, 1000]);
-            }
-        }
-
-        // ========================================================
-        // PENDAFTARAN SERVICE WORKER & NOTIFIKASI LAYAR TERDEPAN
-        // ========================================================
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').then((reg) => {
-                console.log("Service Worker aktif:", reg.scope);
-            }).catch((err) => {
-                console.warn("Service Worker gagal didaftarkan:", err);
+        window.pilihGuruAlarm = function(namaGuru) {
+            guruDipilihAlarmVal = namaGuru;
+            const elTeks = document.getElementById('teksGuruDipilihStr');
+            if (elTeks) elTeks.innerText = namaGuru || "Belum Dipilih";
+            
+            document.querySelectorAll('.btn-guru-item').forEach(btn => {
+                if (btn.dataset.nama === namaGuru) {
+                    btn.style.backgroundColor = '#F59E0B';
+                    btn.style.color = '#020617';
+                } else {
+                    btn.style.backgroundColor = '#0F172A';
+                    btn.style.color = '#FFFFFF';
+                }
             });
-        }
+        };
 
-        async function mintaIzinNotifikasiSistem() {
-            if (!("Notification" in window)) {
-                return false;
+        window.filterListGuruAlarm = function() {
+            const q = (document.getElementById('cariGuruAlarm')?.value || "").trim().toLowerCase();
+            const container = document.getElementById('containerListGuruCustom');
+            if (!container) return;
+            container.innerHTML = "";
+            
+            let filtered = listGuruMasterAlarm.filter(n => n.toLowerCase().includes(q));
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-center py-4 text-slate-400 text-xs font-bold">Guru tidak ditemukan</p>`;
+                return;
             }
-            if (Notification.permission === "granted") {
-                return true;
-            }
-            if (Notification.permission === "denied") {
-                alert("⚠️ Izin Notifikasi Diblokir oleh Browser!\n\nAgar notifikasi dan alarm jadwal mengajar dapat muncul di layar terdepan (desktop/layar kunci) saat Anda membuka aplikasi lain, silakan klik ikon 'Gembok' atau 'Setelan Situs' di sebelah kiri URL browser Anda, lalu ubah izin 'Notifikasi' menjadi 'Izinkan' (Allow).");
-                return false;
-            }
-            try {
-                const res = await Notification.requestPermission();
-                return res === "granted";
-            } catch(e) {
-                return false;
-            }
-        }
+            
+            filtered.forEach(nama => {
+                const isSel = (nama === guruDipilihAlarmVal);
+                const bg = isSel ? '#F59E0B' : '#0F172A';
+                const col = isSel ? '#020617' : '#FFFFFF';
+                container.insertAdjacentHTML('beforeend', `
+                    <button type="button" onclick="pilihGuruAlarm('${nama}')" data-nama="${nama}" class="btn-guru-item w-full text-left p-2.5 rounded-lg font-bold text-sm transition flex items-center justify-between" style="background-color: ${bg} !important; color: ${col} !important;">
+                        <span>👨‍🏫 ${nama}</span>
+                        ${isSel ? '<span>✅</span>' : ''}
+                    </button>
+                `);
+            });
+        };
 
-        async function munculkanNotifikasiLayarTerdepan(judul, pesan, jam) {
-            // 1. Tampilkan banner internal di dalam aplikasi
-            tampilkanBannerBel(judul, pesan, jam);
+        window.pilihNadaAlarm = function(soundKey) {
+            nadaDipilihAlarmVal = soundKey;
+            document.querySelectorAll('.card-nada-item').forEach(card => {
+                card.style.borderColor = '#334155';
+            });
+            const activeCard = document.getElementById(`card_nada_${soundKey}`);
+            if (activeCard) activeCard.style.borderColor = '#F59E0B';
+        };
 
-            // 2. Tampilkan notifikasi sistem level OS (muncul di layar terdepan laptop/HP)
-            if (!("Notification" in window)) return;
+        window.tesSuaraSpesifik = function(soundKey) {
+            bunyikanAlarm(soundKey);
+        };
 
-            const izin = await mintaIzinNotifikasiSistem();
-            if (!izin) return;
-
-            const opsiNotif = {
-                body: pesan,
-                icon: "logo1.png",
-                badge: "logo1.png",
-                vibrate: [800, 250, 800, 250, 800, 250, 1000],
-                tag: `alarm-${jam}`,
-                renotify: true,
-                requireInteraction: true // Di Windows & Android: tetap mengapung di layar terdepan sampai diklik / ditutup
-            };
-
-            // Jalur 1: Service Worker (Sangat stabil di Windows background & Wajib untuk Android Chrome)
-            try {
-                if ('serviceWorker' in navigator) {
-                    const reg = await navigator.serviceWorker.ready;
-                    if (reg && reg.showNotification) {
-                        await reg.showNotification(judul, opsiNotif);
-                        return;
+        window.pilihWaktuPill = function(minutes) {
+            waktuDipilihAlarmVal = minutes;
+            [0, 5, 10, 15].forEach(m => {
+                const btn = document.getElementById(`pill_waktu_${m}`);
+                if (btn) {
+                    if (m === minutes) {
+                        btn.style.backgroundColor = '#F59E0B';
+                        btn.style.color = '#020617';
+                        btn.style.borderColor = '#FDE047';
+                    } else {
+                        btn.style.backgroundColor = '#1E293B';
+                        btn.style.color = '#FFFFFF';
+                        btn.style.borderColor = '#334155';
                     }
                 }
-            } catch(e) {
-                console.warn("ServiceWorker showNotification fallback:", e);
-            }
-
-            // Jalur 2: Native Notification API (Fallback)
-            try {
-                const notif = new Notification(judul, opsiNotif);
-                notif.onclick = () => {
-                    window.focus();
-                    notif.close();
-                    window.hentikanSuaraBel();
-                };
-            } catch(e) {
-                console.warn("Notification constructor fallback:", e);
-            }
-        }
-
-        function tampilkanBannerBel(judul, pesan, jam) {
-            const banner = document.getElementById('bannerNotifBel');
-            const judulEl = document.getElementById('judulBannerBel');
-            const pesanEl = document.getElementById('pesanBannerBel');
-            if (banner && judulEl && pesanEl) {
-                judulEl.innerText = `${judul} (${jam})`;
-                pesanEl.innerText = pesan;
-                banner.classList.remove('hidden');
-            }
-        }
-
-        window.tesBunyiBel = async function() {
-            await getAudioContextReady();
-            await putarBelSekolahKeras();
-            await munculkanNotifikasiLayarTerdepan(
-                "🔔 UJI COBA NOTIFIKASI LAYAR", 
-                "Notifikasi ini berhasil muncul di layar terdepan laptop/HP Anda meskipun sedang membuka aplikasi lain atau browser diminimalkan!", 
-                "Sekarang"
-            );
+            });
         };
 
-        window.toggleAlarm = async function() {
-            const guruAktif = document.getElementById('filterGuru') ? document.getElementById('filterGuru').value : "Semua";
+        window.tesSuaraAlarm = function() {
+            bunyikanAlarm(nadaDipilihAlarmVal);
+        };
 
-            if (isAlarmAktif) {
-                // Matikan Alarm
-                isAlarmAktif = false;
-                if (intervalAlarm) clearInterval(intervalAlarm);
-                intervalAlarm = null;
-                window.hentikanSuaraBel();
-                localStorage.removeItem('alarm_aktif_guru');
-                updateStatusTombolAlarm();
-                alert("🔕 Alarm mengajar telah dinonaktifkan.");
-                return;
-            }
-
-            // Validasi: Wajib memilih nama Guru spesifik agar alarm tidak bunyi untuk jadwal guru lain!
-            if (!guruAktif || guruAktif === "Semua") {
-                alert("⚠️ SILAKAN PILIH NAMA GURU ANDA TERLEBIH DAHULU!\n\nPada kotak filter 'Guru' di atas, silakan pilih nama Anda sendiri.\n\nAlarm dirancang khusus agar berdering HANYA pada jam mengajar Anda sendiri, sehingga tidak akan berbunyi saat guru lain yang mengajar.");
-                if (tomGuru) tomGuru.focus();
-                return;
-            }
-
-            // Buka Web Audio Context pada klik pengguna
-            await getAudioContextReady();
-
-            // Minta izin notifikasi layar terdepan
-            await mintaIzinNotifikasiSistem();
-
-            isAlarmAktif = true;
-            localStorage.setItem('guru_terpilih', guruAktif);
-            localStorage.setItem('alarm_aktif_guru', guruAktif);
-            updateStatusTombolAlarm();
-
-            // Tampilkan konfirmasi notifikasi sistem uji coba kilat di layar
-            await munculkanNotifikasiLayarTerdepan(
-                "✅ ALARM DIAKTIFKAN", 
-                `Alarm jadwal mengajar aktif untuk Bpk/Ibu ${guruAktif}. Notifikasi akan muncul otomatis di layar terdepan.`, 
-                "Siaga"
-            );
-
-            // Rangkum jadwal hari ini untuk kepastian guru
-            const sekarang = new Date();
-            const hariIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-            const hariIni = hariIndo[sekarang.getDay()];
-            const hariIniNorm = normalisasiHari(hariIni);
-            const jadwalHariIni = semuaJadwal.filter(j => {
-                let h = normalisasiHari(j.hari);
-                let g = (j.guru || "").trim().toLowerCase();
-                return h === hariIniNorm && g === guruAktif.trim().toLowerCase();
+        window.bukaModalAlarm = function() {
+            let mapGuru = new Map();
+            semuaJadwal.forEach(j => {
+                if (j.guru && j.guru.trim()) {
+                    let upper = j.guru.trim().toUpperCase();
+                    if (!mapGuru.has(upper)) mapGuru.set(upper, j.guru.trim());
+                }
             });
 
-            let pesanJadwal = `Jadwal mengajar Anda hari ini (${hariIni}):\n`;
-            if (jadwalHariIni.length > 0) {
-                jadwalHariIni.sort((a,b) => (a.waktu||'').localeCompare(b.waktu||''));
-                jadwalHariIni.forEach(j => {
-                    pesanJadwal += `• Jam ${j.waktu || j.jam_ke} : Kelas ${j.kelas} (${j.mapel})\n`;
-                });
+            listGuruMasterAlarm = Array.from(mapGuru.values()).sort((a,b) => a.localeCompare(b));
+            
+            const saved = JSON.parse(localStorage.getItem('rosterku_alarm_config') || '{}');
+            const guruAktifFilter = document.getElementById('filterGuru').value;
+
+            let guruDefault = "";
+            if (saved.guru) {
+                for (let val of mapGuru.values()) {
+                    if (val.toUpperCase() === saved.guru.toUpperCase()) {
+                        guruDefault = val;
+                        break;
+                    }
+                }
+            } else if (guruAktifFilter !== "Semua") {
+                guruDefault = guruAktifFilter;
+            }
+
+            pilihGuruAlarm(guruDefault);
+            filterListGuruAlarm();
+
+            if (saved.sound) pilihNadaAlarm(saved.sound);
+            else pilihNadaAlarm("bel_sekolah_panjang");
+
+            if (saved.leadMinutes !== undefined) pilihWaktuPill(saved.leadMinutes);
+            else pilihWaktuPill(5);
+
+            const teksStatus = document.getElementById('teksStatusAlarm');
+            if (saved.active && saved.guru) {
+                teksStatus.innerText = `AKTIF untuk Guru (${saved.guru})`;
+                teksStatus.className = "font-bold text-amber-400";
             } else {
-                pesanJadwal += `(Tidak ada jadwal mengajar pada hari ${hariIni})\n`;
+                teksStatus.innerText = "Belum Aktif";
+                teksStatus.className = "font-semibold text-slate-400";
             }
 
-            alert(`🔔 ALARM JADWAL BERHASIL DIAKTIFKAN!\n\n👨‍🏫 Guru: ${guruAktif}\n\n${pesanJadwal}\nAlarm akan otomatis berdering keras di SETIAP jam mengajar Anda di atas.\nPastikan tab ini tetap terbuka dan volume perangkat aktif.`);
-
-            if (intervalAlarm) clearInterval(intervalAlarm);
-            intervalAlarm = setInterval(cekWaktuPelajaran, 5000); // Periksa tiap 5 detik
-            cekWaktuPelajaran();
+            document.getElementById('modalPengaturanAlarm').classList.remove('hidden');
         };
 
-        function parseJamMulai(strWaktu) {
-            if (!strWaktu) return null;
-            const str = String(strWaktu).trim();
-            const bagianAwal = str.split(/[-–—]/)[0].trim();
-            const match = bagianAwal.match(/(\d{1,2})[:.](\d{2})/);
-            if (!match) return null;
-            const h = parseInt(match[1], 10);
-            const m = parseInt(match[2], 10);
-            if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
-                return {
-                    jamStr: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`,
-                    menitTotal: (h * 60) + m
-                };
+        window.simpanPengaturanAlarm = async function() {
+            const guru = guruDipilihAlarmVal;
+            const sound = nadaDipilihAlarmVal;
+            const leadMinutes = waktuDipilihAlarmVal;
+
+            if (!guru) {
+                alert("⚠️ Silakan pilih Nama Anda terlebih dahulu!");
+                return;
             }
-            return null;
+
+            bunyikanAlarm(sound);
+
+            const config = {
+                active: true,
+                guru: guru,
+                sound: sound,
+                leadMinutes: leadMinutes
+            };
+            localStorage.setItem('rosterku_alarm_config', JSON.stringify(config));
+
+            if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+                try {
+                    await window.Capacitor.Plugins.LocalNotifications.requestPermissions();
+                } catch (e) { console.log("Izin local notifications native:", e); }
+            } else if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+                try {
+                    await Notification.requestPermission();
+                } catch (e) {}
+            }
+
+            updateBtnAlarmUI(config);
+            mulaiPantauWaktu();
+            tutupModal('modalPengaturanAlarm');
+
+            let leadText = leadMinutes === 0 ? "saat jam kelas dimulai" : `${leadMinutes} menit sebelum kelas`;
+            alert(`✅ Alarm berhasil diaktifkan untuk Guru: ${guru}!\nSistem akan berbunyi & memberikan notifikasi ${leadText}.`);
+        };
+
+        window.matikanAlarmDisini = function() {
+            localStorage.removeItem('rosterku_alarm_config');
+            if (intervalAlarm) clearInterval(intervalAlarm);
+            updateBtnAlarmUI({ active: false });
+            tutupModal('modalPengaturanAlarm');
+            alert("🔴 Alarm telah dimatikan.");
+        };
+
+        function updateBtnAlarmUI(config) {
+            const btn = document.getElementById('btnNotif');
+            if (!btn) return;
+            if (config && config.active && config.guru) {
+                btn.className = "mt-auto h-[46px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-emerald-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto";
+                let firstWord = config.guru.split(' ')[0];
+                btn.innerHTML = `<span>✅</span> Alarm: ${firstWord}`;
+            } else {
+                btn.className = "mt-auto h-[46px] bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-md shadow-blue-200 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 w-full md:w-auto";
+                btn.innerHTML = `<span>🔔</span> Pengaturan Alarm`;
+            }
         }
 
-        async function cekWaktuPelajaran() {
-            if (!isAlarmAktif || semuaJadwal.length === 0) return;
+        function mulaiPantauWaktu() {
+            if (intervalAlarm) clearInterval(intervalAlarm);
+            intervalAlarm = setInterval(cekJadwalSekarang, 25000);
+            cekJadwalSekarang(); 
+        }
 
-            const guruAktif = document.getElementById('filterGuru') ? document.getElementById('filterGuru').value : "Semua";
-            // KUNCI: Alarm HANYA berbunyi jika nama guru spesifik dipilih (TIDAK berbunyi jika 'Semua')!
-            if (!guruAktif || guruAktif === "Semua") return;
-
-            // Bangunkan AudioContext jika sempat tertidur di latar belakang
-            if (audioCtx && audioCtx.state === 'suspended') {
-                try { await audioCtx.resume(); } catch(e) {}
+        function cekJadwalSekarang() {
+            const config = JSON.parse(localStorage.getItem('rosterku_alarm_config') || '{}');
+            if (!config.active || !config.guru) {
+                if (intervalAlarm) clearInterval(intervalAlarm);
+                updateBtnAlarmUI({ active: false });
+                return;
             }
+
+            updateBtnAlarmUI(config);
+
+            const guruTargetUpper = config.guru.trim().toUpperCase();
+            const leadTime = parseInt(config.leadMinutes !== undefined ? config.leadMinutes : 5, 10);
 
             const sekarang = new Date();
+            const jam = sekarang.getHours().toString().padStart(2, '0');
+            const menit = sekarang.getMinutes().toString().padStart(2, '0');
+            const waktuSekarangStr = `${jam}:${menit}`;
+
             const hariIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-            const hariIni = hariIndo[sekarang.getDay()];
-            const hariIniNorm = normalisasiHari(hariIni);
+            const hariIni = hariIndo[sekarang.getDay()].toLowerCase();
 
-            const jam = sekarang.getHours();
-            const menit = sekarang.getMinutes();
-            const totalMenitSekarang = (jam * 60) + menit;
-            const tglHariIni = `${sekarang.getFullYear()}-${String(sekarang.getMonth() + 1).padStart(2, '0')}-${String(sekarang.getDate()).padStart(2, '0')}`;
+            semuaJadwal.forEach(j => {
+                let hariJadwal = (j.hari || "").trim().toLowerCase();
+                let guruJadwalUpper = (j.guru || "").trim().toUpperCase();
+                
+                if (hariJadwal === hariIni && guruJadwalUpper === guruTargetUpper) {
+                    let jamMulai = "";
+                    if(j.waktu && j.waktu.includes('-')) {
+                        jamMulai = j.waktu.split('-')[0].trim();
+                    } else if (j.waktu && j.waktu.includes(':')) {
+                        jamMulai = j.waktu.trim();
+                    }
 
-            // Filter ketat HANYA jadwal guru terpilih untuk hari ini
-            const jadwalGuruHariIni = semuaJadwal.filter(j => {
-                let h = normalisasiHari(j.hari);
-                if (h !== hariIniNorm) return false;
-                let g = (j.guru || "").trim().toLowerCase();
-                return g === guruAktif.trim().toLowerCase();
-            });
-
-            if (jadwalGuruHariIni.length === 0) return;
-
-            // Kelompokkan jadwal berdasarkan jam mulai
-            const mapJamMulai = new Map();
-            jadwalGuruHariIni.forEach(j => {
-                const infoW = parseJamMulai(j.waktu || j.jam_ke);
-                if (!infoW) return;
-                if (!mapJamMulai.has(infoW.jamStr)) {
-                    mapJamMulai.set(infoW.jamStr, { ...infoW, list: [] });
-                }
-                mapJamMulai.get(infoW.jamStr).list.push(j);
-            });
-
-            // Periksa setiap jam mengajar guru ini
-            mapJamMulai.forEach(async (info) => {
-                const keyUnik = `${tglHariIni}|${guruAktif.trim().toLowerCase()}|${info.jamStr}`;
-
-                // Jangan bunyikan lagi jika jam mengajar ini sudah berbunyi hari ini
-                if (riwayatBelHariIni.has(keyUnik)) return;
-
-                const selisih = info.menitTotal - totalMenitSekarang;
-
-                // Toleransi: Berbunyi tepat waktu (0 menit) atau hingga 2 menit setelahnya jika tab sempat tertahan di latar belakang
-                if (selisih >= -2 && selisih <= 0) {
-                    riwayatBelHariIni.add(keyUnik);
-
-                    // Bunyikan Alarm Lonceng Sekolah Keras
-                    await putarBelSekolahKeras();
-
-                    const item = info.list[0];
-                    const deskripsi = `Waktunya Mengajar: Kelas ${item.kelas} • Mapel: ${item.mapel}`;
-                    await munculkanNotifikasiLayarTerdepan(
-                        `🔔 ALARM JADWAL MENGAJAR (${info.jamStr})`, 
-                        `${deskripsi}\nBpk/Ibu ${guruAktif}`, 
-                        info.jamStr
-                    );
+                    if (jamMulai !== "") {
+                        let selisih = hitungSelisihMenit(waktuSekarangStr, jamMulai);
+                        if (selisih === leadTime) {
+                            const notifKey = `notif_${j.id}_${sekarang.toDateString()}_${waktuSekarangStr}`;
+                            if (!sessionStorage.getItem(notifKey)) {
+                                sessionStorage.setItem(notifKey, "true");
+                                bunyikanAlarm(config.sound || "bel_sekolah");
+                                munculkanNotifikasi(j.mapel, j.kelas, jamMulai, leadTime, config.sound);
+                            }
+                        }
+                    }
                 }
             });
         }
 
-        // Tangani saat layar HP dihidupkan kembali atau tab kembali dibuka
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && isAlarmAktif) {
-                if (audioCtx && audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-                cekWaktuPelajaran();
-            }
-        });
-        window.addEventListener('focus', () => {
-            if (isAlarmAktif) {
-                if (audioCtx && audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-                cekWaktuPelajaran();
-            }
-        });
+        function hitungSelisihMenit(waktuSekarang, waktuTujuan) {
+            if(!waktuSekarang.includes(':') || !waktuTujuan.includes(':')) return -999;
+            const [h1, m1] = waktuSekarang.split(':').map(Number);
+            const [h2, m2] = waktuTujuan.split(':').map(Number);
+            const menitSekarangTotal = (h1 * 60) + m1;
+            const menitTujuanTotal = (h2 * 60) + m2;
+            return menitTujuanTotal - menitSekarangTotal;
+        }
 
-        // Inisialisasi status tombol alarm saat pertama kali buka
-        setTimeout(updateStatusTombolAlarm, 100);
+        window.bukaBannerPengingat = function(pesan) {
+            const el = document.getElementById('bannerAlarmPopup');
+            if (el) {
+                document.getElementById('teksPesanBanner').innerText = pesan;
+                el.classList.remove('hidden');
+            } else {
+                alert(pesan);
+            }
+        };
+
+        window.tutupBannerAlarm = function() {
+            const el = document.getElementById('bannerAlarmPopup');
+            if (el) el.classList.add('hidden');
+        };
+
+        async function munculkanNotifikasi(mapel, kelas, jam, leadTime, soundKey) {
+            bunyikanAlarm(soundKey || "bel_sekolah");
+            let keteranganWaktu = leadTime === 0 ? `sekarang (Jam ${jam})` : `${leadTime} menit lagi (Jam ${jam})`;
+            const pesan = `Persiapan Mengajar! ${keteranganWaktu} di Kelas ${kelas} (Mapel: ${mapel}).`;
+            
+            // 1. Native Capacitor Local Notification (Android APK)
+            if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+                try {
+                    await window.Capacitor.Plugins.LocalNotifications.schedule({
+                        notifications: [
+                            {
+                                title: "ROSTERKU - Panggilan Mengajar!",
+                                body: pesan,
+                                id: Math.floor(Math.random() * 100000),
+                                schedule: { at: new Date(Date.now() + 100) },
+                                sound: null,
+                                actionTypeId: "",
+                                extra: null
+                            }
+                        ]
+                    });
+                } catch (e) {
+                    console.log("Native Capacitor notification error:", e);
+                }
+            }
+
+            // 2. Web Notification API (Browser)
+            if ("Notification" in window && Notification.permission === "granted") {
+                try {
+                    const notif = new Notification("ROSTERKU - Panggilan Mengajar!", {
+                        body: pesan,
+                        icon: "logo1.png",
+                        requireInteraction: true 
+                    });
+
+                    notif.onclick = () => { 
+                        window.focus(); 
+                        notif.close();
+                    };
+                } catch (e) {}
+            }
+            
+            // 3. Tampilkan Banner Pop-up dalam aplikasi
+            bukaBannerPengingat(pesan);
+        }
+
+        // Auto-check saved alarm on load
+        setTimeout(() => {
+            const saved = JSON.parse(localStorage.getItem('rosterku_alarm_config') || '{}');
+            if (saved.active && saved.guru) {
+                updateBtnAlarmUI(saved);
+                mulaiPantauWaktu();
+            }
+        }, 1000);
     </script>
 </body>
 </html>
