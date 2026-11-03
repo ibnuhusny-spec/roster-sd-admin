@@ -66,27 +66,36 @@
             <button type="submit" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-xl text-base shadow-lg transition transform hover:-translate-y-0.5">
                 Masuk ke Admin
             </button>
-            <p id="pesanError" class="text-red-400 text-sm font-bold mt-2 hidden">Email atau password salah!</p>
+
+            <!-- KOTAK PESAN ERROR JIKA PASSWORD SALAH + TOMBOL LANGSUNG GANTI PASSWORD -->
+            <div id="pesanError" class="p-3 bg-red-950/80 border border-red-500/50 rounded-xl text-left hidden space-y-2 mt-2">
+                <p class="text-red-300 text-xs font-bold flex items-center gap-1.5">
+                    <span>❌</span> Email atau password yang Anda masukkan salah.
+                </p>
+                <button type="button" onclick="bukaModalLupaPassword()" class="w-full py-2 px-3 bg-amber-500 text-slate-950 font-extrabold text-xs rounded-lg shadow hover:bg-amber-400 transition flex items-center justify-center gap-1">
+                    <span>🔑</span> Lupa Password? Klik Di Sini untuk Ganti
+                </button>
+            </div>
         </form>
 
-        <!-- FITUR LUPA / GANTI PASSWORD -->
-        <div class="mt-4 flex flex-col items-center gap-2">
-            <button type="button" onclick="bukaModalLupaPassword()" class="text-amber-400 hover:text-amber-300 font-bold text-sm underline flex items-center gap-1.5 transition">
-                <span>🔑</span> Lupa Password? / Atur Ulang
+        <!-- TOMBOL UTAMA: GANTI PASSWORD KARENA LUPA -->
+        <div class="mt-5 pt-4 border-t border-slate-800">
+            <button type="button" onclick="bukaModalLupaPassword()" class="w-full py-3 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 hover:text-amber-200 border-2 border-amber-500/50 hover:border-amber-400 rounded-xl font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-lg">
+                <span>🔑</span> Ganti Password (Karena Lupa)
             </button>
         </div>
         
-        <div class="mt-6 border-t border-slate-800 pt-4">
+        <div class="mt-4 pt-3 border-t border-slate-800/60">
             <a href="index.html" class="text-xs text-amber-300 hover:underline font-semibold">🏠 Kembali ke Halaman Depan</a>
         </div>
     </div>
 
-    <!-- MODAL LUPA PASSWORD (LUXURY DARK GOLD) -->
+    <!-- MODAL GANTI PASSWORD KARENA LUPA (LUXURY DARK GOLD) -->
     <div id="modalLupaPassword" class="fixed inset-0 z-50 hidden bg-black/85 flex items-center justify-center p-4 backdrop-blur-md overflow-y-auto">
         <div class="bg-slate-900 border-2 border-amber-500/50 p-6 rounded-3xl shadow-2xl w-full max-w-md text-left backdrop-blur-md my-auto">
             <div class="flex justify-between items-center border-b border-amber-500/30 pb-3 mb-4">
                 <h3 class="text-lg font-cinzel font-extrabold text-gold-gradient flex items-center gap-2">
-                    <span>🔑</span> Pemulihan Password Admin
+                    <span>🔑</span> Ganti Password (Karena Lupa)
                 </h3>
                 <button type="button" onclick="tutupModalLupaPassword()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white font-bold flex items-center justify-center border border-slate-700">
                     &times;
@@ -106,7 +115,7 @@
             <!-- TAB 1: KIRIM KE EMAIL -->
             <div id="kontenTabEmail" class="space-y-4">
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    Sistem Firebase akan mengirimkan <strong>tautan (link) reset password</strong> langsung ke email admin Anda.
+                    Sistem Firebase akan mengirimkan <strong>tautan (link) ganti password</strong> langsung ke email admin Anda.
                 </p>
                 <div>
                     <label class="block text-xs font-bold text-amber-300 mb-1">Email Admin Terdaftar:</label>
@@ -118,14 +127,14 @@
                     </div>
                 </div>
                 <button type="button" id="btnKirimReset" onclick="prosesKirimResetEmail()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-xl text-sm shadow-lg transition flex items-center justify-center gap-2">
-                    <span>📩</span> Kirim Link Reset Password
+                    <span>📩</span> Kirim Link Ganti Password
                 </button>
             </div>
 
             <!-- TAB 2: KUNCI PEMULIHAN MASTER -->
             <div id="kontenTabKunci" class="space-y-4 hidden">
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    Gunakan opsi ini jika Anda <strong>lupa alamat email</strong> atau <strong>tidak bisa membuka kotak masuk email</strong>.
+                    Gunakan opsi ini jika Anda <strong>lupa email yang terdaftar</strong> atau <strong>tidak bisa membuka email</strong> untuk langsung membuat password baru.
                 </p>
                 <div>
                     <label class="block text-xs font-bold text-amber-300 mb-1">Email Admin Baru / Pilihan Anda:</label>
@@ -141,12 +150,12 @@
                     <input type="password" id="passwordMasterBaru" placeholder="Ketik password baru Anda" class="w-full p-3 border-2 border-amber-500/40 rounded-xl bg-slate-800 text-white font-bold text-sm placeholder-slate-500 focus:outline-none focus:border-amber-400">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-amber-300 mb-1">Kunci Pemulihan Master:</label>
-                    <input type="text" id="kunciPemulihanMaster" placeholder="Ketik Kunci Pemulihan Sekolah" class="w-full p-3 border-2 border-amber-500/40 rounded-xl bg-slate-800 text-amber-300 font-extrabold text-sm placeholder-slate-500 focus:outline-none focus:border-amber-400">
+                    <label class="block text-xs font-bold text-amber-300 mb-1">Kunci Pemulihan Master Sekolah:</label>
+                    <input type="text" id="kunciPemulihanMaster" placeholder="Ketik: ROSTERKU2026" class="w-full p-3 border-2 border-amber-500/40 rounded-xl bg-slate-800 text-amber-300 font-extrabold text-sm placeholder-slate-500 focus:outline-none focus:border-amber-400">
                     <p class="text-[11px] text-slate-400 mt-1">Kunci Pemulihan: <span class="text-amber-400 font-mono font-bold">ROSTERKU2026</span></p>
                 </div>
                 <button type="button" id="btnProsesKunciMaster" onclick="prosesResetKunciMaster()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-xl text-sm shadow-lg transition flex items-center justify-center gap-2">
-                    <span>✨</span> Atur & Aktifkan Admin Baru
+                    <span>✨</span> Ganti & Aktifkan Password Baru Sekarang
                 </button>
             </div>
 
@@ -190,13 +199,10 @@
             const inputEl = document.getElementById(idInput);
             try {
                 let text = "";
-                // 1. Coba gunakan Native Capacitor Clipboard Plugin (Android Native)
                 if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Clipboard) {
                     const result = await window.Capacitor.Plugins.Clipboard.read();
                     text = result.value || result.str || "";
-                } 
-                // 2. Fallback ke Web standard clipboard
-                else if (navigator.clipboard && navigator.clipboard.readText) {
+                } else if (navigator.clipboard && navigator.clipboard.readText) {
                     text = await navigator.clipboard.readText();
                 }
 
@@ -249,6 +255,13 @@
                 kontenEmail.classList.add('hidden');
             }
         };
+
+        // Otomatis buka modal jika URL memiliki hash #lupa
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.location.hash === '#lupa') {
+                bukaModalLupaPassword();
+            }
+        });
     </script>
 
     <script type="module">
@@ -259,7 +272,6 @@
         const formLogin = document.getElementById("formLogin");
         const pesanError = document.getElementById("pesanError");
 
-        // Ketika tombol "Masuk" ditekan
         formLogin.addEventListener("submit", (event) => {
             event.preventDefault();
             
