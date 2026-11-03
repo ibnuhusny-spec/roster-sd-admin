@@ -13,7 +13,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cinzel:wght@600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -563,7 +563,7 @@
                 let arr = Array.from(mapOpsi.values());
                 
                 if (tipe === "Hari") {
-                    const urut = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
+                    const urut = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "jum'at":5, "jum’at":5, "sabtu":6, "minggu":7 };
                     arr.sort((a,b) => (urut[a.toLowerCase()] || 99) - (urut[b.toLowerCase()] || 99));
                 } else {
                     arr.sort((a,b) => a.localeCompare(b));
@@ -619,7 +619,7 @@
             jadwalTerfilter.sort((a, b) => {
                 let hariA = (a.hari || "").trim().toLowerCase();
                 let hariB = (b.hari || "").trim().toLowerCase();
-                const urutanHariKu = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
+                const urutanHariKu = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "jum'at":5, "jum’at":5, "sabtu":6, "minggu":7 };
                 
                 let nilaiHariA = urutanHariKu[hariA] || 99; 
                 let nilaiHariB = urutanHariKu[hariB] || 99;
@@ -735,8 +735,10 @@
                 }));
                 
                 let dataExport = semuaJadwal.filter(j => {
-                    let matchKelas = (kelasAktif === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasAktif.trim().toUpperCase());
-                    let matchHari = (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase());
+                let matchKelas = (kelasAktif === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasAktif.trim().toUpperCase());
+                let matchHari = (tpl === 'formal') 
+                    ? (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase())
+                    : true;
                     let matchGuru = (guruAktif === "Semua" || (j.guru || "").trim().toUpperCase() === guruAktif.trim().toUpperCase());
                     return matchKelas && matchHari && matchGuru;
                 });
@@ -744,7 +746,7 @@
                 dataExport.sort((a, b) => {
                     let hariA = (a.hari || "").trim().toLowerCase();
                     let hariB = (b.hari || "").trim().toLowerCase();
-                    const urut = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "sabtu":6, "minggu":7 };
+                    const urut = { "senin":1, "selasa":2, "rabu":3, "kamis":4, "jumat":5, "jum'at":5, "jum’at":5, "sabtu":6, "minggu":7 };
                     let nilaiHariA = urut[hariA] || 99; let nilaiHariB = urut[hariB] || 99;
                     if (nilaiHariA !== nilaiHariB) return nilaiHariA - nilaiHariB;
                     let m1 = (a.waktu||"").match(/\d+/g); let m2 = (b.waktu||"").match(/\d+/g);
@@ -878,6 +880,19 @@
             if (badge) badge.innerText = tplNames[tplId] || tplId;
         };
 
+        function normalisasiHariKey(hariStr) {
+            if (!hariStr) return "";
+            let s = String(hariStr).trim().toLowerCase().replace(/['`’\t\r\n \-_.]/g, '');
+            if (s.startsWith('sen') || s.includes('senin')) return 'senin';
+            if (s.startsWith('sel') || s.includes('selasa')) return 'selasa';
+            if (s.startsWith('rab') || s.includes('rabu')) return 'rabu';
+            if (s.startsWith('kam') || s.includes('kamis')) return 'kamis';
+            if (s.startsWith('jum') || s.includes('jum')) return 'jumat';
+            if (s.startsWith('sab') || s.includes('sabtu')) return 'sabtu';
+            if (s.startsWith('min') || s.includes('minggu') || s.startsWith('aha')) return 'minggu';
+            return s;
+        }
+
         function rapihkanJadwalPerHari(list) {
             if (!list || list.length === 0) return [];
             let items = [...list];
@@ -916,32 +931,32 @@
                 : ((guru !== "Semua" && guru !== "Semua Guru") ? ("GURU: " + guru.toUpperCase()) : "SEMUA KELAS");
 
             const hariConfig = [
-                { nama: "Senin", iconCeria: "🎒", iconGalaxy: "🚀", iconKawaii: "🐰", iconSafari: "🦁", iconOcean: "🐳" },
-                { nama: "Selasa", iconCeria: "📚", iconGalaxy: "🪐", iconKawaii: "🌸", iconSafari: "🦒", iconOcean: "🐬" },
-                { nama: "Rabu", iconCeria: "🎨", iconGalaxy: "🛰️", iconKawaii: "🍓", iconSafari: "🐵", iconOcean: "🐠" },
-                { nama: "Kamis", iconCeria: "📐", iconGalaxy: "🛸", iconKawaii: "🥕", iconSafari: "🦜", iconOcean: "🐢" },
-                { nama: "Jumat", iconCeria: "🕌", iconGalaxy: "⭐", iconKawaii: "🎀", iconSafari: "🌿", iconOcean: "🪸" },
-                { nama: "Sabtu", iconCeria: "⚽", iconGalaxy: "🌌", iconKawaii: "✨", iconSafari: "🏕️", iconOcean: "🦀" }
+                { key: "senin", nama: "Senin", display: "SENIN", iconCeria: "🎒", iconGalaxy: "🚀", iconKawaii: "🐰", iconSafari: "🦁", iconOcean: "🐳" },
+                { key: "selasa", nama: "Selasa", display: "SELASA", iconCeria: "📚", iconGalaxy: "🪐", iconKawaii: "🌸", iconSafari: "🦒", iconOcean: "🐬" },
+                { key: "rabu", nama: "Rabu", display: "RABU", iconCeria: "🎨", iconGalaxy: "🛰️", iconKawaii: "🍓", iconSafari: "🐵", iconOcean: "🐠" },
+                { key: "kamis", nama: "Kamis", display: "KAMIS", iconCeria: "📐", iconGalaxy: "🛸", iconKawaii: "🥕", iconSafari: "🦜", iconOcean: "🐢" },
+                { key: "jumat", nama: "Jumat", display: "JUM'AT", iconCeria: "🕌", iconGalaxy: "⭐", iconKawaii: "🎀", iconSafari: "🌿", iconOcean: "🪸" },
+                { key: "sabtu", nama: "Sabtu", display: "SABTU", iconCeria: "✨", iconGalaxy: "🌌", iconKawaii: "💖", iconSafari: "🧭", iconOcean: "🐚" }
             ];
 
             const themes = {
                 ceria: {
                     bgContainer: "linear-gradient(135deg, #FFFBEB 0%, #EFF6FF 50%, #FDF2F8 100%)",
-                    borderContainer: "6px solid #FCD34D",
+                    borderContainer: "5px solid #FCD34D",
                     titleColor: "#1E3A8A",
                     titleShadow: "2px 2px 0px #FDE047, 3px 3px 0px #F59E0B",
                     badgeBg: "#F59E0B",
                     badgeColor: "#1E293B",
                     cardBg: "#FFFFFF",
-                    cardBorder: "2px solid #E2E8F0",
-                    cardShadow: "0 4px 10px rgba(0,0,0,0.05)",
+                    cardBorder: "1.5px solid #E2E8F0",
+                    cardShadow: "0 3px 8px rgba(0,0,0,0.06)",
                     dayHeaders: [
                         "linear-gradient(135deg, #3B82F6, #1D4ED8)",
                         "linear-gradient(135deg, #F59E0B, #D97706)",
                         "linear-gradient(135deg, #10B981, #059669)",
                         "linear-gradient(135deg, #EC4899, #DB2777)",
-                        "linear-gradient(135deg, #8B5CF6, #7C3AED)",
-                        "linear-gradient(135deg, #14B8A6, #0D9488)"
+                        "linear-gradient(135deg, #0D9488, #0F766E)",
+                        "linear-gradient(135deg, #8B5CF6, #7C3AED)"
                     ],
                     timeBg: "#F1F5F9",
                     timeColor: "#334155",
@@ -949,19 +964,40 @@
                     guruColor: "#64748B",
                     quote: "🎒 Semangat Belajar Setiap Hari, Raih Prestasi Gemilang! ✨",
                     accentIcon: "🌟",
-                    emptyText: "Waktu Belajar Mandiri & Istirahat"
+                    emptyText: "Waktu Belajar Mandiri & Istirahat",
+                    hikmah: {
+                        title: "📖 MUTIARA ILMU",
+                        badge: "Kalam Santri",
+                        headerBg: "linear-gradient(135deg, #10B981, #059669)",
+                        bodyBg: "linear-gradient(180deg, #FFFFFF 0%, #FFFBEB 100%)",
+                        border: "1.5px solid #FCD34D",
+                        arabic: "طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ",
+                        arabicColor: "#1E3A8A",
+                        arti: "“Menuntut ilmu itu wajib atas setiap muslim.”",
+                        artiColor: "#334155",
+                        perawi: "📚 HR. Ibnu Majah",
+                        perawiColor: "#92400E",
+                        perawiBg: "#FEF3C7",
+                        mahfudzotArab: "مَنْ جَدَّ وَجَدَ • مَنْ سَارَ عَلَى الدَّرْبِ وَصَلَ",
+                        mahfudzotArti: "Siapa bersungguh-sungguh pasti berhasil • Berjalan di jalurnya pasti sampai",
+                        mahfudzotColor: "#047857",
+                        nasihat: "🎒 Adab Penuntut Ilmu: Awali Bismillah • Berbakti pada Guru • Amalkan Kebaikan ✨",
+                        nasihatBg: "#EFF6FF",
+                        nasihatColor: "#1D4ED8",
+                        nasihatBorder: "#BFDBFE"
+                    }
                 },
                 galaxy: {
                     bgContainer: "radial-gradient(circle at 15% 15%, #1E1B4B 0%, #0F172A 50%, #030712 100%)",
                     borderContainer: "5px solid #6366F1",
                     titleColor: "#38BDF8",
                     titleShadow: "0 0 10px rgba(56,189,248,0.8), 0 0 20px rgba(129,140,248,0.6)",
-                    badgeBg: "rgba(99, 102, 241, 0.25)",
+                    badgeBg: "rgba(99, 102, 241, 0.35)",
                     badgeColor: "#C7D2FE",
                     badgeBorder: "1.5px solid #818CF8",
-                    cardBg: "rgba(15, 23, 42, 0.9)",
+                    cardBg: "rgba(15, 23, 42, 0.92)",
                     cardBorder: "1.5px solid rgba(56, 189, 248, 0.4)",
-                    cardShadow: "0 6px 16px rgba(0,0,0,0.5)",
+                    cardShadow: "0 4px 12px rgba(0,0,0,0.4)",
                     dayHeaders: [
                         "linear-gradient(135deg, #4338CA, #6366F1)",
                         "linear-gradient(135deg, #0284C7, #38BDF8)",
@@ -976,25 +1012,46 @@
                     guruColor: "#94A3B8",
                     quote: "🚀 Menjelajah Luasnya Ilmu Pengetahuan Hingga Bintang Tertinggi! 🌟",
                     accentIcon: "🪐",
-                    emptyText: "Waktu Istirahat Awak Antariksa"
+                    emptyText: "Waktu Istirahat Awak Antariksa",
+                    hikmah: {
+                        title: "🌌 KALAM PENJELAJAH",
+                        badge: "Mutiara Ilmu",
+                        headerBg: "linear-gradient(135deg, #6366F1, #8B5CF6)",
+                        bodyBg: "linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 27, 75, 0.95) 100%)",
+                        border: "1.5px solid #818CF8",
+                        arabic: "مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ",
+                        arabicColor: "#38BDF8",
+                        arti: "“Siapa meniti jalan menuntut ilmu, Allah mudahkan baginya jalan ke Surga.”",
+                        artiColor: "#CBD5E1",
+                        perawi: "🚀 HR. Muslim",
+                        perawiColor: "#7DD3FC",
+                        perawiBg: "rgba(56, 189, 248, 0.2)",
+                        mahfudzotArab: "مَنْ جَدَّ وَجَدَ • مَنْ سَارَ عَلَى الدَّرْبِ وَصَلَ",
+                        mahfudzotArti: "Siapa bersungguh-sungguh pasti berhasil • Berjalan di jalurnya pasti sampai",
+                        mahfudzotColor: "#FDE047",
+                        nasihat: "⭐ Gapai Cita Antariksa: Niat Ikhlas • Tak Berhenti Belajar • Muliakan Guru & Ortu 🪐",
+                        nasihatBg: "rgba(99, 102, 241, 0.25)",
+                        nasihatColor: "#C7D2FE",
+                        nasihatBorder: "rgba(129, 140, 248, 0.4)"
+                    }
                 },
                 kawaii: {
                     bgContainer: "linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 50%, #FDF2F8 100%)",
-                    borderContainer: "6px solid #FDA4AF",
+                    borderContainer: "5px solid #FDA4AF",
                     titleColor: "#E11D48",
                     titleShadow: "2px 2px 0px #FECDD3, 3px 3px 0px #FDA4AF",
                     badgeBg: "#FB7185",
                     badgeColor: "#FFFFFF",
                     cardBg: "#FFFFFF",
-                    cardBorder: "2px solid #FDA4AF",
-                    cardShadow: "0 4px 12px rgba(244,63,94,0.1)",
+                    cardBorder: "1.5px solid #FDA4AF",
+                    cardShadow: "0 3px 8px rgba(244,63,94,0.1)",
                     dayHeaders: [
                         "linear-gradient(135deg, #F43F5E, #E11D48)",
                         "linear-gradient(135deg, #FB7185, #F43F5E)",
                         "linear-gradient(135deg, #F472B6, #DB2777)",
                         "linear-gradient(135deg, #FB923C, #F97316)",
-                        "linear-gradient(135deg, #C084FC, #9333EA)",
-                        "linear-gradient(135deg, #34D399, #059669)"
+                        "linear-gradient(135deg, #059669, #047857)",
+                        "linear-gradient(135deg, #C084FC, #9333EA)"
                     ],
                     timeBg: "#FFE4E6",
                     timeColor: "#BE123C",
@@ -1002,18 +1059,39 @@
                     guruColor: "#9F1239",
                     quote: "🌸 Belajar dengan Senang Hati dan Penuh Ceria Bersama Teman! 💖",
                     accentIcon: "🍓",
-                    emptyText: "Waktu Istirahat Ceria & Santai"
+                    emptyText: "Waktu Istirahat Ceria & Santai",
+                    hikmah: {
+                        title: "🌸 MUTIARA AKHLAK",
+                        badge: "Adab Santun",
+                        headerBg: "linear-gradient(135deg, #F43F5E, #FB7185)",
+                        bodyBg: "linear-gradient(180deg, #FFFFFF 0%, #FFF1F2 100%)",
+                        border: "1.5px solid #FDA4AF",
+                        arabic: "خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ",
+                        arabicColor: "#E11D48",
+                        arti: "“Sebaik-baik kalian adalah yang mempelajari Al-Qur'an dan mengajarkannya.”",
+                        artiColor: "#4B5563",
+                        perawi: "💖 HR. Al-Bukhari",
+                        perawiColor: "#BE123C",
+                        perawiBg: "#FFE4E6",
+                        mahfudzotArab: "رَبِّ زِدْنِي عِلْمًا وَارْزُقْنِي فَهْمًا",
+                        mahfudzotArti: "“Ya Tuhanku, tambahkanlah ilmuku dan karuniakanlah pemahaman yang luas.”",
+                        mahfudzotColor: "#DB2777",
+                        nasihat: "🎀 Adab Santri: Santun Berbicara • Sayangi Sahabat • Rendah Hati Selalu ✨",
+                        nasihatBg: "#FFF1F2",
+                        nasihatColor: "#9F1239",
+                        nasihatBorder: "#FECDD3"
+                    }
                 },
                 safari: {
                     bgContainer: "linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 40%, #FEF3C7 100%)",
-                    borderContainer: "6px solid #92400E",
+                    borderContainer: "5px solid #92400E",
                     titleColor: "#78350F",
                     titleShadow: "2px 2px 0px #FDE68A, 3px 3px 0px #D97706",
                     badgeBg: "#D97706",
                     badgeColor: "#FFFFFF",
                     cardBg: "#FFFBEB",
-                    cardBorder: "2px solid #B45309",
-                    cardShadow: "0 4px 10px rgba(180,83,9,0.1)",
+                    cardBorder: "1.5px solid #B45309",
+                    cardShadow: "0 3px 8px rgba(180,83,9,0.1)",
                     dayHeaders: [
                         "linear-gradient(180deg, #92400E, #78350F)",
                         "linear-gradient(180deg, #B45309, #92400E)",
@@ -1028,25 +1106,46 @@
                     guruColor: "#78350F",
                     quote: "🏕️ Teruslah Bertualang Mencari Ilmu di Alam Semesta yang Luas! 🌿",
                     accentIcon: "🧭",
-                    emptyText: "Waktu Istirahat di Perkemahan"
+                    emptyText: "Waktu Istirahat di Perkemahan",
+                    hikmah: {
+                        title: "🌿 PETUAH BIJAK",
+                        badge: "Kalam Rimba",
+                        headerBg: "linear-gradient(180deg, #059669, #047857)",
+                        bodyBg: "linear-gradient(180deg, #FFFFFF 0%, #FEF3C7 100%)",
+                        border: "1.5px solid #D97706",
+                        arabic: "اَلْعِلْمُ بِلَا عَمَلٍ كَالشَّجَرِ بِلَا ثَمَرٍ",
+                        arabicColor: "#78350F",
+                        arti: "“Ilmu tanpa amal laksana pohon yang rindang namun tanpa buah.”",
+                        artiColor: "#451A03",
+                        perawi: "🧭 Kalam Hikmah Santri",
+                        perawiColor: "#166534",
+                        perawiBg: "#DCFCE7",
+                        mahfudzotArab: "اَلْعِلْمُ فِي الصِّغَرِ كَالنَّقْشِ عَلَى الْحَجَرِ",
+                        mahfudzotArti: "“Menuntut ilmu di waktu kecil laksana mengukir di atas batu.”",
+                        mahfudzotColor: "#B45309",
+                        nasihat: "🏕️ Petualang Sejati: Pantang Putus Asa • Selalu Jujur • Gemar Membaca 🐾",
+                        nasihatBg: "#FEF3C7",
+                        nasihatColor: "#92400E",
+                        nasihatBorder: "#FDE68A"
+                    }
                 },
                 ocean: {
                     bgContainer: "linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 50%, #CCFBF1 100%)",
-                    borderContainer: "6px solid #0284C7",
+                    borderContainer: "5px solid #0284C7",
                     titleColor: "#0369A1",
                     titleShadow: "2px 2px 0px #BAE6FD, 3px 3px 0px #0284C7",
                     badgeBg: "#0284C7",
                     badgeColor: "#FFFFFF",
                     cardBg: "rgba(255, 255, 255, 0.96)",
-                    cardBorder: "2px solid #0EA5E9",
-                    cardShadow: "0 4px 10px rgba(2,132,199,0.1)",
+                    cardBorder: "1.5px solid #0EA5E9",
+                    cardShadow: "0 3px 8px rgba(2,132,199,0.1)",
                     dayHeaders: [
                         "linear-gradient(135deg, #0284C7, #0369A1)",
                         "linear-gradient(135deg, #0EA5E9, #0284C7)",
                         "linear-gradient(135deg, #06B6D4, #0891B2)",
                         "linear-gradient(135deg, #14B8A6, #0D9488)",
-                        "linear-gradient(135deg, #6366F1, #4F46E5)",
-                        "linear-gradient(135deg, #F43F5E, #E11D48)"
+                        "linear-gradient(135deg, #0284C7, #0EA5E9)",
+                        "linear-gradient(135deg, #6366F1, #4F46E5)"
                     ],
                     timeBg: "#E0F2FE",
                     timeColor: "#0369A1",
@@ -1054,7 +1153,28 @@
                     guruColor: "#0284C7",
                     quote: "🌊 Selami Lautan Ilmu Pengetahuan yang Begitu Luas Tak Bertepi! 🐳",
                     accentIcon: "🪸",
-                    emptyText: "Waktu Santai Berenang di Samudra"
+                    emptyText: "Waktu Santai Berenang di Samudra",
+                    hikmah: {
+                        title: "🌊 KALAM HIKMAH",
+                        badge: "Samudra Ilmu",
+                        headerBg: "linear-gradient(135deg, #0284C7, #0EA5E9)",
+                        bodyBg: "linear-gradient(180deg, #FFFFFF 0%, #F0F9FF 100%)",
+                        border: "1.5px solid #0EA5E9",
+                        arabic: "يَرْفَعِ اللّٰهُ الَّذِيْنَ اٰمَنُوْا مِنْكُمْ وَالَّذِيْنَ اُوْتُوا الْعِلْمَ دَرَجٰتٍ",
+                        arabicColor: "#0369A1",
+                        arti: "“Allah akan meninggikan orang yang beriman dan berilmu beberapa derajat.”",
+                        artiColor: "#0C4A6E",
+                        perawi: "📖 QS. Al-Mujadilah: 11",
+                        perawiColor: "#0369A1",
+                        perawiBg: "#E0F2FE",
+                        mahfudzotArab: "وَقُلْ رَّبِّ زِدْنِيْ عِلْمًا",
+                        mahfudzotArti: "“Dan katakanlah: Ya Tuhanku, tambahkanlah ilmu kepadaku.” (QS. Thaha: 114)",
+                        mahfudzotColor: "#0D9488",
+                        nasihat: "🐬 Penyelam Samudra: Hati yang Tulus • Tekun Berikhtiar • Doa Tak Pernah Putus 🪸",
+                        nasihatBg: "#E0F2FE",
+                        nasihatColor: "#0284C7",
+                        nasihatBorder: "#BAE6FD"
+                    }
                 }
             };
 
@@ -1062,8 +1182,46 @@
 
             let cardsHTML = "";
             hariConfig.forEach((h, idx) => {
-                let rawJadwal = dataJadwal.filter(j => (j.hari || "").trim().toLowerCase() === h.nama.toLowerCase());
+                let rawJadwal = dataJadwal.filter(j => normalisasiHariKey(j.hari) === h.key);
                 let cleanJadwal = rapihkanJadwalPerHari(rawJadwal);
+
+                // Jika Hari Sabtu dan tidak ada jadwal (karena roster 5 hari sekolah), ubah menjadi Kartu Mutiara Hikmah Edukasi Islami
+                if (h.key === "sabtu" && cleanJadwal.length === 0) {
+                    const hk = cfg.hikmah;
+                    cardsHTML += '<div style="height: 268px; max-height: 268px; background: ' + hk.bodyBg + '; border: ' + hk.border + '; border-radius: 14px; box-shadow: ' + cfg.cardShadow + '; overflow: hidden; display: flex; flex-direction: column;">' +
+                        '<div style="background: ' + hk.headerBg + '; padding: 4.5px 10px; display: flex; align-items: center; justify-content: space-between; color: white; shrink: 0;">' +
+                            '<span style="font-size: 11px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; display: flex; align-items: center; gap: 5px;">' +
+                                hk.title +
+                            '</span>' +
+                            '<span style="font-size: 8.5px; font-weight: 800; opacity: 0.95; background: rgba(0,0,0,0.18); padding: 1.5px 7px; border-radius: 9999px;">' + hk.badge + '</span>' +
+                        '</div>' +
+                        '<div style="flex: 1; padding: 8px 10px; display: flex; flex-direction: column; justify-content: space-between; text-align: center; box-sizing: border-box;">' +
+                            '<div style="display: flex; flex-direction: column; align-items: center; gap: 2.5px;">' +
+                                '<div style="direction: rtl; font-family: \'Amiri\', \'Traditional Arabic\', serif; font-size: 14.5px; font-weight: 700; color: ' + hk.arabicColor + '; line-height: 1.45;' + (templateId === 'galaxy' ? ' text-shadow: 0 0 10px rgba(56,189,248,0.5);' : '') + '">' +
+                                    hk.arabic +
+                                '</div>' +
+                                '<div style="font-size: 8.5px; font-weight: 600; color: ' + hk.artiColor + '; font-style: italic; line-height: 1.35; padding: 0 2px;">' +
+                                    hk.arti +
+                                '</div>' +
+                                '<span style="background: ' + hk.perawiBg + '; color: ' + hk.perawiColor + '; font-size: 7.5px; font-weight: 800; border-radius: 9999px; padding: 1px 7px; border: 1px solid rgba(0,0,0,0.06); display: inline-block;">' +
+                                    hk.perawi +
+                                '</span>' +
+                            '</div>' +
+                            '<div style="border-top: 1px dashed rgba(150,150,150,0.25); padding-top: 3.5px; display: flex; flex-direction: column; align-items: center; gap: 1.5px;">' +
+                                '<div style="direction: rtl; font-family: \'Amiri\', \'Traditional Arabic\', serif; font-size: 12px; font-weight: 700; color: ' + hk.mahfudzotColor + '; line-height: 1.3;">' +
+                                    hk.mahfudzotArab +
+                                '</div>' +
+                                '<div style="font-size: 8px; font-weight: 700; color: ' + hk.artiColor + '; line-height: 1.25;">' +
+                                    hk.mahfudzotArti +
+                                '</div>' +
+                            '</div>' +
+                            '<div style="background: ' + hk.nasihatBg + '; color: ' + hk.nasihatColor + '; border: 1px solid ' + hk.nasihatBorder + '; border-radius: 7px; padding: 4px 6px; font-size: 7.5px; font-weight: 800; line-height: 1.25;">' +
+                                hk.nasihat +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+                    return;
+                }
 
                 let iconHari = h.iconCeria;
                 if (templateId === "galaxy") iconHari = h.iconGalaxy;
@@ -1075,27 +1233,33 @@
 
                 let rowsHTML = "";
                 if (cleanJadwal.length === 0) {
-                    rowsHTML = '<div style="height: 100%; min-height: 180px; display: flex; align-items: center; justify-content: center; text-align: center; color: ' + cfg.guruColor + '; font-size: 10.5px; font-weight: 700; font-style: italic; padding: 10px;">' + cfg.accentIcon + ' ' + cfg.emptyText + '</div>';
+                    rowsHTML = '<div style="height: 100%; min-height: 180px; display: flex; align-items: center; justify-content: center; text-align: center; color: ' + cfg.guruColor + '; font-size: 10px; font-weight: 700; font-style: italic; padding: 10px;">' + cfg.accentIcon + ' ' + cfg.emptyText + '</div>';
                 } else {
                     rowsHTML = '<div style="padding: 2px 1px; display: flex; flex-direction: column; gap: 1px;">';
                     cleanJadwal.forEach(item => {
                         rowsHTML += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 6px; border-bottom: 1px dashed rgba(150,150,150,0.18); gap: 4px;">' +
                             '<div style="flex: 1; min-width: 0; line-height: 1.15;">' +
-                                '<div style="font-size: 10.5px; font-weight: 800; color: ' + cfg.mapelColor + '; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + item.mapel + '</div>' +
-                                '<div style="font-size: 8.5px; font-weight: 600; color: ' + cfg.guruColor + '; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + (item.guru || '—') + '</div>' +
+                                '<div style="font-size: 10px; font-weight: 800; color: ' + cfg.mapelColor + '; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + item.mapel + '</div>' +
+                                '<div style="font-size: 8px; font-weight: 600; color: ' + cfg.guruColor + '; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + (item.guru || '—') + '</div>' +
                             '</div>' +
-                            '<span style="background: ' + cfg.timeBg + '; color: ' + cfg.timeColor + '; font-size: 8.5px; font-weight: 800; border-radius: 5px; padding: 1.5px 4.5px; white-space: nowrap; shrink: 0; line-height: 1;">' + (item.waktu || item.jam_ke || '') + '</span>' +
+                            '<span style="background: ' + cfg.timeBg + '; color: ' + cfg.timeColor + '; font-size: 8px; font-weight: 800; border-radius: 5px; padding: 1.5px 4.5px; white-space: nowrap; shrink: 0; line-height: 1;">' + (item.waktu || item.jam_ke || '') + '</span>' +
                         '</div>';
                     });
+                    // Jika hari Jum\'at jadwalnya sedikit (misal <= 4), tambahkan penyejuk berkah Jumat
+                    if (h.key === "jumat" && cleanJadwal.length <= 4) {
+                        rowsHTML += '<div style="margin-top: 6px; padding: 4px 6px; background: rgba(16, 185, 129, 0.12); border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 7.5px; font-weight: 800; color: ' + (templateId === "galaxy" ? "#6EE7B7" : "#047857") + ';">' +
+                            '<span>🕌</span> <span>Sunnah Jum\'at: Sholat Jum\'at & Perbanyak Shalawat</span>' +
+                        '</div>';
+                    }
                     rowsHTML += '</div>';
                 }
 
-                cardsHTML += '<div style="height: 282px; max-height: 282px; background: ' + cfg.cardBg + '; border: ' + cfg.cardBorder + '; border-radius: 14px; box-shadow: ' + cfg.cardShadow + '; overflow: hidden; display: flex; flex-direction: column;">' +
+                cardsHTML += '<div style="height: 268px; max-height: 268px; background: ' + cfg.cardBg + '; border: ' + cfg.cardBorder + '; border-radius: 14px; box-shadow: ' + cfg.cardShadow + '; overflow: hidden; display: flex; flex-direction: column;">' +
                     '<div style="background: ' + headerBg + '; padding: 4.5px 10px; display: flex; align-items: center; justify-content: space-between; color: white; shrink: 0;">' +
-                        '<span style="font-size: 11.5px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; display: flex; align-items: center; gap: 5px;">' +
-                            '<span>' + iconHari + '</span> ' + h.nama +
+                        '<span style="font-size: 11px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; display: flex; align-items: center; gap: 5px;">' +
+                            '<span>' + iconHari + '</span> ' + h.display +
                         '</span>' +
-                        '<span style="font-size: 9px; font-weight: 800; opacity: 0.9; background: rgba(0,0,0,0.15); padding: 1px 6px; border-radius: 9999px;">' + cleanJadwal.length + ' Mapel</span>' +
+                        '<span style="font-size: 8.5px; font-weight: 800; opacity: 0.9; background: rgba(0,0,0,0.15); padding: 1px 6px; border-radius: 9999px;">' + cleanJadwal.length + ' Mapel</span>' +
                     '</div>' +
                     '<div style="flex: 1; overflow: hidden;">' + rowsHTML + '</div>' +
                 '</div>';
@@ -1103,24 +1267,24 @@
 
             const waliHTML = wali ? '<span style="font-weight: 700; opacity: 0.9;">Wali Kelas: <b>' + wali + '</b></span>' : "";
 
-            return '<div style="width: 980px; height: 680px; max-height: 680px; background: ' + cfg.bgContainer + '; border: ' + cfg.borderContainer + '; border-radius: 22px; padding: 14px 18px; box-sizing: border-box; font-family: Outfit, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; position: relative; margin: 0 auto; color: #1E293B; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">' +
-                '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; border-bottom: 2px solid rgba(150,150,150,0.18); padding-bottom: 6px; shrink: 0;">' +
+            return '<div style="width: 960px; height: 650px; max-height: 650px; background: ' + cfg.bgContainer + '; border: ' + cfg.borderContainer + '; border-radius: 20px; padding: 12px 16px; box-sizing: border-box; font-family: Outfit, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; position: relative; margin: 0 auto; color: #1E293B; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">' +
+                '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; border-bottom: 2px solid rgba(150,150,150,0.18); padding-bottom: 5px; shrink: 0;">' +
                     '<div style="display: flex; align-items: center; gap: 10px;">' +
-                        '<div style="font-size: 34px; line-height: 1;">' + cfg.accentIcon + '</div>' +
+                        '<div style="font-size: 30px; line-height: 1;">' + cfg.accentIcon + '</div>' +
                         '<div>' +
-                            '<h1 style="margin: 0; font-size: 26px; font-weight: 900; line-height: 1.1; color: ' + cfg.titleColor + '; text-shadow: ' + cfg.titleShadow + '; letter-spacing: 0.5px;">JADWAL PELAJARAN</h1>' +
-                            '<div style="margin-top: 2px; font-size: 12px; font-weight: 800; color: ' + cfg.titleColor + '; opacity: 0.9;">' + namaSekolah + ' • TAHUN AJARAN ' + tahun + '</div>' +
+                            '<h1 style="margin: 0; font-size: 24px; font-weight: 900; line-height: 1.1; color: ' + cfg.titleColor + '; text-shadow: ' + cfg.titleShadow + '; letter-spacing: 0.5px;">JADWAL PELAJARAN</h1>' +
+                            '<div style="margin-top: 2px; font-size: 11px; font-weight: 800; color: ' + cfg.titleColor + '; opacity: 0.9;">' + namaSekolah + ' • TAHUN AJARAN ' + tahun + '</div>' +
                         '</div>' +
                     '</div>' +
                     '<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">' +
-                        '<div style="background: ' + cfg.badgeBg + '; color: ' + cfg.badgeColor + ';' + (cfg.badgeBorder ? 'border:' + cfg.badgeBorder + ';' : '') + ' font-size: 13.5px; font-weight: 900; border-radius: 10px; padding: 4px 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); letter-spacing: 0.5px;">' + infoTarget + '</div>' +
-                        (waliHTML ? '<div style="font-size: 10px; font-weight: 700; color: ' + cfg.titleColor + ';">' + waliHTML + '</div>' : '') +
+                        '<div style="background: ' + cfg.badgeBg + '; color: ' + cfg.badgeColor + ';' + (cfg.badgeBorder ? 'border:' + cfg.badgeBorder + ';' : '') + ' font-size: 13px; font-weight: 900; border-radius: 9px; padding: 3.5px 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); letter-spacing: 0.5px;">' + infoTarget + '</div>' +
+                        (waliHTML ? '<div style="font-size: 9.5px; font-weight: 700; color: ' + cfg.titleColor + ';">' + waliHTML + '</div>' : '') +
                     '</div>' +
                 '</div>' +
                 '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex: 1; align-content: start;">' + cardsHTML + '</div>' +
-                '<div style="margin-top: 6px; padding-top: 5px; border-top: 2px solid rgba(150,150,150,0.18); display: flex; align-items: center; justify-content: space-between; font-size: 10px; font-weight: 800; color: ' + cfg.titleColor + '; shrink: 0;">' +
+                '<div style="margin-top: 5px; padding-top: 4px; border-top: 1.5px solid rgba(150,150,150,0.18); display: flex; align-items: center; justify-content: space-between; font-size: 9.5px; font-weight: 800; color: ' + cfg.titleColor + '; shrink: 0;">' +
                     '<div>' + cfg.quote + '</div>' +
-                    '<div style="opacity: 0.8; letter-spacing: 0.5px;">RosterKu Pro • Digital School System</div>' +
+                    '<div style="opacity: 0.85; letter-spacing: 0.5px;">RosterKu Pro • Digital School System</div>' +
                 '</div>' +
             '</div>';
         }
@@ -1210,7 +1374,9 @@
 
             let dataExport = semuaJadwal.filter(j => {
                 let matchKelas = (kelasAktif === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasAktif.trim().toUpperCase());
-                let matchHari = (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase());
+                let matchHari = (tpl === 'formal') 
+                    ? (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase())
+                    : true;
                 let matchGuru = (guruAktif === "Semua" || (j.guru || "").trim().toUpperCase() === guruAktif.trim().toUpperCase());
                 return matchKelas && matchHari && matchGuru;
             });
@@ -1294,7 +1460,9 @@
 
             let dataExport = semuaJadwal.filter(j => {
                 let matchKelas = (kelasAktif === "Semua" || (j.kelas || "").trim().toUpperCase() === kelasAktif.trim().toUpperCase());
-                let matchHari = (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase());
+                let matchHari = (tpl === 'formal') 
+                    ? (hariAktif === "Semua" || (j.hari || "").trim().toUpperCase() === hariAktif.trim().toUpperCase())
+                    : true;
                 let matchGuru = (guruAktif === "Semua" || (j.guru || "").trim().toUpperCase() === guruAktif.trim().toUpperCase());
                 return matchKelas && matchHari && matchGuru;
             });
