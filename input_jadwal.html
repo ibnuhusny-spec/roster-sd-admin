@@ -398,6 +398,9 @@
         });
 
         let daftarMasterGuru = [];
+        let daftarMasterKelas = [];
+        let daftarMasterMapel = [];
+        let daftarMasterWaktu = [];
 
         function formatNamaBaku(str) {
             if (!str) return "";
@@ -438,6 +441,7 @@
                 if(terapkanKls) terapkanKls.innerHTML = '<option value="">-- Pilih Kelas --</option>';
 
                 let arr = []; snapshot.forEach(d => arr.push(d.data().nama));
+                daftarMasterKelas = arr;
                 arr.sort((a,b)=>a.localeCompare(b)).forEach(nama => {
                     selKelas.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                     filterKelas.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
@@ -453,7 +457,7 @@
                 sel.innerHTML = '<option value="">-- Pilih Waktu --</option>';
                 let arr = []; 
                 snapshot.forEach(d => arr.push(d.data().waktu || d.data().nama));
-                
+                daftarMasterWaktu = arr;
                 arr.sort((a, b) => {
                     let m1 = (a||"").match(/\d+/g); let m2 = (b||"").match(/\d+/g);
                     let val1 = m1 ? parseInt(m1[0])*60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
@@ -471,6 +475,7 @@
                 sel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
 
                 let arr = []; snapshot.forEach(d => arr.push(d.data().nama));
+                daftarMasterMapel = arr;
                 arr.sort().forEach(nama => {
                     sel.insertAdjacentHTML('beforeend', `<option value="${nama}">${nama}</option>`);
                 });
@@ -932,7 +937,56 @@
                         await batch.commit();
                     }
 
-                    alert(`✅ PROSES IMPORT SELESAI!\n\n• Berhasil dimasukkan: ${berhasil} jadwal\n• Baris dilewati: ${gagal}\n\nJadwal pelajaran terbaru Anda sudah langsung aktif di sistem.`);
+                    // 4. Otomatis daftarkan Guru, Mapel, Kelas, dan Waktu baru jika belum ada di Master Data
+                    let guruBaruCount = 0;
+                    let mapelBaruCount = 0;
+                    let kelasBaruCount = 0;
+                    let waktuBaruCount = 0;
+
+                    const guruUnik = Array.from(new Set(dataValid.map(d => d.guru).filter(Boolean)));
+                    const mapelUnik = Array.from(new Set(dataValid.map(d => d.mapel).filter(Boolean)));
+                    const kelasUnik = Array.from(new Set(dataValid.map(d => d.kelas).filter(Boolean)));
+                    const waktuUnik = Array.from(new Set(dataValid.map(d => d.waktu).filter(Boolean)));
+
+                    for (const g of guruUnik) {
+                        if (!daftarMasterGuru.some(x => x.trim().toUpperCase() === g.trim().toUpperCase())) {
+                            await addDoc(collection(db, "master_guru"), { nama: g.trim() });
+                            daftarMasterGuru.push(g.trim());
+                            guruBaruCount++;
+                        }
+                    }
+                    for (const m of mapelUnik) {
+                        if (!daftarMasterMapel.some(x => x.trim().toUpperCase() === m.trim().toUpperCase())) {
+                            await addDoc(collection(db, "master_mapel"), { nama: m.trim() });
+                            daftarMasterMapel.push(m.trim());
+                            mapelBaruCount++;
+                        }
+                    }
+                    for (const k of kelasUnik) {
+                        if (!daftarMasterKelas.some(x => x.trim().toUpperCase() === k.trim().toUpperCase())) {
+                            await addDoc(collection(db, "master_kelas"), { nama: k.trim() });
+                            daftarMasterKelas.push(k.trim());
+                            kelasBaruCount++;
+                        }
+                    }
+                    for (const w of waktuUnik) {
+                        if (!daftarMasterWaktu.some(x => x.trim().toUpperCase() === w.trim().toUpperCase())) {
+                            await addDoc(collection(db, "master_waktu"), { waktu: w.trim(), nama: w.trim() });
+                            daftarMasterWaktu.push(w.trim());
+                            waktuBaruCount++;
+                        }
+                    }
+
+                    let infoMaster = "";
+                    if (guruBaruCount > 0 || mapelBaruCount > 0 || kelasBaruCount > 0 || waktuBaruCount > 0) {
+                        infoMaster = `\n\n✨ Otomatis mendaftarkan ke Master Data:\n` +
+                            (guruBaruCount > 0 ? `• ${guruBaruCount} Guru baru\n` : '') +
+                            (mapelBaruCount > 0 ? `• ${mapelBaruCount} Mapel baru\n` : '') +
+                            (kelasBaruCount > 0 ? `• ${kelasBaruCount} Kelas baru\n` : '') +
+                            (waktuBaruCount > 0 ? `• ${waktuBaruCount} Waktu baru\n` : '');
+                    }
+
+                    alert(`✅ PROSES IMPORT SELESAI!\n\n• Berhasil dimasukkan: ${berhasil} jadwal\n• Baris dilewati: ${gagal}${infoMaster}\n\nJadwal pelajaran terbaru Anda sudah langsung aktif di sistem.`);
                 } catch (err) {
                     console.error("Gagal import file:", err);
                     alert("❌ Terjadi kendala saat membaca/mengimport file: " + err.message);
