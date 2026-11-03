@@ -193,9 +193,9 @@
                         <span>🖨️</span> Cetak / Unduh
                     </button>
                     <button onclick="document.getElementById('fileImportExcel').click()" class="bg-blue-700 hover:bg-blue-600 text-white px-3 py-2 rounded-xl text-sm font-bold shadow transition flex items-center gap-1">
-                        <span>📥</span> Import Excel
+                        <span>📥</span> Import Excel / CSV
                     </button>
-                    <input type="file" id="fileImportExcel" accept=".xlsx, .xls" class="hidden" onchange="prosesImportExcel(event)">
+                    <input type="file" id="fileImportExcel" accept=".xlsx, .xls, .csv" class="hidden" onchange="prosesImportExcel(event)">
                     <button onclick="downloadTemplateExcel()" class="bg-amber-700 hover:bg-amber-600 text-white px-3 py-2 rounded-xl text-sm font-bold shadow transition flex items-center gap-1" title="Download format Excel untuk import data">
                         <span>📄</span> Template Excel
                     </button>
@@ -360,7 +360,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, enableIndexedDbPersistence, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         // Override Native Alert untuk Menghindari Dialog Hitam Android OS
         const originalNativeAlert = window.alert;
@@ -850,83 +850,99 @@
         window.bukaModalExcel = function() { document.getElementById('modalExcel').classList.remove('hidden'); }
         window.tutupModalExcel = function() { document.getElementById('modalExcel').classList.add('hidden'); }
 
-// --- FUNGSI IMPORT EXCEL CERDAS ---
+// --- FUNGSI IMPORT EXCEL & CSV CERDAS (ULTRA CEPAT BATCH) ---
         window.prosesImportExcel = function(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = async function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, {raw: false});
-                
-                if(jsonData.length === 0) {
-                    alert("❌ File Excel kosong atau format tidak sesuai!");
-                    return;
-                }
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, {raw: false});
+                    
+                    if(!jsonData || jsonData.length === 0) {
+                        alert("❌ File kosong atau format kolom tidak sesuai!\nPastikan ada kolom: Hari, Waktu, Kelas, Mapel, Guru.");
+                        document.getElementById('fileImportExcel').value = "";
+                        return;
+                    }
 
-                if(!confirm(`Ditemukan ${jsonData.length} baris jadwal. Mulai proses import ke database?`)) {
-                    document.getElementById('fileImportExcel').value = "";
-                    return;
-                }
+                    const opsiHapusLama = confirm(
+                        `📊 Ditemukan ${jsonData.length} baris jadwal pada file "${file.name}".\n\n` +
+                        `Apakah Anda ingin MENGHAPUS SEMUA JADWAL LAMA terlebih dahulu sebelum memasukkan jadwal baru ini?\n\n` +
+                        `• Klik [OK] untuk: GANTI BERSIH (Hapus jadwal lama otomatis lalu isi data baru - Sangat Disarankan agar tidak dobel/bentrok)\n` +
+                        `• Klik [BATAL] untuk: GABUNGKAN (Data baru ditambahkan tanpa menghapus jadwal lama)`
+                    );
 
-                let berhasil = 0;
-                let gagal = 0;
+                    let berhasil = 0;
+                    let gagal = 0;
 
-                for(const baris of jsonData) {
-                    try {
-                        let hariRaw = String(baris.Hari || "").trim();
+                    // 1. Jika pengguna memilih Ganti Bersih, hapus jadwal lama secara cepat via batch
+                    if (opsiHapusLama && semuaJadwal && semuaJadwal.length > 0) {
+                        const chunkSizeDel = 400;
+                        for (let i = 0; i < semuaJadwal.length; i += chunkSizeDel) {
+                            const chunk = semuaJadwal.slice(i, i + chunkSizeDel);
+                            const batch = writeBatch(db);
+                            chunk.forEach(j => {
+                                batch.delete(doc(db, "jadwal_pelajaran", j.id));
+                            });
+                            await batch.commit();
+                        }
+                    }
+
+                    // 2. Siapkan data baru yang valid
+                    const dataValid = [];
+                    for(const baris of jsonData) {
+                        let hariRaw = String(baris.Hari || baris.hari || "").trim();
                         let hariClean = hariRaw ? (hariRaw.charAt(0).toUpperCase() + hariRaw.slice(1).toLowerCase()) : "";
+                        let waktuRaw = String(baris.Waktu || baris.waktu || "").trim();
+                        let kelasRaw = String(baris.Kelas || baris.kelas || "").trim();
+                        let mapelRaw = String(baris.Mapel || baris.mapel || "").trim();
+                        let guruRaw = String(baris.Guru || baris.guru || "").trim();
 
-                        let guruRaw = String(baris.Guru || "").trim();
-                        let guruMatched = guruRaw;
-
-                        if (guruRaw) {
-                            // 1. Pencocokan case-insensitive terhadap Master Data Guru
-                            const matchMaster = daftarMasterGuru.find(g => g.trim().toUpperCase() === guruRaw.toUpperCase());
-                            if (matchMaster) {
-                                guruMatched = matchMaster;
-                            } else {
-                                // 2. Pencocokan case-insensitive terhadap jadwal yang sudah ada
-                                const matchSchedule = semuaJadwal.find(j => (j.guru || "").trim().toUpperCase() === guruRaw.toUpperCase());
-                                if (matchSchedule && matchSchedule.guru) {
-                                    guruMatched = matchSchedule.guru;
-                                } else {
-                                    // 3. Format Title Case jika teks kapital semua / kecil semua
-                                    guruMatched = formatNamaBaku(guruRaw);
-                                }
-                            }
+                        if(!hariClean || !waktuRaw || !kelasRaw) {
+                            gagal++;
+                            continue;
                         }
 
-                        const dataBaru = {
+                        dataValid.push({
                             hari: hariClean,
-                            waktu: String(baris.Waktu || "").trim(),
-                            kelas: String(baris.Kelas || "").trim(),
-                            mapel: String(baris.Mapel || "").trim(),
-                            guru: guruMatched
-                        };
-                        
-                        if(!dataBaru.hari || !dataBaru.waktu || !dataBaru.kelas) continue;
-
-                        await addDoc(collection(db, "jadwal_pelajaran"), dataBaru);
-                        berhasil++;
-                    } catch (error) {
-                        console.error("Gagal import baris:", baris, error);
-                        gagal++;
+                            waktu: waktuRaw,
+                            kelas: kelasRaw,
+                            mapel: mapelRaw,
+                            guru: guruRaw
+                        });
                     }
-                }
 
-                alert(`✅ IMPORT SELESAI!\nBerhasil: ${berhasil} jadwal\nGagal/Dilewati: ${gagal} jadwal`);
-                document.getElementById('fileImportExcel').value = ""; 
+                    // 3. Masukkan data baru secara cepat via batch (400 per batch)
+                    const chunkSizeAdd = 400;
+                    for (let i = 0; i < dataValid.length; i += chunkSizeAdd) {
+                        const chunk = dataValid.slice(i, i + chunkSizeAdd);
+                        const batch = writeBatch(db);
+                        chunk.forEach(r => {
+                            const ref = doc(collection(db, "jadwal_pelajaran"));
+                            batch.set(ref, r);
+                            berhasil++;
+                        });
+                        await batch.commit();
+                    }
+
+                    alert(`✅ PROSES IMPORT SELESAI!\n\n• Berhasil dimasukkan: ${berhasil} jadwal\n• Baris dilewati: ${gagal}\n\nJadwal pelajaran terbaru Anda sudah langsung aktif di sistem.`);
+                } catch (err) {
+                    console.error("Gagal import file:", err);
+                    alert("❌ Terjadi kendala saat membaca/mengimport file: " + err.message);
+                } finally {
+                    document.getElementById('fileImportExcel').value = "";
+                }
             };
             reader.readAsArrayBuffer(file);
         };
-        // --- BATAS AKHIR FUNGSI IMPORT EXCEL ---
+        // --- BATAS AKHIR FUNGSI IMPORT EXCEL & CSV ---
 
         // --- FUNGSI MERAPIKAN NAMA GURU GANDA DI DATABASE ---
         window.rapikanNamaGuruGanda = async function() {
