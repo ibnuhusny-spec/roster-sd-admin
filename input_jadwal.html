@@ -247,6 +247,49 @@
                 </button>
             </div>
             <div class="p-6 space-y-4 text-sm">
+                <!-- PILIHAN TEMPLATE DESAIN ROSTER (KREATIF CANVA-STYLE) -->
+                <div class="p-4 rounded-2xl border-2 border-amber-500/30" style="background-color: #1E293B !important;">
+                    <div class="flex items-center justify-between mb-2.5">
+                        <label class="block text-xs font-extrabold uppercase tracking-wider text-amber-300">
+                            🎨 Pilih Desain & Template Roster:
+                        </label>
+                        <span id="badgeTemplateTerpilihAdmin" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                            🎒 Ceria Sekolah
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="pilihanTemplateRosterAdmin">
+                        <div onclick="pilihTemplateRosterAdmin('ceria')" id="tplAdm_ceria" class="cursor-pointer p-2.5 rounded-xl border-2 transition-all flex flex-col items-center text-center gap-1 template-card border-amber-400 bg-amber-500/15 shadow-md">
+                            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-yellow-300 to-sky-400 flex items-center justify-center text-lg shadow">🎒</div>
+                            <div class="text-xs font-extrabold text-white leading-tight">Ceria Sekolah</div>
+                            <div class="text-[10px] text-amber-200">Kartun Ceria SD</div>
+                        </div>
+                        <div onclick="pilihTemplateRosterAdmin('galaxy')" id="tplAdm_galaxy" class="cursor-pointer p-2.5 rounded-xl border-2 transition-all flex flex-col items-center text-center gap-1 template-card border-slate-700 bg-slate-800/80 hover:border-slate-500">
+                            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-900 to-purple-800 flex items-center justify-center text-lg shadow">🚀</div>
+                            <div class="text-xs font-extrabold text-white leading-tight">Galaxy Space</div>
+                            <div class="text-[10px] text-slate-300">Kosmik Antariksa</div>
+                        </div>
+                        <div onclick="pilihTemplateRosterAdmin('kawaii')" id="tplAdm_kawaii" class="cursor-pointer p-2.5 rounded-xl border-2 transition-all flex flex-col items-center text-center gap-1 template-card border-slate-700 bg-slate-800/80 hover:border-slate-500">
+                            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-pink-300 to-rose-400 flex items-center justify-center text-lg shadow">🐰</div>
+                            <div class="text-xs font-extrabold text-white leading-tight">Pastel Kawaii</div>
+                            <div class="text-[10px] text-pink-200">Kelinci Lucu & Pink</div>
+                        </div>
+                        <div onclick="pilihTemplateRosterAdmin('safari')" id="tplAdm_safari" class="cursor-pointer p-2.5 rounded-xl border-2 transition-all flex flex-col items-center text-center gap-1 template-card border-slate-700 bg-slate-800/80 hover:border-slate-500">
+                            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-600 to-amber-700 flex items-center justify-center text-lg shadow">🌿</div>
+                            <div class="text-xs font-extrabold text-white leading-tight">Safari Rimba</div>
+                            <div class="text-[10px] text-emerald-200">Papan Kayu & Alam</div>
+                        </div>
+                        <div onclick="pilihTemplateRosterAdmin('ocean')" id="tplAdm_ocean" class="cursor-pointer p-2.5 rounded-xl border-2 transition-all flex flex-col items-center text-center gap-1 template-card border-slate-700 bg-slate-800/80 hover:border-slate-500">
+                            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-lg shadow">🐳</div>
+                            <div class="text-xs font-extrabold text-white leading-tight">Samudra Biru</div>
+                            <div class="text-[10px] text-sky-200">Bawah Laut & Paus</div>
+                        </div>
+                        <div onclick="pilihTemplateRosterAdmin('formal')" id="tplAdm_formal" class="cursor-pointer p-2.5 rounded-xl border-2 transition-all flex flex-col items-center text-center gap-1 template-card border-slate-700 bg-slate-800/80 hover:border-slate-500">
+                            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center text-lg shadow">📋</div>
+                            <div class="text-xs font-extrabold text-white leading-tight">Klasik Resmi</div>
+                            <div class="text-[10px] text-slate-300">Format KOP & TTD</div>
+                        </div>
+                    </div>
+                </div>
                 <div>
                     <label class="block text-xs font-bold text-amber-300 mb-1">Kop Surat Baris 1</label>
                     <input type="text" id="exKop1" value="PEMERINTAH KABUPATEN / KOTA" class="w-full p-3 border-2 border-amber-500/40 rounded-xl bg-slate-800 text-white font-bold text-sm focus:outline-none focus:border-emerald-400" style="background-color: #1E293B !important; color: #FFFFFF !important;">
@@ -282,8 +325,11 @@
             </div>
             <div class="p-4 border-t border-slate-700 bg-slate-900/95 flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0">
                 <button type="button" onclick="tutupModalExcel()" class="px-4 py-2.5 text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold w-full sm:w-auto transition border border-slate-700">Batal</button>
-                <button type="button" onclick="prosesDownloadPDF()" class="px-4 py-2.5 text-white bg-red-600 hover:bg-red-500 rounded-xl font-extrabold flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg transition">
+                <button type="button" onclick="prosesDownloadPDF()" id="btnDownloadPDFAdmin" class="px-4 py-2.5 text-white bg-red-600 hover:bg-red-500 rounded-xl font-extrabold flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-lg transition text-sm">
                     <span>📄</span> PDF
+                </button>
+                <button type="button" onclick="prosesDownloadPNG()" id="btnDownloadPNGAdmin" class="px-4 py-2.5 text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-xl font-extrabold flex items-center justify-center gap-1.5 w-full sm:w-auto shadow-lg transition text-sm">
+                    <span>🖼️</span> Gambar
                 </button>
                 <button type="button" onclick="prosesDownloadExcel()" class="px-4 py-2.5 text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl font-extrabold flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg transition">
                     <span>📊</span> Excel
@@ -1210,32 +1256,411 @@
             tutupModalExcel();
         };
 
-        // --- FUNGSI PDF (BARU) ---
-        window.prosesDownloadPDF = function() {
-            const filterKelas = document.getElementById('filterKelasTable').value;
-            const html = buatTabelCetak(filterKelas);
-            if(!html) return alert("Data kosong, tidak ada yang bisa diunduh.");
+                // --- SISTEM TEMPLATE ROSTER KREATIF & KLASIK ADMIN ---
+        window.templateRosterTerpilihAdmin = 'ceria';
 
-            // Ekstrak hanya isi tag <table> untuk html2pdf agar formatnya rapi
-            const tableContent = html.substring(html.indexOf('<table'), html.indexOf('</table>') + 8);
-            
-            // Bungkus dalam div dengan style khusus PDF
-            const pdfContainer = document.createElement('div');
-            pdfContainer.innerHTML = tableContent;
-            pdfContainer.style.padding = '20px';
-            pdfContainer.style.backgroundColor = 'white';
-            
-            const opsi = {
-                margin:       0.3,
-                filename:     `Jadwal_${filterKelas}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+        window.pilihTemplateRosterAdmin = function(tplId) {
+            window.templateRosterTerpilihAdmin = tplId;
+            const tplNames = {
+                ceria: "🎒 Ceria Sekolah",
+                galaxy: "🚀 Galaxy Space",
+                kawaii: "🐰 Pastel Kawaii",
+                safari: "🌿 Safari Rimba",
+                ocean: "🐳 Samudra Biru",
+                formal: "📋 Klasik Resmi"
             };
 
-            // Menggunakan library html2pdf
-            html2pdf().set(opsi).from(pdfContainer).save().then(() => {
-                tutupModalExcel();
+            const allCards = ['ceria', 'galaxy', 'kawaii', 'safari', 'ocean', 'formal'];
+            allCards.forEach(id => {
+                const el = document.getElementById('tplAdm_' + id);
+                if (el) {
+                    if (id === tplId) {
+                        el.className = "cursor-pointer p-2.5 rounded-xl border-2 transition-all flex flex-col items-center text-center gap-1 template-card border-amber-400 bg-amber-500/15 shadow-md scale-[1.02]";
+                    } else {
+                        el.className = "cursor-pointer p-2.5 rounded-xl border-2 transition-all flex flex-col items-center text-center gap-1 template-card border-slate-700 bg-slate-800/80 hover:border-slate-500";
+                    }
+                }
+            });
+
+            const badge = document.getElementById('badgeTemplateTerpilihAdmin');
+            if (badge) badge.innerText = tplNames[tplId] || tplId;
+        };
+
+        function rapihkanJadwalPerHari(list) {
+            if (!list || list.length === 0) return [];
+            let items = [...list];
+            items.sort((a, b) => {
+                let m1 = (a.waktu || "").match(/\d+/g);
+                let m2 = (b.waktu || "").match(/\d+/g);
+                let val1 = m1 ? parseInt(m1[0]) * 60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
+                let val2 = m2 ? parseInt(m2[0]) * 60 + (m2[1] ? parseInt(m2[1]) : 0) : 9999;
+                return val1 - val2;
+            });
+
+            let merged = [];
+            for (let i = 0; i < items.length; i++) {
+                let cur = items[i];
+                if (merged.length > 0) {
+                    let prev = merged[merged.length - 1];
+                    if (prev.mapel === cur.mapel && prev.guru === cur.guru && prev.waktu && cur.waktu) {
+                        let prevParts = prev.waktu.split('-').map(s => s.trim());
+                        let curParts = cur.waktu.split('-').map(s => s.trim());
+                        if (prevParts.length === 2 && curParts.length === 2 && prevParts[1] === curParts[0]) {
+                            prev.waktu = prevParts[0] + ' - ' + curParts[1];
+                            continue;
+                        }
+                    }
+                }
+                merged.push({ ...cur });
+            }
+            return merged;
+        }
+
+        function buatPosterRosterHTML(templateId, dataJadwal, meta) {
+            const { namaSekolah = "SDIT QURRATU A'YUN MAROS", tahun = "2024/2025", kelas = "Semua Kelas", guru = "Semua Guru", wali = "" } = meta;
+
+            const infoTarget = (kelas !== "Semua" && kelas !== "Semua Kelas") 
+                ? ("KELAS " + kelas.toUpperCase()) 
+                : ((guru !== "Semua" && guru !== "Semua Guru") ? ("GURU: " + guru.toUpperCase()) : "SEMUA KELAS");
+
+            const hariConfig = [
+                { nama: "Senin", iconCeria: "🎒", iconGalaxy: "🚀", iconKawaii: "🐰", iconSafari: "🦁", iconOcean: "🐳" },
+                { nama: "Selasa", iconCeria: "📚", iconGalaxy: "🪐", iconKawaii: "🌸", iconSafari: "🦒", iconOcean: "🐬" },
+                { nama: "Rabu", iconCeria: "🎨", iconGalaxy: "🛰️", iconKawaii: "🍓", iconSafari: "🐵", iconOcean: "🐠" },
+                { nama: "Kamis", iconCeria: "📐", iconGalaxy: "🛸", iconKawaii: "🥕", iconSafari: "🦜", iconOcean: "🐢" },
+                { nama: "Jumat", iconCeria: "🕌", iconGalaxy: "⭐", iconKawaii: "🎀", iconSafari: "🌿", iconOcean: "🪸" },
+                { nama: "Sabtu", iconCeria: "⚽", iconGalaxy: "🌌", iconKawaii: "✨", iconSafari: "🏕️", iconOcean: "🦀" }
+            ];
+
+            const themes = {
+                ceria: {
+                    bgContainer: "linear-gradient(135deg, #FFFBEB 0%, #EFF6FF 50%, #FDF2F8 100%)",
+                    borderContainer: "8px solid #FCD34D",
+                    titleColor: "#1E3A8A",
+                    titleShadow: "2px 2px 0px #FDE047, 4px 4px 0px #F59E0B",
+                    badgeBg: "#F59E0B",
+                    badgeColor: "#1E293B",
+                    cardBg: "#FFFFFF",
+                    cardBorder: "2.5px solid #E2E8F0",
+                    cardShadow: "0 6px 14px rgba(0,0,0,0.06)",
+                    dayHeaders: [
+                        "linear-gradient(135deg, #3B82F6, #1D4ED8)",
+                        "linear-gradient(135deg, #F59E0B, #D97706)",
+                        "linear-gradient(135deg, #10B981, #059669)",
+                        "linear-gradient(135deg, #EC4899, #DB2777)",
+                        "linear-gradient(135deg, #8B5CF6, #7C3AED)",
+                        "linear-gradient(135deg, #14B8A6, #0D9488)"
+                    ],
+                    timeBg: "#F1F5F9",
+                    timeColor: "#334155",
+                    mapelColor: "#0F172A",
+                    guruColor: "#64748B",
+                    quote: "🎒 Semangat Belajar Setiap Hari, Raih Prestasi Gemilang! ✨",
+                    accentIcon: "🌟",
+                    emptyText: "Waktu Belajar Mandiri & Istirahat"
+                },
+                galaxy: {
+                    bgContainer: "radial-gradient(circle at 15% 15%, #1E1B4B 0%, #0F172A 50%, #030712 100%)",
+                    borderContainer: "6px solid #6366F1",
+                    titleColor: "#38BDF8",
+                    titleShadow: "0 0 12px rgba(56,189,248,0.8), 0 0 24px rgba(129,140,248,0.6)",
+                    badgeBg: "rgba(99, 102, 241, 0.25)",
+                    badgeColor: "#C7D2FE",
+                    badgeBorder: "1.5px solid #818CF8",
+                    cardBg: "rgba(15, 23, 42, 0.9)",
+                    cardBorder: "2px solid rgba(56, 189, 248, 0.4)",
+                    cardShadow: "0 8px 24px rgba(0,0,0,0.6)",
+                    dayHeaders: [
+                        "linear-gradient(135deg, #4338CA, #6366F1)",
+                        "linear-gradient(135deg, #0284C7, #38BDF8)",
+                        "linear-gradient(135deg, #7C3AED, #A855F7)",
+                        "linear-gradient(135deg, #DB2777, #F43F5E)",
+                        "linear-gradient(135deg, #059669, #10B981)",
+                        "linear-gradient(135deg, #D97706, #F59E0B)"
+                    ],
+                    timeBg: "rgba(56, 189, 248, 0.2)",
+                    timeColor: "#38BDF8",
+                    mapelColor: "#F8FAFC",
+                    guruColor: "#94A3B8",
+                    quote: "🚀 Menjelajah Luasnya Ilmu Pengetahuan Hingga Bintang Tertinggi! 🌟",
+                    accentIcon: "🪐",
+                    emptyText: "Waktu Istirahat Awak Antariksa"
+                },
+                kawaii: {
+                    bgContainer: "linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 50%, #FDF2F8 100%)",
+                    borderContainer: "8px solid #FDA4AF",
+                    titleColor: "#E11D48",
+                    titleShadow: "2px 2px 0px #FECDD3, 4px 4px 0px #FDA4AF",
+                    badgeBg: "#FB7185",
+                    badgeColor: "#FFFFFF",
+                    cardBg: "#FFFFFF",
+                    cardBorder: "2.5px solid #FDA4AF",
+                    cardShadow: "0 6px 16px rgba(244,63,94,0.12)",
+                    dayHeaders: [
+                        "linear-gradient(135deg, #F43F5E, #E11D48)",
+                        "linear-gradient(135deg, #FB7185, #F43F5E)",
+                        "linear-gradient(135deg, #F472B6, #DB2777)",
+                        "linear-gradient(135deg, #FB923C, #F97316)",
+                        "linear-gradient(135deg, #C084FC, #9333EA)",
+                        "linear-gradient(135deg, #34D399, #059669)"
+                    ],
+                    timeBg: "#FFE4E6",
+                    timeColor: "#BE123C",
+                    mapelColor: "#881337",
+                    guruColor: "#9F1239",
+                    quote: "🌸 Belajar dengan Senang Hati dan Penuh Ceria Bersama Teman! 💖",
+                    accentIcon: "🍓",
+                    emptyText: "Waktu Istirahat Ceria & Santai"
+                },
+                safari: {
+                    bgContainer: "linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 40%, #FEF3C7 100%)",
+                    borderContainer: "8px solid #92400E",
+                    titleColor: "#78350F",
+                    titleShadow: "2px 2px 0px #FDE68A, 4px 4px 0px #D97706",
+                    badgeBg: "#D97706",
+                    badgeColor: "#FFFFFF",
+                    cardBg: "#FFFBEB",
+                    cardBorder: "3px solid #B45309",
+                    cardShadow: "0 6px 14px rgba(180,83,9,0.12)",
+                    dayHeaders: [
+                        "linear-gradient(180deg, #92400E, #78350F)",
+                        "linear-gradient(180deg, #B45309, #92400E)",
+                        "linear-gradient(180deg, #D97706, #B45309)",
+                        "linear-gradient(180deg, #047857, #065F46)",
+                        "linear-gradient(180deg, #059669, #047857)",
+                        "linear-gradient(180deg, #4D7C0F, #3F6212)"
+                    ],
+                    timeBg: "#FEF3C7",
+                    timeColor: "#92400E",
+                    mapelColor: "#451A03",
+                    guruColor: "#78350F",
+                    quote: "🏕️ Teruslah Bertualang Mencari Ilmu di Alam Semesta yang Luas! 🌿",
+                    accentIcon: "🧭",
+                    emptyText: "Waktu Istirahat di Perkemahan"
+                },
+                ocean: {
+                    bgContainer: "linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 50%, #CCFBF1 100%)",
+                    borderContainer: "8px solid #0284C7",
+                    titleColor: "#0369A1",
+                    titleShadow: "2px 2px 0px #BAE6FD, 4px 4px 0px #0284C7",
+                    badgeBg: "#0284C7",
+                    badgeColor: "#FFFFFF",
+                    cardBg: "rgba(255, 255, 255, 0.95)",
+                    cardBorder: "2.5px solid #0EA5E9",
+                    cardShadow: "0 6px 14px rgba(2,132,199,0.12)",
+                    dayHeaders: [
+                        "linear-gradient(135deg, #0284C7, #0369A1)",
+                        "linear-gradient(135deg, #0EA5E9, #0284C7)",
+                        "linear-gradient(135deg, #06B6D4, #0891B2)",
+                        "linear-gradient(135deg, #14B8A6, #0D9488)",
+                        "linear-gradient(135deg, #6366F1, #4F46E5)",
+                        "linear-gradient(135deg, #F43F5E, #E11D48)"
+                    ],
+                    timeBg: "#E0F2FE",
+                    timeColor: "#0369A1",
+                    mapelColor: "#0C4A6E",
+                    guruColor: "#0284C7",
+                    quote: "🌊 Selami Lautan Ilmu Pengetahuan yang Begitu Luas Tak Bertepi! 🐳",
+                    accentIcon: "🪸",
+                    emptyText: "Waktu Santai Berenang di Samudra"
+                }
+            };
+
+            const cfg = themes[templateId] || themes.ceria;
+
+            let cardsHTML = "";
+            hariConfig.forEach((h, idx) => {
+                let rawJadwal = dataJadwal.filter(j => (j.hari || "").trim().toLowerCase() === h.nama.toLowerCase());
+                let cleanJadwal = rapihkanJadwalPerHari(rawJadwal);
+
+                let iconHari = h.iconCeria;
+                if (templateId === "galaxy") iconHari = h.iconGalaxy;
+                else if (templateId === "kawaii") iconHari = h.iconKawaii;
+                else if (templateId === "safari") iconHari = h.iconSafari;
+                else if (templateId === "ocean") iconHari = h.iconOcean;
+
+                let headerBg = cfg.dayHeaders[idx % cfg.dayHeaders.length];
+
+                let rowsHTML = "";
+                if (cleanJadwal.length === 0) {
+                    rowsHTML = '<div style="padding: 24px 10px; text-align: center; color: ' + cfg.guruColor + '; font-size: 11px; font-weight: 700; font-style: italic;">' + cfg.accentIcon + ' ' + cfg.emptyText + '</div>';
+                } else {
+                    rowsHTML = '<div style="padding: 6px 4px; display: flex; flex-direction: column; gap: 4px;">';
+                    cleanJadwal.forEach(item => {
+                        rowsHTML += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 5px 8px; border-bottom: 1px dashed rgba(150,150,150,0.2); gap: 6px;">' +
+                            '<div style="flex: 1; min-width: 0;">' +
+                                '<div style="font-size: 12px; font-weight: 800; color: ' + cfg.mapelColor + '; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + item.mapel + '</div>' +
+                                '<div style="font-size: 10px; font-weight: 600; color: ' + cfg.guruColor + '; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + (item.guru || '—') + '</div>' +
+                            '</div>' +
+                            '<span style="background: ' + cfg.timeBg + '; color: ' + cfg.timeColor + '; font-size: 9.5px; font-weight: 800; border-radius: 6px; padding: 3px 6px; white-space: nowrap; shrink: 0;">' + (item.waktu || item.jam_ke || '') + '</span>' +
+                        '</div>';
+                    });
+                    rowsHTML += '</div>';
+                }
+
+                cardsHTML += '<div style="background: ' + cfg.cardBg + '; border: ' + cfg.cardBorder + '; border-radius: 18px; box-shadow: ' + cfg.cardShadow + '; overflow: hidden; display: flex; flex-direction: column;">' +
+                    '<div style="background: ' + headerBg + '; padding: 7px 12px; display: flex; align-items: center; justify-content: space-between; color: white;">' +
+                        '<span style="font-size: 13px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">' +
+                            '<span>' + iconHari + '</span> ' + h.nama +
+                        '</span>' +
+                        '<span style="font-size: 10px; font-weight: 800; opacity: 0.9; background: rgba(0,0,0,0.15); padding: 1px 7px; border-radius: 9999px;">' + cleanJadwal.length + ' Mapel</span>' +
+                    '</div>' +
+                    '<div style="flex: 1; overflow: hidden;">' + rowsHTML + '</div>' +
+                '</div>';
+            });
+
+            const waliHTML = wali ? '<span style="font-weight: 700; opacity: 0.9;">Wali Kelas: <b>' + wali + '</b></span>' : "";
+
+            return '<div style="width: 1080px; min-height: 740px; background: ' + cfg.bgContainer + '; border: ' + cfg.borderContainer + '; border-radius: 28px; padding: 22px 26px; box-sizing: border-box; font-family: Outfit, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; position: relative; margin: 0 auto; color: #1E293B;">' +
+                '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 2px solid rgba(150,150,150,0.18); padding-bottom: 12px;">' +
+                    '<div style="display: flex; align-items: center; gap: 14px;">' +
+                        '<div style="font-size: 42px; line-height: 1;">' + cfg.accentIcon + '</div>' +
+                        '<div>' +
+                            '<h1 style="margin: 0; font-size: 32px; font-weight: 900; line-height: 1.1; color: ' + cfg.titleColor + '; text-shadow: ' + cfg.titleShadow + '; letter-spacing: 0.5px;">JADWAL PELAJARAN</h1>' +
+                            '<div style="margin-top: 4px; font-size: 14px; font-weight: 800; color: ' + cfg.titleColor + '; opacity: 0.9;">' + namaSekolah + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">' +
+                        '<div style="background: ' + cfg.badgeBg + '; color: ' + cfg.badgeColor + ';' + (cfg.badgeBorder ? 'border:' + cfg.badgeBorder + ';' : '') + ' font-size: 16px; font-weight: 900; border-radius: 12px; padding: 6px 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); letter-spacing: 0.5px;">' + infoTarget + '</div>' +
+                        (waliHTML ? '<div style="font-size: 11px; font-weight: 700; color: ' + cfg.titleColor + ';">' + waliHTML + '</div>' : '') +
+                    '</div>' +
+                '</div>' +
+                '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; min-height: 570px;">' + cardsHTML + '</div>' +
+                '<div style="margin-top: 14px; padding-top: 10px; border-top: 2px solid rgba(150,150,150,0.18); display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; font-weight: 800; color: ' + cfg.titleColor + ';">' +
+                    '<div>' + cfg.quote + '</div>' +
+                    '<div style="opacity: 0.8; letter-spacing: 0.5px;">RosterKu Pro • Digital School System</div>' +
+                '</div>' +
+            '</div>';
+        }
+
+        window.prosesDownloadPDF = function() {
+            const filterKelas = document.getElementById('filterKelasTable').value;
+            const tpl = window.templateRosterTerpilihAdmin || 'ceria';
+
+            let dataExport = semuaJadwal.filter(j => {
+                return (filterKelas === "Semua" || (j.kelas || "").trim().toUpperCase() === filterKelas.trim().toUpperCase());
+            });
+
+            if(dataExport.length === 0) return alert("Data kosong, tidak ada yang bisa diunduh.");
+
+            const exKop2 = document.getElementById('exKop2').value.toUpperCase();
+            const exWali = document.getElementById('exWali').value || "";
+
+            let namaFilePDF = "Jadwal_" + tpl + "_" + filterKelas + ".pdf";
+            const btn = document.getElementById('btnDownloadPDFAdmin');
+            const orig = btn ? btn.innerHTML : "";
+            if (btn) { btn.innerHTML = "⏳ PDF..."; btn.disabled = true; }
+
+            if (tpl === 'formal') {
+                const html = buatTabelCetak(filterKelas);
+                const tableContent = html.substring(html.indexOf('<table'), html.indexOf('</table>') + 8);
+                const pdfContainer = document.createElement('div');
+                pdfContainer.innerHTML = tableContent;
+                pdfContainer.style.padding = '20px';
+                pdfContainer.style.backgroundColor = 'white';
+
+                const opsi = {
+                    margin: 0.3,
+                    filename: namaFilePDF,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+                };
+
+                html2pdf().set(opsi).from(pdfContainer).save().then(() => {
+                    tutupModalExcel();
+                    if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+                }).catch(e => {
+                    alert("Error: " + e.message);
+                    if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+                });
+            } else {
+                const posterHTML = buatPosterRosterHTML(tpl, dataExport, {
+                    namaSekolah: exKop2,
+                    kelas: filterKelas,
+                    wali: exWali
+                });
+                const container = document.createElement('div');
+                container.innerHTML = posterHTML;
+
+                const opsi = {
+                    margin: 0.15,
+                    filename: namaFilePDF,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                    jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+                };
+
+                html2pdf().set(opsi).from(container).save().then(() => {
+                    tutupModalExcel();
+                    if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+                }).catch(e => {
+                    alert("Error: " + e.message);
+                    if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+                });
+            }
+        };
+
+        window.prosesDownloadPNG = function() {
+            const filterKelas = document.getElementById('filterKelasTable').value;
+            const tpl = window.templateRosterTerpilihAdmin || 'ceria';
+
+            let dataExport = semuaJadwal.filter(j => {
+                return (filterKelas === "Semua" || (j.kelas || "").trim().toUpperCase() === filterKelas.trim().toUpperCase());
+            });
+
+            if(dataExport.length === 0) return alert("Data kosong, tidak ada yang bisa diunduh.");
+
+            const exKop2 = document.getElementById('exKop2').value.toUpperCase();
+            const exWali = document.getElementById('exWali').value || "";
+
+            let targetHTML = "";
+            let namaFilePNG = "Roster_" + tpl + "_" + filterKelas + ".png";
+
+            if (tpl === 'formal') {
+                targetHTML = buatTabelCetak(filterKelas);
+            } else {
+                targetHTML = buatPosterRosterHTML(tpl, dataExport, {
+                    namaSekolah: exKop2,
+                    kelas: filterKelas,
+                    wali: exWali
+                });
+            }
+
+            const container = document.createElement('div');
+            container.style.position = 'fixed';
+            container.style.left = '-9999px';
+            container.style.top = '0';
+            container.style.zIndex = '-9999';
+            container.innerHTML = targetHTML;
+            document.body.appendChild(container);
+
+            const btn = document.getElementById('btnDownloadPNGAdmin');
+            const orig = btn ? btn.innerHTML : "";
+            if (btn) { btn.innerHTML = "⏳ Gambar..."; btn.disabled = true; }
+
+            html2canvas(container.firstElementChild, {
+                scale: 2,
+                useCORS: true,
+                letterRendering: true,
+                backgroundColor: null
+            }).then(canvas => {
+                const url = canvas.toDataURL('image/png');
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = namaFilePNG;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    document.body.removeChild(container);
+                    if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+                    tutupModalExcel();
+                }, 1000);
+            }).catch(e => {
+                alert("Error: " + e.message);
+                document.body.removeChild(container);
+                if (btn) { btn.innerHTML = orig; btn.disabled = false; }
             });
         };
     </script>
