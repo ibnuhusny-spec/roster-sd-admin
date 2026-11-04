@@ -1135,6 +1135,70 @@
             return merged;
         }
 
+
+        // Gabung mapel yang sama per hari untuk tampilan poster (lebih ringkas)
+        function gabungMapelUntukPoster(jadwalList) {
+            if (!jadwalList || jadwalList.length === 0) return [];
+
+            let items = [...jadwalList];
+            items.sort((a, b) => {
+                let m1 = (a.waktu || "").match(/\d+/g);
+                let m2 = (b.waktu || "").match(/\d+/g);
+                let val1 = m1 ? parseInt(m1[0]) * 60 + (m1[1] ? parseInt(m1[1]) : 0) : 9999;
+                let val2 = m2 ? parseInt(m2[0]) * 60 + (m2[1] ? parseInt(m2[1]) : 0) : 9999;
+                return val1 - val2;
+            });
+
+            function hitungJP(waktuStr) {
+                if (!waktuStr) return 1;
+                let parts = waktuStr.split('-').map(s => s.trim());
+                if (parts.length !== 2) return 1;
+                let mulai = parts[0].split(':').map(Number);
+                let selesai = parts[1].split(':').map(Number);
+                if (mulai.length < 2 || selesai.length < 2) return 1;
+                let menitMulai = mulai[0] * 60 + mulai[1];
+                let menitSelesai = selesai[0] * 60 + selesai[1];
+                let durasi = menitSelesai - menitMulai;
+                if (durasi <= 0) return 1;
+                return Math.round(durasi / 30);
+            }
+
+            let groups = [];
+            let seen = {};
+
+            items.forEach(item => {
+                let key = (item.mapel || "").trim().toUpperCase() + "|||" + (item.guru || "").trim().toUpperCase();
+                let jp = hitungJP(item.waktu);
+
+                if (seen[key] !== undefined) {
+                    let g = groups[seen[key]];
+                    g.totalJP += jp;
+                    let curParts = (item.waktu || "").split('-').map(s => s.trim());
+                    if (curParts.length === 2 && curParts[1]) {
+                        let prevSelesai = g.waktuAkhir.split(':').map(Number);
+                        let curSelesai = curParts[1].split(':').map(Number);
+                        if (curSelesai.length >= 2 && prevSelesai.length >= 2) {
+                            if ((curSelesai[0] * 60 + curSelesai[1]) > (prevSelesai[0] * 60 + prevSelesai[1])) {
+                                g.waktuAkhir = curParts[1];
+                            }
+                        }
+                    }
+                } else {
+                    seen[key] = groups.length;
+                    let parts = (item.waktu || "").split('-').map(s => s.trim());
+                    groups.push({
+                        mapel: item.mapel,
+                        guru: item.guru,
+                        waktuAwal: parts[0] || "",
+                        waktuAkhir: parts[1] || parts[0] || "",
+                        totalJP: jp,
+                        jam_ke: item.jam_ke
+                    });
+                }
+            });
+
+            return groups;
+        }
         function buatPosterRosterHTML(templateId, dataJadwal, meta) {
             const { namaSekolah = "SDIT QURRATU A'YUN MAROS", tahun = "2024/2025", kelas = "Semua Kelas", guru = "Semua Guru", wali = "" } = meta;
 
@@ -1395,7 +1459,7 @@
             let cardsHTML = "";
             hariConfig.forEach((h, idx) => {
                 let rawJadwal = dataJadwal.filter(j => normalisasiHariKey(j.hari) === h.key);
-                let cleanJadwal = rapihkanJadwalPerHari(rawJadwal);
+                let cleanJadwal = gabungMapelUntukPoster(rawJadwal);
 
                 if (h.key === "sabtu" && cleanJadwal.length === 0) {
                     const hk = cfg.hikmah;
@@ -1444,16 +1508,21 @@
 
                 let rowsHTML = "";
                 if (cleanJadwal.length === 0) {
-                    rowsHTML = '<div style="height: 100%; min-height: 180px; display: flex; align-items: center; justify-content: center; text-align: center; color: ' + cfg.guruColor + '; font-size: 10px; font-weight: 700; font-style: italic; padding: 10px;">' + cfg.accentIcon + ' ' + cfg.emptyText + '</div>';
+                    rowsHTML = '<div style="height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; text-align: center; color: ' + cfg.guruColor + '; font-size: 10px; font-weight: 700; font-style: italic; padding: 10px;">' + cfg.accentIcon + ' ' + cfg.emptyText + '</div>';
                 } else {
-                    rowsHTML = '<div style="padding: 2px 1px; display: flex; flex-direction: column; gap: 1px;">';
+                    rowsHTML = '<div style="padding: 3px 2px; display: flex; flex-direction: column; gap: 1.5px;">';
                     cleanJadwal.forEach(item => {
-                        rowsHTML += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 6px; border-bottom: 1px dashed rgba(150,150,150,0.18); gap: 4px;">' +
-                            '<div style="flex: 1; min-width: 0; line-height: 1.15;">' +
-                            '<div style="font-size: 10px; font-weight: 800; color: ' + cfg.mapelColor + '; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + item.mapel + '</div>' +
-                            '<div style="font-size: 8px; font-weight: 600; color: ' + cfg.guruColor + '; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + (item.guru || '—') + '</div>' +
+                        let jpLabel = item.totalJP + 'JP';
+                        let waktuLabel = item.waktuAwal + ' - ' + item.waktuAkhir;
+                        rowsHTML += '<div style="display: flex; align-items: center; padding: 2.5px 6px; border-bottom: 1px dashed rgba(150,150,150,0.18); gap: 4px;">' +
+                            '<div style="flex: 1; min-width: 0; line-height: 1.2;">' +
+                            '<div style="font-size: 10px; font-weight: 800; color: ' + cfg.mapelColor + '; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px;">' +
+                            '<span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + item.mapel + '</span>' +
+                            '<span style="background: ' + cfg.badgeBg + '; color: ' + (cfg.badgeColor || '#fff') + '; font-size: 7px; font-weight: 900; border-radius: 4px; padding: 1px 4px; white-space: nowrap; flex-shrink: 0; line-height: 1.1;">' + jpLabel + '</span>' +
                             '</div>' +
-                            '<span style="background: ' + cfg.timeBg + '; color: ' + cfg.timeColor + '; font-size: 8px; font-weight: 800; border-radius: 5px; padding: 1.5px 4.5px; white-space: nowrap; shrink: 0; line-height: 1;">' + (item.waktu || item.jam_ke || '') + '</span>' +
+                            '<div style="font-size: 7.5px; font-weight: 600; color: ' + cfg.guruColor + '; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + (item.guru || '—') + '</div>' +
+                            '</div>' +
+                            '<span style="background: ' + cfg.timeBg + '; color: ' + cfg.timeColor + '; font-size: 7.5px; font-weight: 800; border-radius: 5px; padding: 1.5px 4px; white-space: nowrap; flex-shrink: 0; line-height: 1;">' + waktuLabel + '</span>' +
                             '</div>';
                     });
                     if (h.key === "jumat" && cleanJadwal.length <= 4) {
