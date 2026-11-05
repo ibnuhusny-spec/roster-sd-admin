@@ -1510,37 +1510,42 @@
                 if (cleanJadwal.length === 0) {
                     rowsHTML = '<div style="height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; text-align: center; color: ' + cfg.guruColor + '; font-size: 10px; font-weight: 700; font-style: italic; padding: 10px;">' + cfg.accentIcon + ' ' + cfg.emptyText + '</div>';
                 } else {
-                    rowsHTML = '<div style="padding: 3px 2px; display: flex; flex-direction: column;">';
                     const totalItem = cleanJadwal.length;
-                    // Padding dinamis agar kartu dengan 8 mapel tetap lega dan tidak menyentuh garis bawah
-                    const padRow = totalItem >= 8 ? '2px 8px 3px 8px' : (totalItem >= 6 ? '3.5px 8px 4px 8px' : '5px 8px 5.5px 8px');
+                    // Jarak vertikal presisi: mapel 8 tetap lega, mapel 4 seimbang
+                    const padV = totalItem >= 8 ? '2px' : (totalItem >= 6 ? '3.5px' : '5px');
                     const fontMapel = totalItem >= 8 ? '10px' : '10.5px';
                     const fontGuru = totalItem >= 8 ? '7.5px' : '8px';
+
+                    rowsHTML = '<div style="padding: 2px 4px; box-sizing: border-box;"><table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; padding: 0;">';
 
                     cleanJadwal.forEach((item, itemIdx) => {
                         let jpLabel = item.totalJP + 'JP';
                         let waktuLabel = item.waktuAwal + ' - ' + item.waktuAkhir;
                         let mapelBersih = (item.mapel || '').trim();
-                        if (mapelBersih.length > 21) mapelBersih = mapelBersih.slice(0, 20) + '…';
+                        if (mapelBersih.length > 20) mapelBersih = mapelBersih.slice(0, 19) + '…';
                         let guruBersih = (item.guru || '—').trim();
-                        if (guruBersih.length > 23) guruBersih = guruBersih.slice(0, 22) + '…';
+                        if (guruBersih.length > 22) guruBersih = guruBersih.slice(0, 21) + '…';
 
                         const isTerakhir = (itemIdx === totalItem - 1);
-                        const garisBawah = isTerakhir ? 'none' : '1px dashed rgba(150,150,150,0.2)';
+                        const borderBottomCSS = isTerakhir ? '' : 'border-bottom: 1px dashed rgba(150,150,150,0.22);';
 
-                        rowsHTML += '<div style="display: flex; align-items: center; justify-content: space-between; padding: ' + padRow + '; border-bottom: ' + garisBawah + '; box-sizing: border-box;">' +
-                            '<div style="flex: 1; min-width: 120px; display: flex; flex-direction: column; justify-content: center;">' +
-                            '<div style="display: flex; align-items: center; gap: 5px; line-height: 1.2;">' +
+                        rowsHTML += '<tr style="' + borderBottomCSS + '">' +
+                            '<td style="padding: ' + padV + ' 4px; vertical-align: middle; text-align: left; overflow: hidden;">' +
+                            '<div style="line-height: 1.25;">' +
                             '<span style="font-size: ' + fontMapel + '; font-weight: 800; color: ' + cfg.mapelColor + '; white-space: nowrap;">' + mapelBersih + '</span>' +
-                            '<span style="background: ' + cfg.badgeBg + '; color: ' + (cfg.badgeColor || '#fff') + '; font-size: 7px; font-weight: 900; border-radius: 4px; padding: 1px 4.5px; white-space: nowrap; flex-shrink: 0; line-height: 1; display: inline-flex; align-items: center; justify-content: center; height: 12px;">' + jpLabel + '</span>' +
+                            '<span style="background: ' + cfg.badgeBg + '; color: ' + (cfg.badgeColor || '#fff') + '; font-size: 7px; font-weight: 800; border-radius: 4px; padding: 0.5px 4px; margin-left: 5px; white-space: nowrap; display: inline-block; vertical-align: middle; line-height: 12px; height: 12px;">' + jpLabel + '</span>' +
                             '</div>' +
-                            '<div style="font-size: ' + fontGuru + '; font-weight: 600; color: ' + cfg.guruColor + '; white-space: nowrap; margin-top: 1.5px; line-height: 1.1;">' + guruBersih + '</div>' +
-                            '</div>' +
-                            '<span style="font-family: monospace, monospace; font-size: 7.5px; font-weight: 800; color: ' + cfg.timeColor + '; background: ' + cfg.timeBg + '; border-radius: 5px; padding: 2px 5px; white-space: nowrap; flex-shrink: 0; line-height: 1.1; display: inline-flex; align-items: center; justify-content: center; margin-left: 6px;">' + waktuLabel + '</span>' +
-                            '</div>';
+                            '<div style="font-size: ' + fontGuru + '; font-weight: 600; color: ' + cfg.guruColor + '; white-space: nowrap; margin-top: 2px; line-height: 1.15;">' + guruBersih + '</div>' +
+                            '</td>' +
+                            '<td style="width: 78px; padding: ' + padV + ' 2px; vertical-align: middle; text-align: right; white-space: nowrap;">' +
+                            '<span style="font-family: monospace, monospace; font-size: 7.5px; font-weight: 800; color: ' + cfg.timeColor + '; background: ' + cfg.timeBg + '; border-radius: 5px; padding: 2px 5px; display: inline-block; line-height: 1.1;">' + waktuLabel + '</span>' +
+                            '</td>' +
+                            '</tr>';
                     });
+                    rowsHTML += '</table>';
+
                     if (h.key === "jumat" && cleanJadwal.length <= 4) {
-                        rowsHTML += '<div style="margin-top: 6px; padding: 4px 6px; background: rgba(16, 185, 129, 0.12); border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 7.5px; font-weight: 800; color: ' + (templateId === "galaxy" ? "#6EE7B7" : "#047857") + ';">' +
+                        rowsHTML += '<div style="margin: 6px 4px 2px 4px; padding: 4px 6px; background: rgba(16, 185, 129, 0.12); border-radius: 7px; text-align: center; font-size: 7.5px; font-weight: 800; color: ' + (templateId === "galaxy" ? "#6EE7B7" : "#047857") + ';">' +
                             '<span>🕌</span> <span>Sunnah Jum\'at: Sholat Jum\'at & Perbanyak Shalawat</span>' +
                             '</div>';
                     }
