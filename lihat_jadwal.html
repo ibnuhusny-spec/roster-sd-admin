@@ -1464,7 +1464,7 @@
                 if (h.key === "sabtu" && cleanJadwal.length === 0) {
                     const hk = cfg.hikmah;
                     cardsHTML += '<div style="min-height: 200px; background: ' + hk.bodyBg + '; border: ' + hk.border + '; border-radius: 14px; box-shadow: ' + cfg.cardShadow + '; display: flex; flex-direction: column;">' +
-                        '<div style="background: ' + hk.headerBg + '; padding: 4.5px 10px; display: flex; align-items: center; justify-content: space-between; color: white; shrink: 0;">' +
+                        '<div style="background: ' + hk.headerBg + '; padding: 4.5px 10px; display: flex; align-items: center; justify-content: space-between; color: white; flex-shrink: 0;">' +
                         '<span style="font-size: 11px; font-weight: 900;  text-transform: uppercase; display: flex; align-items: center; gap: 5px;">' +
                         hk.title +
                         '</span>' +
@@ -1512,11 +1512,11 @@
                 } else {
                     const totalItem = cleanJadwal.length;
                     // Jarak vertikal presisi: mapel 8 tetap lega, mapel 4 seimbang
-                    const padV = totalItem >= 8 ? '2px' : (totalItem >= 6 ? '3.5px' : '5px');
+                    const padV = totalItem >= 8 ? '2px' : (totalItem >= 6 ? '3px' : '3.5px');
                     const fontMapel = totalItem >= 8 ? '10px' : '10.5px';
                     const fontGuru = totalItem >= 8 ? '7.5px' : '8px';
 
-                    rowsHTML = '<div style="padding: 2px 4px; box-sizing: border-box;"><table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; padding: 0;">';
+                    rowsHTML = '<div style="padding: 2px 5px 6px 5px; box-sizing: border-box;"><table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; padding: 0;">';
 
                     cleanJadwal.forEach((item, itemIdx) => {
                         let jpLabel = item.totalJP + 'JP';
@@ -1553,7 +1553,7 @@
                 }
 
                 cardsHTML += '<div style="min-height: 200px; background: ' + cfg.cardBg + '; border: ' + cfg.cardBorder + '; border-radius: 14px; box-shadow: ' + cfg.cardShadow + '; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box;">' +
-                    '<div style="background: ' + headerBg + '; padding: 4.5px 10px; display: flex; align-items: center; justify-content: space-between; color: white; shrink: 0;">' +
+                    '<div style="background: ' + headerBg + '; padding: 4.5px 10px; display: flex; align-items: center; justify-content: space-between; color: white; flex-shrink: 0;">' +
                     '<span style="font-size: 11px; font-weight: 900;  text-transform: uppercase; display: flex; align-items: center; gap: 5px;">' +
                     '<span>' + iconHari + '</span> ' + h.display +
                     '</span>' +
@@ -1566,7 +1566,7 @@
             const waliHTML = wali ? '<span style="font-weight: 700; opacity: 0.9;">Wali Kelas: <b>' + wali + '</b></span>' : "";
 
             return '<div style="width: 960px; min-height: 650px; background: ' + cfg.bgContainer + '; border: ' + cfg.borderContainer + '; border-radius: 20px; padding: 12px 16px; box-sizing: border-box; font-family: Outfit, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; position: relative; margin: 0 auto; color: #1E293B; display: flex; flex-direction: column; justify-content: space-between;">' +
-                '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; border-bottom: 2px solid rgba(150,150,150,0.18); padding-bottom: 5px; shrink: 0;">' +
+                '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; border-bottom: 2px solid rgba(150,150,150,0.18); padding-bottom: 5px; flex-shrink: 0;">' +
                 '<div style="display: flex; align-items: center; gap: 10px;">' +
                 '<div style="font-size: 30px; line-height: 1;">' + cfg.accentIcon + '</div>' +
                 '<div>' +
@@ -1580,7 +1580,7 @@
                 '</div>' +
                 '</div>' +
                 '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex: 1; align-content: start;">' + cardsHTML + '</div>' +
-                '<div style="margin-top: 5px; padding-top: 4px; border-top: 1.5px solid rgba(150,150,150,0.18); display: flex; align-items: center; justify-content: space-between; font-size: 9.5px; font-weight: 800; color: ' + cfg.titleColor + '; shrink: 0;">' +
+                '<div style="margin-top: 5px; padding-top: 4px; border-top: 1.5px solid rgba(150,150,150,0.18); display: flex; align-items: center; justify-content: space-between; font-size: 9.5px; font-weight: 800; color: ' + cfg.titleColor + '; flex-shrink: 0;">' +
                 '<div>' + cfg.quote + '</div>' +
                 '<div style="opacity: 0.85; ">RosterKu Pro • Digital School System</div>' +
                 '</div>' +
@@ -1782,7 +1782,7 @@
             }
         };
 
-        window.prosesDownloadPNG = function () {
+        window.prosesDownloadPNG = async function () {
             const btn = document.getElementById('btnDownloadPNG') || document.getElementById('btnDownloadPNGAdmin');
             const originalText = btn ? btn.innerHTML : "<span>🖼️</span> Unduh Gambar";
 
@@ -1841,7 +1841,7 @@
                 let namaFilePNG = "Roster_" + tpl;
                 if (kelasAktif !== "Semua") namaFilePNG += "_Kls_" + kelasAktif;
                 if (guruAktif !== "Semua") namaFilePNG += "_Guru_" + guruAktif;
-                namaFilePNG = namaFilePNG.replace(/[\\/?*[\]:]/g, "_") + ".png";
+                namaFilePNG = namaFilePNG.replace(/[\/?*[\]:]/g, "_") + ".png";
 
                 if (tpl === 'formal') {
                     targetHTML = buatTabelFormalHTML(dataExport, {
@@ -1866,23 +1866,24 @@
                     });
                 }
 
-                // Render di luar layar dengan opacity penuh agar tidak transparan saat dipotret html2canvas
-                const container = document.createElement('div');
-                container.style.position = 'absolute';
-                container.style.left = '-9999px';
-                container.style.top = '0';
-                container.style.width = '1020px';
-                container.style.zIndex = '-9999';
-                container.style.pointerEvents = 'none';
-                container.style.overflow = 'visible';
-                container.innerHTML = targetHTML;
-                document.body.appendChild(container);
+                if (document.fonts) {
+                    try { await document.fonts.ready; } catch(e) {}
+                }
 
-                const el = container.firstElementChild || container;
+                const element = document.createElement('div');
+                element.innerHTML = targetHTML;
 
-                const triggerDownload = function (canvas) {
+                const opsi = {
+                    margin: (tpl === 'formal') ? 0.35 : [0.12, 0.12, 0.12, 0.12],
+                    pagebreak: { avoid: 'tr' },
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+                };
+
+                const triggerDownload = function (c) {
                     try {
-                        const url = canvas.toDataURL('image/png');
+                        const url = c.toDataURL('image/png');
                         const a = document.createElement('a');
                         a.download = namaFilePNG;
                         a.href = url;
@@ -1890,58 +1891,49 @@
                         a.click();
                         setTimeout(() => {
                             if (a.parentNode) document.body.removeChild(a);
-                            if (container.parentNode) document.body.removeChild(container);
                             if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
                             if (typeof tutupModal === 'function') tutupModal('modalExportExcel');
                         }, 600);
                     } catch (err) {
                         console.error("Gagal simpan URL canvas:", err);
-                        cleanUpOnError("Gagal mengekspor gambar dari canvas: " + err.message);
+                        if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+                        alert("Gagal mengekspor gambar dari canvas: " + err.message);
                     }
                 };
 
-                const cleanUpOnError = function (msg) {
-                    if (container.parentNode) document.body.removeChild(container);
-                    if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
-                    alert(msg);
-                };
+                const worker = html2pdf().set(opsi).from(element);
+                worker.toContainer().toCanvas().then(function (canvas) {
+                    const c = canvas || (worker.prop && worker.prop.canvas);
+                    if (!c) throw new Error("Gagal mengenerate canvas.");
+                    triggerDownload(c);
+                }).catch(err => {
+                    console.error("html2pdf toCanvas error, mencoba fallback html2canvas...", err);
+                    const container = document.createElement('div');
+                    container.style.position = 'fixed';
+                    container.style.left = '0';
+                    container.style.top = '0';
+                    container.style.width = '1020px';
+                    container.style.zIndex = '-99999';
+                    container.style.opacity = '0';
+                    container.style.pointerEvents = 'none';
+                    container.innerHTML = targetHTML;
+                    document.body.appendChild(container);
+                    const el = container.firstElementChild || container;
 
-                function jalankanFallbackToCanvas() {
-                    if (typeof html2pdf !== 'undefined') {
-                        html2pdf().set({
-                            html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 1020 }
-                        }).from(el).toCanvas().then(triggerDownload).catch(err => {
-                            cleanUpOnError("Gagal membuat gambar: " + err.message);
-                        });
-                    } else {
-                        cleanUpOnError("Pustaka canvas belum siap. Silakan muat ulang halaman.");
-                    }
-                }
+                    html2canvas(el, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: null
+                    }).then(c => {
+                        if (container.parentNode) document.body.removeChild(container);
+                        triggerDownload(c);
+                    }).catch(finalErr => {
+                        if (container.parentNode) document.body.removeChild(container);
+                        if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+                        alert("Gagal memproses gambar: " + finalErr.message);
+                    });
+                });
 
-                // Beri jeda & tunggu seluruh font Google selesai dimuat agar teks tajam sempurna
-                const jalankanCapture = async function() {
-                    if (document.fonts) {
-                        try { await document.fonts.ready; } catch(e) {}
-                    }
-                    if (typeof html2canvas !== 'undefined') {
-                        html2canvas(el, {
-                            scale: 2,
-                            useCORS: true,
-                            backgroundColor: null,
-                            scrollX: 0,
-                            scrollY: 0,
-                            windowWidth: 1020,
-                            height: el.scrollHeight,
-                            width: el.scrollWidth
-                        }).then(triggerDownload).catch(err => {
-                            console.warn("html2canvas gagal, mencoba fallback html2pdf toCanvas...", err);
-                            jalankanFallbackToCanvas();
-                        });
-                    } else {
-                        jalankanFallbackToCanvas();
-                    }
-                };
-                setTimeout(jalankanCapture, 500);
             } catch (e) {
                 console.error("Exception prosesDownloadPNG:", e);
                 if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
