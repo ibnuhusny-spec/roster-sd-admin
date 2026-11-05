@@ -1220,7 +1220,7 @@
                     bgContainer: "linear-gradient(135deg, #FFFBEB 0%, #EFF6FF 50%, #FDF2F8 100%)",
                     borderContainer: "5px solid #FCD34D",
                     titleColor: "#1E3A8A",
-                    titleShadow: "2px 2px 0px #FDE047, 3px 3px 0px #F59E0B",
+                    titleShadow: "none",
                     badgeBg: "#F59E0B",
                     badgeColor: "#1E293B",
                     cardBg: "#FFFFFF",
@@ -1267,7 +1267,7 @@
                     bgContainer: "radial-gradient(circle at 15% 15%, #1E1B4B 0%, #0F172A 50%, #030712 100%)",
                     borderContainer: "5px solid #6366F1",
                     titleColor: "#38BDF8",
-                    titleShadow: "0 0 10px rgba(56,189,248,0.8), 0 0 20px rgba(129,140,248,0.6)",
+                    titleShadow: "none",
                     badgeBg: "rgba(99, 102, 241, 0.35)",
                     badgeColor: "#C7D2FE",
                     badgeBorder: "1.5px solid #818CF8",
@@ -1315,7 +1315,7 @@
                     bgContainer: "linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 50%, #FDF2F8 100%)",
                     borderContainer: "5px solid #FDA4AF",
                     titleColor: "#E11D48",
-                    titleShadow: "2px 2px 0px #FECDD3, 3px 3px 0px #FDA4AF",
+                    titleShadow: "none",
                     badgeBg: "#FB7185",
                     badgeColor: "#FFFFFF",
                     cardBg: "#FFFFFF",
@@ -1362,7 +1362,7 @@
                     bgContainer: "linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 40%, #FEF3C7 100%)",
                     borderContainer: "5px solid #92400E",
                     titleColor: "#78350F",
-                    titleShadow: "2px 2px 0px #FDE68A, 3px 3px 0px #D97706",
+                    titleShadow: "none",
                     badgeBg: "#D97706",
                     badgeColor: "#FFFFFF",
                     cardBg: "#FFFBEB",
@@ -1409,7 +1409,7 @@
                     bgContainer: "linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 50%, #CCFBF1 100%)",
                     borderContainer: "5px solid #0284C7",
                     titleColor: "#0369A1",
-                    titleShadow: "2px 2px 0px #BAE6FD, 3px 3px 0px #0284C7",
+                    titleShadow: "none",
                     badgeBg: "#0284C7",
                     badgeColor: "#FFFFFF",
                     cardBg: "rgba(255, 255, 255, 0.96)",
@@ -1511,23 +1511,32 @@
                     rowsHTML = '<div style="height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; text-align: center; color: ' + cfg.guruColor + '; font-size: 10px; font-weight: 700; font-style: italic; padding: 10px;">' + cfg.accentIcon + ' ' + cfg.emptyText + '</div>';
                 } else {
                     rowsHTML = '<div style="padding: 3px 2px; display: flex; flex-direction: column;">';
-                    cleanJadwal.forEach(item => {
+                    const totalItem = cleanJadwal.length;
+                    // Padding dinamis agar kartu dengan 8 mapel tetap lega dan tidak menyentuh garis bawah
+                    const padRow = totalItem >= 8 ? '2px 8px 3px 8px' : (totalItem >= 6 ? '3.5px 8px 4px 8px' : '5px 8px 5.5px 8px');
+                    const fontMapel = totalItem >= 8 ? '10px' : '10.5px';
+                    const fontGuru = totalItem >= 8 ? '7.5px' : '8px';
+
+                    cleanJadwal.forEach((item, itemIdx) => {
                         let jpLabel = item.totalJP + 'JP';
                         let waktuLabel = item.waktuAwal + ' - ' + item.waktuAkhir;
                         let mapelBersih = (item.mapel || '').trim();
-                        if (mapelBersih.length > 20) mapelBersih = mapelBersih.slice(0, 19) + '…';
+                        if (mapelBersih.length > 21) mapelBersih = mapelBersih.slice(0, 20) + '…';
                         let guruBersih = (item.guru || '—').trim();
-                        if (guruBersih.length > 22) guruBersih = guruBersih.slice(0, 21) + '…';
+                        if (guruBersih.length > 23) guruBersih = guruBersih.slice(0, 22) + '…';
 
-                        rowsHTML += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 2.5px 6px; border-bottom: 1px dashed rgba(150,150,150,0.18); margin-bottom: 1.5px;">' +
-                            '<div style="flex: 1; min-width: 130px; line-height: 1.3;">' +
-                            '<div style="display: flex; align-items: center;">' +
-                            '<span style="font-size: 10.5px; font-weight: 800; color: ' + cfg.mapelColor + '; white-space: nowrap; margin-right: 4px;">' + mapelBersih + '</span>' +
-                            '<span style="background: ' + cfg.badgeBg + '; color: ' + (cfg.badgeColor || '#fff') + '; font-size: 7px; font-weight: 900; border-radius: 4px; padding: 1px 4px; white-space: nowrap; flex-shrink: 0; line-height: 1.1;">' + jpLabel + '</span>' +
+                        const isTerakhir = (itemIdx === totalItem - 1);
+                        const garisBawah = isTerakhir ? 'none' : '1px dashed rgba(150,150,150,0.2)';
+
+                        rowsHTML += '<div style="display: flex; align-items: center; justify-content: space-between; padding: ' + padRow + '; border-bottom: ' + garisBawah + '; box-sizing: border-box;">' +
+                            '<div style="flex: 1; min-width: 120px; display: flex; flex-direction: column; justify-content: center;">' +
+                            '<div style="display: flex; align-items: center; gap: 5px; line-height: 1.2;">' +
+                            '<span style="font-size: ' + fontMapel + '; font-weight: 800; color: ' + cfg.mapelColor + '; white-space: nowrap;">' + mapelBersih + '</span>' +
+                            '<span style="background: ' + cfg.badgeBg + '; color: ' + (cfg.badgeColor || '#fff') + '; font-size: 7px; font-weight: 900; border-radius: 4px; padding: 1px 4.5px; white-space: nowrap; flex-shrink: 0; line-height: 1; display: inline-flex; align-items: center; justify-content: center; height: 12px;">' + jpLabel + '</span>' +
                             '</div>' +
-                            '<div style="font-size: 8px; font-weight: 600; color: ' + cfg.guruColor + '; white-space: nowrap;">' + guruBersih + '</div>' +
+                            '<div style="font-size: ' + fontGuru + '; font-weight: 600; color: ' + cfg.guruColor + '; white-space: nowrap; margin-top: 1.5px; line-height: 1.1;">' + guruBersih + '</div>' +
                             '</div>' +
-                            '<span style="background: ' + cfg.timeBg + '; color: ' + cfg.timeColor + '; font-size: 7.5px; font-weight: 800; border-radius: 5px; padding: 1.5px 4px; white-space: nowrap; flex-shrink: 0; line-height: 1;">' + waktuLabel + '</span>' +
+                            '<span style="font-family: monospace, monospace; font-size: 7.5px; font-weight: 800; color: ' + cfg.timeColor + '; background: ' + cfg.timeBg + '; border-radius: 5px; padding: 2px 5px; white-space: nowrap; flex-shrink: 0; line-height: 1.1; display: inline-flex; align-items: center; justify-content: center; margin-left: 6px;">' + waktuLabel + '</span>' +
                             '</div>';
                     });
                     if (h.key === "jumat" && cleanJadwal.length <= 4) {
@@ -1538,7 +1547,7 @@
                     rowsHTML += '</div>';
                 }
 
-                cardsHTML += '<div style="min-height: 200px; background: ' + cfg.cardBg + '; border: ' + cfg.cardBorder + '; border-radius: 14px; box-shadow: ' + cfg.cardShadow + '; display: flex; flex-direction: column;">' +
+                cardsHTML += '<div style="min-height: 200px; background: ' + cfg.cardBg + '; border: ' + cfg.cardBorder + '; border-radius: 14px; box-shadow: ' + cfg.cardShadow + '; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box;">' +
                     '<div style="background: ' + headerBg + '; padding: 4.5px 10px; display: flex; align-items: center; justify-content: space-between; color: white; shrink: 0;">' +
                     '<span style="font-size: 11px; font-weight: 900;  text-transform: uppercase; display: flex; align-items: center; gap: 5px;">' +
                     '<span>' + iconHari + '</span> ' + h.display +
@@ -1556,7 +1565,7 @@
                 '<div style="display: flex; align-items: center; gap: 10px;">' +
                 '<div style="font-size: 30px; line-height: 1;">' + cfg.accentIcon + '</div>' +
                 '<div>' +
-                '<h1 style="margin: 0; font-size: 24px; font-weight: 900; line-height: 1.1; color: ' + cfg.titleColor + '; text-shadow: ' + cfg.titleShadow + '; ">JADWAL PELAJARAN</h1>' +
+                '<h1 style="margin: 0; font-size: 24px; font-weight: 900; line-height: 1.1; color: ' + cfg.titleColor + '; ">JADWAL PELAJARAN</h1>' +
                 '<div style="margin-top: 2px; font-size: 11px; font-weight: 800; color: ' + cfg.titleColor + '; opacity: 0.9;">' + namaSekolah + ' • TAHUN AJARAN ' + tahun + '</div>' +
                 '</div>' +
                 '</div>' +
